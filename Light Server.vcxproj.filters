@@ -43,6 +43,12 @@
     <ClCompile Include="src\LPI\SolidNonAnimatedLPI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LPI\AnimatedLPI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPI\SliderAnimatedLPI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -82,6 +88,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\LPI\SolidNonAnimatedLPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPI\AnimatedLPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPI\SliderAnimatedLPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
