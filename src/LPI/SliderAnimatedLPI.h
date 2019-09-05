@@ -26,6 +26,9 @@
 namespace LS {
 	class SliderAnimatedLPI : public AnimatedLPI {
 		protected:
+			bool startNear = false;
+			uint8_t sliderWidth = 0;
+
 			virtual bool const ValidateInstruction();
 		public:
 			/*!
@@ -36,7 +39,7 @@ namespace LS {
 			*/
 			SliderAnimatedLPI(LPIInstruction* lpiInstruction, const LEDConfig* ledConfig, StringProcessor* stringProcessor)
 				: AnimatedLPI(lpiInstruction, ledConfig, stringProcessor) {
-				this->opCode = 1;
+				this->opCode = 3;
 			}
 
 			virtual bool SliderAnimatedLPI::GetNextRI(FixedSizeCharBuffer* riBuffer);

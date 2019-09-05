@@ -157,4 +157,21 @@ namespace LS {
 
 		return lpi;
 	}
+
+	/*!
+	  @brief   Extracts a simple boolean value from a hex encoded string.
+	  @param   instructionString	 The pointer to the string that contains the hexidecimally encoded boolean.
+	  @param   isValid				 A reference to the boolean type that will be set to true if the string contains
+									 a valid boolean value.  If it is not valid then the value is set to false.
+	  @return  A boolean which is false if the hex-encoded value is 0 or true if the hex-encoded value is 1.
+	*/
+	const bool StringProcessor::ExtractBoolFromHexEncoded(const char* boolString, bool& isValid) {
+		// isValid = false;
+		// if (boolString == nullptr) return false;
+
+		isValid = boolString != nullptr && (*boolString == '0' || *boolString == '1');
+		bool boolValue = isValid && *boolString == '1';
+
+		return boolValue;
+	}
 }

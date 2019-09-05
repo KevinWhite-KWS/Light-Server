@@ -38,8 +38,31 @@ namespace LS {
 	const bool SliderAnimatedLPI::ValidateInstruction() {
 		char* pInstruction = this->lpiInstruction->GetLPIBuffer();
 
-		// Ensure a colour can be extract after the LPI
-		Colour solidColour = stringProcessor->ExtractColourFromHexEncoded(pInstruction, this->instructionIsValid);
+		// Attempt to get a valid width (first two hex characters)
+		// NOTE: max width of slider is noLEDS / 2
+		int maxSliderWidth = ledConfig->numberOfLEDs / 2;
+		this->sliderWidth = stringProcessor->ExtractNumberFromHexEncoded(pInstruction, 1, maxSliderWidth, this->instructionIsValid);
+		if (this->instructionIsValid == false) return false;
+
+		// Now, get the starting position of the slider which is either 0 (near)
+		// or 1 (far)
+		pInstruction += 2;
+		this->startNear = stringProcessor->ExtractBoolFromHexEncoded(pInstruction, this->instructionIsValid);
+		if (this->instructionIsValid == false) return false;
+
+		// Ensure the slider colour is valid
+		pInstruction += 1;
+		stringProcessor->ExtractColourFromHexEncoded(pInstruction, this->instructionIsValid);
+		if (this->instructionIsValid == false) return false;
+
+		// Ensure the background colour is valid
+		pInstruction += 6;
+		stringProcessor->ExtractColourFromHexEncoded(pInstruction, this->instructionIsValid);
+		if (this->instructionIsValid == false) return false;
+
+		// Finally, everything is good.  Now calculate the total number of steps
+		// involved in the animation effect.
+		this->totalSteps = this->ledConfig->numberOfLEDs - this->sliderWidth + 1;
 
 		return this->instructionIsValid;
 	}

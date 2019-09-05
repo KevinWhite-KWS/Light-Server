@@ -28,6 +28,8 @@ namespace LS {
 			const RI ExtractRIFromHexEncoded(const char* riString, bool& isValid);
 
 			const LPIInstruction ExtractLPIFromHexEncoded(const char* instructionString, bool& isValid);
+
+			const bool ExtractBoolFromHexEncoded(const char* instructionString, bool& isValid);
 		};
 
 }
