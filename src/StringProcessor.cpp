@@ -174,4 +174,24 @@ namespace LS {
 
 		return boolValue;
 	}
+
+	/*!
+	  @brief   Converts a uint8_t number to a hex-encoded string and adds the values
+			   to the put buffer.  Caller is reasonable for ensuring that the buffer
+			   is wide enough to accomodate the two hex characters.
+	  @param   putBuffer	The pointer to the buffer where the characters will be stored.
+	  @param   number		The number to be converted to a hex-encoded string.
+	*/
+	const void StringProcessor::ConvertNumberToHexEncoded(char* putBuffer, uint8_t number) {
+		if (putBuffer == nullptr) return;
+
+		char* pPutBuffer = putBuffer;
+		// Get the high nibble only
+		uint8_t nibble = (number & 240) >> 4;
+		*pPutBuffer++ = (nibble < 10 ? 48 + nibble : 55 + nibble);
+
+		// Now, deal with the low nibble only
+		nibble = (number & 15);
+		*pPutBuffer = (nibble < 10 ? 48 + nibble : 55 + nibble);
+	}
 }

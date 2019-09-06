@@ -28,7 +28,7 @@ namespace LS {
 	*/
 	class AnimatedLPI : public LPI {
 	protected:
-		uint16_t currentStep = 1;
+		uint16_t currentStep = 0;
 
 	public:
 		/*!

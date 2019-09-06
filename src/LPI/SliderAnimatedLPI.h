@@ -26,7 +26,7 @@
 namespace LS {
 	class SliderAnimatedLPI : public AnimatedLPI {
 		protected:
-			bool startNear = false;
+			bool startFar = false;
 			uint8_t sliderWidth = 0;
 
 			virtual bool const ValidateInstruction();
