@@ -33,13 +33,14 @@
 #include "src/LPI/ClearNonAnimatedLPI.h"
 #include "src/LPI/SolidNonAnimatedLPI.h"
 #include "src/FixedSizeCharBuffer.h"
+#include "src/LPI/SliderAnimatedLPI.h"
 
 uint32_t next = millis();
 uint32_t interval = 500;
 bool turnOn = true;
 
 #define		PIN		6
-#define		NUMLEDS	200
+#define		NUMLEDS	8
 
 #define		RENDERING_FRAME		1000
 
@@ -58,6 +59,7 @@ using LS::FixedSizeCharBuffer;
 using LS::ClearNonAnimatedLPI;
 using LS::SolidNonAnimatedLPI;
 using LS::LPIInstruction;
+using LS::SliderAnimatedLPI;
 
 FixedSizeCharBuffer riBuffer = FixedSizeCharBuffer(1000);
 StringProcessor stringProcessor = StringProcessor();
@@ -82,10 +84,53 @@ void setup() {
 
 void loop() {
 
-	TestLPIOutputToRender();
+	TestSliderOutputToRender();
+	// TestLPIOutputToRender();
 	// TestTimingOfRender()
 }
 
+#define SLIDER_NEAR	"03010000020FF000000FF00"
+#define SLIDER_FAR "03010000021FF000000FF00"
+bool startNear = true;
+LPIInstruction lpiIns = LPIInstruction();
+FixedSizeCharBuffer lpiBuffer = FixedSizeCharBuffer(1000);
+SliderAnimatedLPI* lpi = nullptr;
+void TestSliderOutputToRender() {
+	currentMillis = millis();
+
+	if (currentMillis >= nextSetRi) {
+		Serial.println("Time");
+
+
+		
+		if (lpi == nullptr) {
+			lpiIns.opcode = 3; lpiIns.duration = 1; lpiIns.lpi = &lpiBuffer;
+			lpiBuffer.ClearBuffer();
+			if (startNear)
+				lpiBuffer.LoadFromBuffer(SLIDER_NEAR);
+			else
+				lpiBuffer.LoadFromBuffer(SLIDER_FAR);
+			startNear = !startNear;
+
+			lpi = new SliderAnimatedLPI(&lpiIns, &ledConfig, &stringProcessor);
+			bool validated = lpi->Validate();
+			Serial.println(validated);
+		}
+
+		riBuffer.ClearBuffer();
+		lpi->GetNextRI(&riBuffer);
+		Serial.println(riBuffer.GetBuffer());
+		bool nextRi = render.SetRI(riBuffer.GetBuffer());
+		render.Render();
+
+		if (!nextRi) delete lpi;
+
+		nextSetRi = currentMillis + 1000;
+	}
+}
+
+
+/*
 bool currentColourIsRed = 0;
 #define SOLID_INS_RED	"01010000FF0000"
 #define SOLID_INS_BLUE	"010100000000FF"
@@ -120,8 +165,9 @@ void TestLPIOutputToRender() {
 		nextSetRi += 500;
 	}
 }
+*/
 
-
+/*
 void TestTimingOfRenderer() {
 	currentMillis = millis();
 
@@ -160,3 +206,4 @@ void TestTimingOfRenderer() {
 		Serial.println(nextRender);
 	}
 }
+*/
