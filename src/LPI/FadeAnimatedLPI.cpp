@@ -17,37 +17,22 @@ namespace LS {
 		int newR = 0, newG = 0, newB = 0;
 
 		if (this->fadeOut == false) {
-			newR = this->startColour.red + this->currentStep * this->step;
-			newR = min(newR, this->endColour.red);
-			newR = min(newR, 255);
-			newG = this->startColour.green + this->currentStep * this->step;
-			newG = min(newG, this->endColour.green);
-			newG = min(newG, 255);
-			newB = this->startColour.blue + this->currentStep * this->step;
-			newB = min(newB, this->endColour.blue);
-			newB = min(newB, 255);
+			newR = min(this->startColour.red + this->currentStep * this->step, this->endColour.red);
+			newG = min(this->startColour.green + this->currentStep * this->step, this->endColour.green);
+			newB = min(this->startColour.blue + this->currentStep * this->step, this->endColour.blue);
 		}
 		else {
-			newR = this->endColour.red - this->currentStep * this->step;
-			newR = max(newR, this->startColour.red);
-			newR = max(newR, 0);
-			newG = this->endColour.green - this->currentStep * this->step;
-			newG = max(newG, this->startColour.green);
-			newG = max(newG, 0);
-			newB = this->endColour.blue - this->currentStep * this->step;
-			newB = max(newB, this->startColour.blue);
-			newB = max(newB, 0);
+			newR = max(this->endColour.red - this->currentStep * this->step, this->startColour.red);
+			newG = max(this->endColour.green - this->currentStep * this->step, this->startColour.green);
+			newB = max(this->endColour.blue - this->currentStep * this->step, this->startColour.blue);
 		}
 
 		// Write the colours to the output RI buffer
 		char* pRiBuffer = riBuffer->GetBuffer();
 		this->stringProcessor->ConvertNumberToHexEncoded(pRiBuffer, newR);
-		pRiBuffer += 2;
-		this->stringProcessor->ConvertNumberToHexEncoded(pRiBuffer, newG);
-		pRiBuffer += 2;
-		this->stringProcessor->ConvertNumberToHexEncoded(pRiBuffer, newB);
-		pRiBuffer += 2;
-		this->stringProcessor->ConvertNumberToHexEncoded(pRiBuffer, this->ledConfig->numberOfLEDs);
+		this->stringProcessor->ConvertNumberToHexEncoded(pRiBuffer += 2, newG);
+		this->stringProcessor->ConvertNumberToHexEncoded(pRiBuffer += 2, newB);
+		this->stringProcessor->ConvertNumberToHexEncoded(pRiBuffer += 2, this->ledConfig->numberOfLEDs);
 
 		// increatment step for next animation frame
 		this->currentStep++;
