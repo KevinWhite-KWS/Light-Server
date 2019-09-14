@@ -52,6 +52,9 @@
     <ClCompile Include="src\LPI\PatternNonAnimatedLPI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LPI\FadeAnimatedLPI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -100,6 +103,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\LPI\PatternNonAnimatedLPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPI\FadeAnimatedLPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
