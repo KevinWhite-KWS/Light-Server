@@ -127,6 +127,7 @@
     <ClInclude Include="src\LPI\PatternNonAnimatedLPI.h" />
     <ClInclude Include="src\LPI\SliderAnimatedLPI.h" />
     <ClInclude Include="src\LPI\SolidNonAnimatedLPI.h" />
+    <ClInclude Include="src\LPI\StochasticNonAnimatedLPI.h" />
     <ClInclude Include="src\pins_arduino.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\StringProcessor.h" />
@@ -145,6 +146,7 @@
     <ClCompile Include="src\LPI\PatternNonAnimatedLPI.cpp" />
     <ClCompile Include="src\LPI\SliderAnimatedLPI.cpp" />
     <ClCompile Include="src\LPI\SolidNonAnimatedLPI.cpp" />
+    <ClCompile Include="src\LPI\StochasticNonAnimatedLPI.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\StringProcessor.cpp" />
   </ItemGroup>

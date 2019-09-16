@@ -34,6 +34,7 @@
 #include "src/LPI/SolidNonAnimatedLPI.h"
 #include "src/FixedSizeCharBuffer.h"
 #include "src/LPI/SliderAnimatedLPI.h"
+#include "src/LPI/StochasticNonAnimatedLPI.h"
 
 uint32_t next = millis();
 uint32_t interval = 500;
@@ -60,6 +61,7 @@ using LS::ClearNonAnimatedLPI;
 using LS::SolidNonAnimatedLPI;
 using LS::LPIInstruction;
 using LS::SliderAnimatedLPI;
+using LS::StochasticNonAnimatedLPI;
 
 FixedSizeCharBuffer riBuffer = FixedSizeCharBuffer(1000);
 StringProcessor stringProcessor = StringProcessor();
@@ -84,50 +86,79 @@ void setup() {
 
 void loop() {
 
-	TestSliderOutputToRender();
+	// TestSliderOutputToRender();
 	// TestLPIOutputToRender();
 	// TestTimingOfRender()
+	TestStochasticOutputToRender();
 }
 
-#define SLIDER_NEAR	"03010000020FF000000FF00"
-#define SLIDER_FAR "03010000021FF000000FF00"
-bool startNear = true;
+#define STOCHASTIC_RGB	"0501000003FF000000FF000000FF"
+#define STOCHASTIC_RBlack	"0501000002FF0000000000"
 LPIInstruction lpiIns = LPIInstruction();
 FixedSizeCharBuffer lpiBuffer = FixedSizeCharBuffer(1000);
-SliderAnimatedLPI* lpi = nullptr;
-void TestSliderOutputToRender() {
+void TestStochasticOutputToRender() {
 	currentMillis = millis();
 
 	if (currentMillis >= nextSetRi) {
 		Serial.println("Time");
 
-
-		
-		if (lpi == nullptr) {
-			lpiIns.opcode = 3; lpiIns.duration = 1; lpiIns.lpi = &lpiBuffer;
-			lpiBuffer.ClearBuffer();
-			if (startNear)
-				lpiBuffer.LoadFromBuffer(SLIDER_NEAR);
-			else
-				lpiBuffer.LoadFromBuffer(SLIDER_FAR);
-			startNear = !startNear;
-
-			lpi = new SliderAnimatedLPI(&lpiIns, &ledConfig, &stringProcessor);
-			bool validated = lpi->Validate();
-			Serial.println(validated);
-		}
+		lpiIns.opcode = 5; lpiIns.duration = 1; lpiIns.lpi = &lpiBuffer;
+		lpiBuffer.ClearBuffer();
+		lpiBuffer.LoadFromBuffer(STOCHASTIC_RBlack);
+		StochasticNonAnimatedLPI lpi = StochasticNonAnimatedLPI(&lpiIns, &ledConfig, &stringProcessor);
+		bool validated = lpi.Validate();
+		Serial.println(validated);
 
 		riBuffer.ClearBuffer();
-		lpi->GetNextRI(&riBuffer);
+		lpi.GetNextRI(&riBuffer);
 		Serial.println(riBuffer.GetBuffer());
 		bool nextRi = render.SetRI(riBuffer.GetBuffer());
 		render.Render();
 
-		if (!nextRi) delete lpi;
 
 		nextSetRi = currentMillis + 1000;
 	}
 }
+
+//#define SLIDER_NEAR	"03010000020FF000000FF00"
+//#define SLIDER_FAR "03010000021FF000000FF00"
+//bool startNear = true;
+//LPIInstruction lpiIns = LPIInstruction();
+//FixedSizeCharBuffer lpiBuffer = FixedSizeCharBuffer(1000);
+//SliderAnimatedLPI* lpi = nullptr;
+//void TestSliderOutputToRender() {
+//	currentMillis = millis();
+//
+//	if (currentMillis >= nextSetRi) {
+//		Serial.println("Time");
+//
+//
+//		
+//		if (lpi == nullptr) {
+//			lpiIns.opcode = 3; lpiIns.duration = 1; lpiIns.lpi = &lpiBuffer;
+//			lpiBuffer.ClearBuffer();
+//			if (startNear)
+//				lpiBuffer.LoadFromBuffer(SLIDER_NEAR);
+//			else
+//				lpiBuffer.LoadFromBuffer(SLIDER_FAR);
+//			startNear = !startNear;
+//
+//			lpi = new SliderAnimatedLPI(&lpiIns, &ledConfig, &stringProcessor);
+//			bool validated = lpi->Validate();
+//			Serial.println(validated);
+//		}
+//
+//		riBuffer.ClearBuffer();
+//		lpi->GetNextRI(&riBuffer);
+//		Serial.println(riBuffer.GetBuffer());
+//		bool nextRi = render.SetRI(riBuffer.GetBuffer());
+//		render.Render();
+//
+//		if (!nextRi) delete lpi;
+//
+//		nextSetRi = currentMillis + 1000;
+//	}
+//}
 
 
 /*
