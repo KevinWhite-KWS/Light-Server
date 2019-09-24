@@ -119,6 +119,7 @@
     <ClInclude Include="src\Adafruit_NeoPixel.h" />
     <ClInclude Include="src\DomainInterfaces.h" />
     <ClInclude Include="src\FixedSizeCharBuffer.h" />
+    <ClInclude Include="src\LPE.h" />
     <ClInclude Include="src\LPI\AnimatedLPI.h" />
     <ClInclude Include="src\LPI\BlocksNonAnimatedLPI.h" />
     <ClInclude Include="src\LPI\ClearNonAnimatedLPI.h" />
@@ -139,6 +140,7 @@
   <ItemGroup>
     <ClCompile Include="src\Adafruit_NeoPixel.cpp" />
     <ClCompile Include="src\FixedSizeCharBuffer.cpp" />
+    <ClCompile Include="src\LPE.cpp" />
     <ClCompile Include="src\LPI\AnimatedLPI.cpp" />
     <ClCompile Include="src\LPI\BlocksNonAnimatedLPI.cpp" />
     <ClCompile Include="src\LPI\ClearNonAnimatedLPI.cpp" />

@@ -41,7 +41,7 @@ namespace LS {
 			virtual const bool ValidateInstruction() = 0;
 		
 		public:
-			LPI(LPIInstruction* lpiInstruction, const LEDConfig* ledConfig, StringProcessor* stringProcessor);
+			LPI(const LEDConfig* ledConfig, StringProcessor* stringProcessor);
 
 			bool Validate();
 
@@ -56,6 +56,18 @@ namespace LS {
 			const static uint8_t GetOpCode() {
 				return 0;
 			};
+
+			/*!
+			  @brief	Resets the state of the LPI by loading in new a new LPI instruction
+						and resetting variables, re-calcuating the number of steps (for animated
+						LPIs).
+			  @returns	bool	True if the LPI instruction is valid or false otherwise.
+			*/
+			bool Reset(LPIInstruction* lpiInstruction) {
+				this->lpiInstruction = lpiInstruction;
+
+				return this->Validate();
+			}
 	};
 }
 

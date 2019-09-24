@@ -26,6 +26,13 @@ namespace LS {
 	const bool ClearNonAnimatedLPI::ValidateInstruction() {
 		return true;
 	}
+
+	///*!
+	//  @brief  Resets the state of the 
+	//*/
+	//bool ClearNonAnimatedLPI::Reset(FixedSizeCharBuffer* instructionBuffer) {
+	//	return false;
+	//}
 }
 
 

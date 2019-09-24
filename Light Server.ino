@@ -6,6 +6,13 @@
 
 
 /*
+	IDEAS:
+		* 23/09/2019: Web to translate a few words into morse code (i.e. write the light program to represent the morse code and send it to the LS).
+					  Text to Morse Code.
+		* 23/09/2019: Display an event on the LS e.g. email received so run an email notification program.
+		* 23/09/2019: Allow temperature to be displayed on LEDs by getting latest temperature and writing a program for it to display that.
+
+
 	TODO:
 		* 08/08/2019: Add a test class for the ClearNonAnimatedLPI class (methods: Validate, GetTotalNumberOfSteps, GetNextRI)
 		* 08/08/2019: Implement ClearNonAnimatedLPI class
@@ -105,8 +112,8 @@ void TestStochasticOutputToRender() {
 		lpiIns.opcode = 5; lpiIns.duration = 1; lpiIns.lpi = &lpiBuffer;
 		lpiBuffer.ClearBuffer();
 		lpiBuffer.LoadFromBuffer(STOCHASTIC_RBlack);
-		StochasticNonAnimatedLPI lpi = StochasticNonAnimatedLPI(&lpiIns, &ledConfig, &stringProcessor);
-		bool validated = lpi.Validate();
+		StochasticNonAnimatedLPI lpi = StochasticNonAnimatedLPI(&ledConfig, &stringProcessor);
+		bool validated = lpi.Reset(&lpiIns);
 		Serial.println(validated);
 
 		riBuffer.ClearBuffer();

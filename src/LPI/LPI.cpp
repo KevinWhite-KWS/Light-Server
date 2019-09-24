@@ -6,10 +6,9 @@ namespace LS {
 	  @param   lpiInstruction	 A pointer to the LPI instruction.
 	  @param   ledConfig		 A pointer to the LEDConfig instance that contains the configuration information about the LEDs.
 	*/
-	LPI::LPI(LPIInstruction* lpiInstruction, const LEDConfig* ledConfig, StringProcessor* stringProcessor) {
+	LPI::LPI(const LEDConfig* ledConfig, StringProcessor* stringProcessor) {
 		// if (instruction == nullptr) throw "instruction must not be a null pointer";
 		// if (ledConfig == nullptr) throw "ledConfig must not be a null pointer";
-		this->lpiInstruction = lpiInstruction;
 		this->ledConfig = ledConfig;
 		this->stringProcessor = stringProcessor;
 	}

@@ -41,8 +41,8 @@ namespace LS {
 			  @param   ledConfig		 A pointer to the LEDConfig instance that contains the configuration information about the LEDs.
 			  @param   stringProcessor	 A pointer to the StringProcessor instance that provides string processing functionality.
 			*/
-			FadeAnimatedLPI(LPIInstruction* lpiInstruction, const LEDConfig* ledConfig, StringProcessor* stringProcessor)
-				: AnimatedLPI(lpiInstruction, ledConfig, stringProcessor) {
+			FadeAnimatedLPI(const LEDConfig* ledConfig, StringProcessor* stringProcessor)
+				: AnimatedLPI(ledConfig, stringProcessor) {
 				this->opCode = 4;
 			}
 
