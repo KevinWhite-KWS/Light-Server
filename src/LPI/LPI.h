@@ -64,6 +64,8 @@ namespace LS {
 			  @returns	bool	True if the LPI instruction is valid or false otherwise.
 			*/
 			bool Reset(LPIInstruction* lpiInstruction) {
+				if (lpiInstruction == nullptr) return false;
+
 				this->lpiInstruction = lpiInstruction;
 
 				return this->Validate();

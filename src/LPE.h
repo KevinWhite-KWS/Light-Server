@@ -19,7 +19,8 @@
 	#include "WProgram.h"
 #endif
 
-// #include "ValueDomainTypes.h"
+#include "../../Light Server/src/ArduinoJson-v6.12.0.h"
+
 #include "StringProcessor.h"
 #include "DomainInterfaces.h"
 #include "LPI\LPI.h"
@@ -50,10 +51,18 @@ namespace LS {
 		protected:
 			const LEDConfig* ledConfig;
 			StringProcessor* stringProcessor;
-			LPI* lpis[7];
-
+			LPI* lpis[7];					
+			StaticJsonDocument<1000> lpeDoc;		// Statically allocated memory buffer to store the deserialized LP
+			FixedSizeCharBuffer lpi = FixedSizeCharBuffer(1000);
 
 			LPI* GetLPI(FixedSizeCharBuffer* instructionBuffer);
+
+			bool VerifyInstructions(JsonObject* instructionsObject, LPValidateResult* result);
+			bool VerifyRepeat(JsonObject* repeatObjectg, LPValidateResult* result);
+			bool VerifyInstruction(JsonVariant* instructionObject, LPValidateResult* result);
+
+			uint8_t infiniteLoopCounter = 0;
+			uint8_t nestedLoopCounter = 0;
 		public:
 			/*!
 			  @brief   Constructor injects the required dependencies.
@@ -77,6 +86,8 @@ namespace LS {
 			}
 
 			bool GetNextRI(FixedSizeCharBuffer* riBuffer);
+
+			void ValidateLP(FixedSizeCharBuffer* lp, LPValidateResult* result);
 	};
 }
 #endif
