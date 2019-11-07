@@ -61,14 +61,31 @@ namespace LS {
 			  @brief	Resets the state of the LPI by loading in new a new LPI instruction
 						and resetting variables, re-calcuating the number of steps (for animated
 						LPIs).
-			  @returns	bool	True if the LPI instruction is valid or false otherwise.
+			  @param	lpiInstruction	A point to the LPIInstruction instance that contains the details of the LPI.
+			  @returns	bool			True if the LPI instruction is valid or false otherwise.
 			*/
-			bool Reset(LPIInstruction* lpiInstruction) {
+			bool Reset(LPIInstruction* lpiInstruction, bool validate = true) {
 				if (lpiInstruction == nullptr) return false;
 
 				this->lpiInstruction = lpiInstruction;
 
-				return this->Validate();
+				if (validate == true) {
+					return this->Validate();
+				}
+				else {
+					return true;
+				}
+			}
+
+			/*!
+			  @brief	Resets the state of the LPI by loading in new a new LPI instruction
+						and resetting variables, re-calcuating the number of steps (for animated
+						LPIs).  This method does not validate the LPI.  The assumption here is
+						that it has already been validated and does not need re-validating.
+			  @param	lpiInstruction	A point to the LPIInstruction instance that contains the details of the LPI.
+			*/
+			void ResetNoValidate(LPIInstruction* lpiInstrction) {
+				this->lpiInstruction = lpiInstrction;
 			}
 	};
 }

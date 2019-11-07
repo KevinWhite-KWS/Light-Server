@@ -8,6 +8,22 @@
  *
  * This file is part of the LS library.
  *
+ * Navigating around the LP requires a more sophisticated approach.  We
+ * need to know:
+ * - which instruction is the current instruction in current instructions collection.
+ *   That is, the 0 based index of the instruction in the instructions.
+ * - which instructions element is the current instructions collection.  That is,
+ *   the depth within the hierarchy.
+ * - how many iterations are remaining for each embedded loop (max 5 embedded loops).
+ *
+ * This implies that we need:
+ * - instructionsDepth: index of current instructions element (depth)
+ * - instructionIndex[5]: 0 based index of current instruction at each level (the level is the index into the array)
+ * - repeatIterationsRemaining[5]: 0 based index of remaing iterations for max 5 embedded loops
+ *
+ * The instructionsDepth value can be used to index instructionIndex and repeatIterationsRemaining
+ * ! instructionsDepth also includes the very first instructions element, so index will be off by 1
+ * ! 
  */
 
 #ifndef _LPE_h
@@ -55,7 +71,11 @@ namespace LS {
 			StaticJsonDocument<1000> lpeDoc;		// Statically allocated memory buffer to store the deserialized LP
 			FixedSizeCharBuffer lpi = FixedSizeCharBuffer(1000);
 
-			LPI* GetLPI(FixedSizeCharBuffer* instructionBuffer);
+			LPIInstruction* currentLPIInstruction = new LPIInstruction();	// NEED TO FREE!
+
+			bool lpValid = false;
+
+			LPI* GetLPI(FixedSizeCharBuffer* instructionBuffer, bool validate = true);
 
 			bool VerifyInstructions(JsonObject* instructionsObject, LPValidateResult* result);
 			bool VerifyRepeat(JsonObject* repeatObjectg, LPValidateResult* result);
@@ -63,6 +83,37 @@ namespace LS {
 
 			uint8_t infiniteLoopCounter = 0;
 			uint8_t nestedLoopCounter = 0;
+
+			const char* PopToNextInstruction();
+
+
+			/* Values required for executing the LP */
+			const char* currentIns = nullptr;
+			bool loadLpi = false;
+
+			// Tracks number of iterations remaining in current repeat element.
+			// This is -1 for an infinite loop.
+			int loopIterationsRemaining = 0;
+			int loopsRemaining[6] = { 0, 0, 0, 0, 0, 0 };
+			int loopsLPIndices[6] = { 1, 0, 0, 0, 0, 0 };
+
+			// Tracks the depth in the current LP that contains the
+			// current set of "instructions" that are being processed.
+			uint8_t instructionsDepth = 0;
+			uint8_t repeatDepth = 0;
+
+			// JsonObject* currentInstructions = nullptr;
+			JsonObject::iterator currentIterator;
+			// JsonVariant* currentInstruction = nullptr;
+			LPI* currentLPI = nullptr;
+			int currentInstructionRemainingPulses = 0;
+			int pulseCounter = 0;
+
+			void ProcessNextIteratorElement();
+			void ProcessRepeatElement(JsonVariant* repeatElement);
+
+
+
 		public:
 			/*!
 			  @brief   Constructor injects the required dependencies.

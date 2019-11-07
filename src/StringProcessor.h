@@ -29,6 +29,8 @@ namespace LS {
 
 			const LPIInstruction ExtractLPIFromHexEncoded(const char* instructionString, bool& isValid);
 
+			bool ExtractLPIFromHexEncoded(const char* instructionString, LPIInstruction* lpInstruction);
+
 			const bool ExtractBoolFromHexEncoded(const char* instructionString, bool& isValid);
 
 			const void ConvertNumberToHexEncoded(char* putBuffer, uint8_t number);

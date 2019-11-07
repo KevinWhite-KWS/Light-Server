@@ -7,7 +7,7 @@ namespace LS{
 	  @param   instructionBuffer	 A pointer to the FixedSizeCharBuffer that contains the LPI.
 	  @returns An LPI instance for the LPI or nullptr if the instruction is: (a) not valid or (b) not recognised (i.e. not a known instruction)
 	*/
-	LPI* LPE::GetLPI(FixedSizeCharBuffer* instructionBuffer) {
+	LPI* LPE::GetLPI(FixedSizeCharBuffer* instructionBuffer, bool validate) {
 		if (instructionBuffer == nullptr) return nullptr;
 
 		LPI* lpi = nullptr;
@@ -15,13 +15,13 @@ namespace LS{
 		// Extract the command parameters so we can detemrine
 		// which LPI to execute
 		char* pLpi = instructionBuffer->GetBuffer();
-		bool isValid = false;
-		LPIInstruction lpiInstruction = this->stringProcessor->ExtractLPIFromHexEncoded(pLpi, isValid);
+		bool isValid = this->stringProcessor->ExtractLPIFromHexEncoded(pLpi, currentLPIInstruction);
+		// LPIInstruction lpiInstruction = this->stringProcessor->ExtractLPIFromHexEncoded(pLpi, isValid);
 		if (isValid == false) return nullptr;
-		lpiInstruction.lpi = instructionBuffer;
+		currentLPIInstruction->lpi = instructionBuffer;
 
 		// Factory which gets the correct LPI instance based on the op-code
-		switch (lpiInstruction.opcode) {
+		switch (currentLPIInstruction->opcode) {
 			case LPI_Clear:
 			case LPI_Solid:
 			case LPI_Pattern:
@@ -29,7 +29,7 @@ namespace LS{
 			case LPI_Fade:
 			case LPI_Stochastic:
 			case LPI_Blocks:
-				lpi = lpis[lpiInstruction.opcode];
+				lpi = lpis[currentLPIInstruction->opcode];
 				break;
 		}
 
@@ -37,7 +37,7 @@ namespace LS{
 
 		// Initialise the LPI with the details
 		// from the instructionBuffer
-		bool reset = lpi->Reset(&lpiInstruction);
+		bool reset = lpi->Reset(this->currentLPIInstruction, validate);
 		if (reset == false) return nullptr;
 
 		return lpi;
@@ -52,6 +52,17 @@ namespace LS{
 		if (lp == nullptr || result == nullptr) return;
 
 		result->ResetResult(Valid);
+
+		// Reset the properties that track the program execution
+		this->lpValid = false;
+		this->currentIns = nullptr;
+		this->loopIterationsRemaining = 0;
+		this->loopsRemaining[0] = this->loopsRemaining[1] = this->loopsRemaining[2] = this->loopsRemaining[3] = this->loopsRemaining[4] = this->loopsRemaining[5] = 0;
+		this->loopsLPIndices[1] = this->loopsLPIndices[2] = this->loopsLPIndices[3] = this->loopsLPIndices[4] = this->loopsLPIndices[5] = 0;
+		this->loopsLPIndices[1] = 1;	// first set of instructions is always going to be placed beginning at 1
+		this->instructionsDepth = 0;
+		this->infiniteLoopCounter = 0;
+		// this->currentInstruction = nullptr;
 
 		// Deserialise the lp buffer to JSON using Arduino.JSON library
 		DeserializationError error = deserializeJson(this->lpeDoc, lp->GetBuffer());
@@ -80,11 +91,16 @@ namespace LS{
 			result->ResetResult(NoIntructions, nullptr);
 			return;
 		}
-
+		
 		// Validate the LP by beginning with validation of the instructions
 		// object
-		this->infiniteLoopCounter = 0;
+		// this->infiniteLoopCounter = 0;
+		// instructionsDepth = 0;
 		this->VerifyInstructions(&instructions, result);
+		this->lpValid = result->GetCode() == Valid;
+
+		//this->currentIterator = instructions.begin();
+		//this->currentInstructions = &instructions;
 	}
 
 	/*!
@@ -96,6 +112,12 @@ namespace LS{
 	*/
 	bool LPE::VerifyInstructions(JsonObject* instructionsObject, LPValidateResult* result) {
 		uint8_t countValidInstructions = 0;
+		
+		// Ensure we are correctly tracking the depth of the instructions element
+		if (currentIns == nullptr) {
+			instructionsDepth++;
+		}
+
 		for (JsonObject::iterator it = instructionsObject->begin(); it != instructionsObject->end(); ++it) {
 			const char* key = it->key().c_str();
 			const char* val = it->value().as<char*>();
@@ -106,6 +128,16 @@ namespace LS{
 				JsonVariant instructionObject = it->value();
 				if (this->VerifyInstruction(&instructionObject, result) == false) {
 					return false;
+				}
+				else if (this->currentIns == nullptr) {
+					// Set the first LPI to be executed
+					// this->currentInstruction = instructionObject;
+					this->currentIns = val;
+					this->loadLpi = true;
+					this->currentIterator = instructionsObject->begin();
+					// this->currentInstructions = instructionsObject;
+					// this->currentLPI = lpi;
+					// this->currentInstructionRemainingPulses = lpiInstruction.duration * lpi->GetTotalNumberOfSteps();
 				}
 			}
 			else if (strcmp(key, "repeat") == 0) {
@@ -182,6 +214,13 @@ namespace LS{
 			return false;
 		}
 
+		// Set the number of iterations for the 1st insruction element
+		if (this->currentIns == nullptr) {
+			this->loopIterationsRemaining = (times == 0 ? -1 : times);
+			this->loopsRemaining[this->instructionsDepth - 1] = (times == 0 ? -1 : times);
+			this->loopsLPIndices[this->instructionsDepth - 1] = 1;
+		}
+
 		// Validate the instructions object
 		return this->VerifyInstructions(&instructions, result);
 	}
@@ -223,13 +262,345 @@ namespace LS{
 			result->ResetResult(InvalidInstruction, ins);
 			return false;
 		}
+		// else if (this->currentInstruction == nullptr) {
+		//else if (this->currentIns == nullptr) {
+		//	// Set the first LPI to be executed
+		//	// this->currentInstruction = instructionObject;
+		//	this->currentIns = ins;
+		//	this->loadLpi = true;
+		//	// this->currentLPI = lpi;
+		//	// this->currentInstructionRemainingPulses = lpiInstruction.duration * lpi->GetTotalNumberOfSteps();
+		//}
 
 		return true;
 	}
 
 	bool LPE::GetNextRI(FixedSizeCharBuffer* riBuffer) {
-		return false;
+		//if (this->lpValid == false 
+		//	|| this->currentInstruction == nullptr
+		//	|| this->currentInstruction->isNull()) return false;
+		if (this->lpValid == false ||
+			this->currentIns == nullptr) return false;
+
+		// if (this->currentInstruction
+		if (this->currentIns != nullptr
+			&& this->loadLpi == true) {
+			// && this->currentLPI == nullptr) {
+			// Load the LPI ready for execution
+			// const char* ins = this->currentInstruction->as<const char*>();
+			// this->lpi.LoadFromBuffer(ins);
+			this->lpi.LoadFromBuffer(this->currentIns);
+			this->currentLPI = this->GetLPI(&this->lpi, false);
+
+			// this->stringProcessor->ExtractLPIFromHexEncoded(ins, this->currentLPIInstruction);
+			this->stringProcessor->ExtractLPIFromHexEncoded(this->currentIns, this->currentLPIInstruction);
+			this->currentLPIInstruction->lpi = &this->lpi;
+			this->currentLPI->ResetNoValidate(this->currentLPIInstruction);
+			this->currentInstructionRemainingPulses = this->currentLPIInstruction->duration * this->currentLPI->GetTotalNumberOfSteps();
+			this->pulseCounter = -1;
+
+			this->loadLpi = false;
+		}
+
+		// Process the current instruction
+		bool nextRi = false;
+		if (this->currentInstructionRemainingPulses-- > 0) {
+			if (++pulseCounter == 0) {
+				riBuffer->ClearBuffer();
+				nextRi = this->currentLPI->GetNextRI(riBuffer);
+			}
+			
+			if (pulseCounter == this->currentLPIInstruction->duration - 1) {
+				pulseCounter = -1;
+			}
+		}
+
+		if (this->currentInstructionRemainingPulses == 0) {
+			const char* curKey = this->currentIterator->key().c_str();
+			const char* curVal = this->currentIterator->value().as<const char*>();
+
+			++this->currentIterator;
+
+			ProcessNextIteratorElement();
+		}
+
+		return true;
 	}
 
+	const char* LPE::PopToNextInstruction() {
+		const char* key = nullptr;
+		
+		int insPosition = 0;
+
+		// see if we are in a loop and wether there are any remaining iterations
+		// in the loop
+		
+		
+		//if (this->loopsRemaining[this->instructionsDepth - 2] == -1
+		//	|| --this->loopsRemaining[this->instructionsDepth - 2] > 0) {
+		//}
+
+		if ( // loopsRemaining[instructionsDepth - 2] != -1
+			loopsRemaining[this->instructionsDepth - 2] == 0
+			|| --loopsRemaining[this->instructionsDepth - 2] == 0) {
+		// else {
+			// Pop the loop stack - i.e. reverse one up
+			this->instructionsDepth--;
+
+			// 'JUMP' to the correct instruction with this new block (if last then we need to
+			// work out how far back we need to go.
+			// insPosition = loopsLPIndices[instructionsDepth - 2];
+			insPosition = loopsLPIndices[instructionsDepth - 1];
+
+			// Reset current depth to 0 as we have popped back
+			this->loopsLPIndices[this->instructionsDepth] = 0;
+
+
+			// We also need to decrement that loop's remaing loops (if not infinite)
+			// as we have now completed a single iteration.
+			// THIS DOES NOT WORK BECAUSE WE MAY NOT BE AT THE END OF 'POPPED' LOOP
+			//if (--instructionsDepth > 1 
+			//	&& this->loopsRemaining[this->instructionsDepth - 2] != -1) {
+			//	this->loopsRemaining[this->instructionsDepth - 2]--;
+			//}
+		}
+
+		// Navigate the document until we get to the correct "instructions" element
+		JsonObject currentInstructionsElement = lpeDoc["instructions"];
+
+		for (int i = 0; i < instructionsDepth - 1; i++) {
+			// ensure we are positioned at the correct repeat element
+			currentIterator = currentInstructionsElement.begin();
+			for (int j = 0; j < loopsLPIndices[i] - 1; j++) {
+				++currentIterator;
+			}
+
+			const char* key2 = this->currentIterator->key().c_str();
+			JsonObject containerRepeatElement = currentIterator->value();
+
+			// JsonObject containerRepeatElement = currentInstructionsElement["repeat"];	
+
+			// Get the instructions element of the repeat element
+			currentInstructionsElement = containerRepeatElement["instructions"];
+		}
+
+
+
+		// Reset the LP instruction pointer to 0 for the new current instructions block
+		// THIS HAS BEEN COMMENTED OUT!!!
+		this->loopsLPIndices[this->instructionsDepth - 1] = 0;
+
+		// Reset the iterator to the current instructions element
+		currentIterator = currentInstructionsElement.begin();
+
+		// Process the first element of this instructions element by setting the key
+		// to the first element
+		key = this->currentIterator->key().c_str();
+
+		// Move the instruction ahead to the next instruction if the loop was 'popped'
+		if (insPosition > 0) {
+			for (int i = 0; i < insPosition; i++) {
+				++currentIterator;
+				this->loopsLPIndices[this->instructionsDepth - 1]++;
+			}
+			key = this->currentIterator->key().c_str();
+
+			if (key == nullptr) {
+				if (instructionsDepth == 1) {
+					// We've reacehd the end of the program
+					return nullptr;
+				}
+
+				// we are at the end of the loop, so we need to decrement this current loops remaing iterations
+				if (instructionsDepth > 1
+					&& this->loopsRemaining[this->instructionsDepth - 2] != -1
+					// &&  --this->loopsRemaining[this->instructionsDepth - 2] == 0))
+					&& (this->loopsRemaining[this->instructionsDepth - 2] == 0 || --this->loopsRemaining[this->instructionsDepth - 2] == 0)) {
+					// there are no further loops remaing, so we need to 'pop' to the next
+					// instructions element
+
+					// TODO: pop-up yet further - keep doing so until we have an instruction of
+					// are at the top
+
+					key = PopToNextInstruction();
+				}
+				else {
+					// further iterations so simply position at first instruction of the loop
+					currentIterator = currentInstructionsElement.begin();
+					key = this->currentIterator->key().c_str();
+
+					// ensure we reset the position of LP pointer for this new collection
+					// should be the first instruction again!
+					this->loopsLPIndices[this->instructionsDepth - 1] = 0;
+				}
+			}
+		}
+
+		return key;
+	}
+
+	void LPE::ProcessNextIteratorElement() {
+		const char* key = this->currentIterator->key().c_str();
+
+		// this->currentLPI == 0x0;
+		// if (key == nullptr) {
+		if (key == nullptr && instructionsDepth > 1) {
+			key = PopToNextInstruction();
+
+			//// end element.  Pop stack of loops?
+			//// this->currentInstruction = nullptr;
+
+			//int insPosition = 0;
+
+			//// see if we are in a loop and wether there are any remaining iterations
+			//// in the loop
+			//// this->loopsRemaining[this->instructionsDepth - 1] = (times == 0 ? -1 : times);
+			//// if (this->loopIterationsRemaining == -1
+			//// 	|| --loopIterationsRemaining > 0) {
+			//if(this->loopsRemaining[this->instructionsDepth - 2] == -1
+			//	|| --this->loopsRemaining[this->instructionsDepth - 2] > 0) {
+			//	// Iterations remaining so we don't need to move back up
+			//}
+			//else {
+			//	// Pop the loop stack - i.e. reverse one up
+			//	this->instructionsDepth--;
+
+			//	// 'JUMP' to the correct instruction with this new block (if last then we need to
+			//	// work out how far back we need to go.
+			//	// insPosition = loopsLPIndices[instructionsDepth - 2];
+			//	insPosition = loopsLPIndices[instructionsDepth - 1];
+
+			//	// Reset current depth to 0 as we have popped back
+			//	this->loopsLPIndices[this->instructionsDepth] = 0;
+
+
+			//	// We also need to decrement that loop's remaing loops (if not infinite)
+			//	// as we have now completed a single iteration.
+			//	// THIS DOES NOT WORK BECAUSE WE MAY NOT BE AT THE END OF 'POPPED' LOOP
+			//	//if (--instructionsDepth > 1 
+			//	//	&& this->loopsRemaining[this->instructionsDepth - 2] != -1) {
+			//	//	this->loopsRemaining[this->instructionsDepth - 2]--;
+			//	//}
+			//}
+
+			//// Navigate the document until we get to the correct "instructions" element
+			//JsonObject currentInstructionsElement = lpeDoc["instructions"];
+
+			//for (int i = 0; i < instructionsDepth - 1; i++) {
+			//	// ensure we are positioned at the correct repeat element
+			//	currentIterator = currentInstructionsElement.begin();
+			//	for (int j = 0; j < loopsLPIndices[i] - 1; j++) {
+			//		++currentIterator;
+			//	}
+
+			//	const char* key2 = this->currentIterator->key().c_str();
+			//	JsonObject containerRepeatElement = currentIterator->value();
+
+			//	// JsonObject containerRepeatElement = currentInstructionsElement["repeat"];	
+
+			//	// Get the instructions element of the repeat element
+			//	currentInstructionsElement = containerRepeatElement["instructions"];
+			//}
+
+
+
+			//// Reset the LP instruction pointer to 0 for the new current instructions block
+			//// THIS HAS BEEN COMMENTED OUT!!!
+			//this->loopsLPIndices[this->instructionsDepth - 1] = 0;
+
+			//// Reset the iterator to the current instructions element
+			//currentIterator = currentInstructionsElement.begin();
+
+			//// Process the first element of this instructions element by setting the key
+			//// to the first element
+			//key = this->currentIterator->key().c_str();
+
+			//// Move the instruction ahead to the next instruction if the loop was 'popped'
+			//if (insPosition > 0) {
+			//	for (int i = 0; i < insPosition; i++) {
+			//		++currentIterator;
+			//		this->loopsLPIndices[this->instructionsDepth - 1]++;
+			//	}
+			//	key = this->currentIterator->key().c_str();
+
+			//	if (key == nullptr) {
+			//		// we are at the end of the loop, so we need to decrement this current loops remaing iterations
+			//		if(instructionsDepth > 1 
+			//			&& this->loopsRemaining[this->instructionsDepth - 2] != -1
+			//			&& --this->loopsRemaining[this->instructionsDepth - 2] == 0) {
+			//			// there are no further loops remaing, so we need to 'pop' to the next
+			//			// instructions element
+
+			//			// TODO: pop-up yet further - keep doing so until we have an instruction of
+			//			// are at the top
+			//		}
+			//		else {
+			//			// further iterations so simply position at first instruction of the loop
+			//			currentIterator = currentInstructionsElement.begin();
+			//			key = this->currentIterator->key().c_str();
+			//			
+			//			// ensure we reset the position of LP pointer for this new collection
+			//			// should be the first instruction again!
+			//			this->loopsLPIndices[this->instructionsDepth - 1] = 0;
+			//		}
+			//	}
+			//}
+
+
+		}
+
+		if(key == nullptr) {
+			this->currentIns = nullptr;
+		}
+		else {
+			// See what the next instruction is...
+			if (strcmp(key, "instruction") == 0) {
+				// this->loopsLPIndices[this->instructionsDepth - 2]++;
+				this->loopsLPIndices[this->instructionsDepth - 1]++;
+
+				// 					this->currentInstruction = this->currentIterator->value();
+				JsonVariant newInstruction = this->currentIterator->value();
+				// this->currentInstruction = &newInstruction;
+				this->currentIns = newInstruction.as<const char*>();
+				this->loadLpi = true;
+			}
+			else if (strcmp(key, "repeat") == 0) {
+				// this->loopsLPIndices[this->instructionsDepth - 2]++;
+				this->loopsLPIndices[this->instructionsDepth - 1]++;
+
+				JsonVariant repeatInstruction = this->currentIterator->value();
+				ProcessRepeatElement(&repeatInstruction);
+			}
+
+		}
+	}
+
+	void LPE::ProcessRepeatElement(JsonVariant* repeatElement) {
+		// get the times property
+		int times = (*repeatElement)["times"] | -1;
+		this->loopIterationsRemaining = (times == 0 ? -1 : times);
+		// this->loopsRemaining[this->instructionsDepth - 1] = (times == 0 ? -1 : times);
+		if (this->loopsRemaining[this->instructionsDepth - 1] == 0) {
+			this->loopsRemaining[this->instructionsDepth - 1] = (times == 0 ? -1 : times);
+		}
+
+		// Set the depth point with the instructions block to 1
+		// this->loopsLPIndices[this->instructionsDepth - 1] = 0;
+		this->loopsLPIndices[this->instructionsDepth] = 0;
+
+		// get the instructions element
+		JsonObject instructions = (*repeatElement)["instructions"];
+
+		// Ensure we increment the position we are in the tree now as these new instructions
+		// mean that we are moving 'down'.
+		instructionsDepth++;
+
+		// set the new iterator to be the instructions iterator
+		// this->currentInstructions = &instructions;
+		this->currentIterator = instructions.begin();
+
+		// process instructions of new iterator
+		ProcessNextIteratorElement();
+	}
 
 }

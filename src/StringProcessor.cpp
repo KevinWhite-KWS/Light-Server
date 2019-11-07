@@ -159,6 +159,39 @@ namespace LS {
 	}
 
 	/*!
+		  @brief   Extracts a LPI instruction value from a string.  A valid LPI instruction
+				   consists of four hex encoded parts: xx (op code), yy (duration), rr (reserved), zz (reserved).
+		  @param   instructionString	 The pointer to the string that contains the hexidecimally encoded LPI instruction.
+		  @param   isValid				 A reference to the boolean type that will be set to true if the string contains
+										 a valid LPI instruction.  If it is not valid then the value is set to false.
+		  @return  A LPIInstruction structure instance.
+		*/
+	bool StringProcessor::ExtractLPIFromHexEncoded(const char* instructionString, LPIInstruction* lpiInstruction) {
+		bool isValid = false;
+
+		// Extract the op-code (00-FF are valid)
+		const char* pInstructionString = instructionString;
+		uint8_t opCode = ExtractNumberFromHexEncoded(pInstructionString, 0, 255, isValid);
+		if (isValid == false) return false;
+		lpiInstruction->opcode = opCode;
+
+		// Extract the duration (01-FF are valid)
+		pInstructionString += 2;
+		uint8_t duration = ExtractNumberFromHexEncoded(pInstructionString, 1, 255, isValid);
+		if (isValid == false) return false;
+		lpiInstruction->duration = duration;
+
+		// Extract the two reserved values (to ensure that they have bene defined)
+		pInstructionString += 2;
+		ExtractNumberFromHexEncoded(pInstructionString, 0, 0, isValid);
+		if (isValid == false) return false;
+		pInstructionString += 2;
+		ExtractNumberFromHexEncoded(pInstructionString, 0, 0, isValid);
+
+		return isValid;
+	}
+
+	/*!
 	  @brief   Extracts a simple boolean value from a hex encoded string.
 	  @param   instructionString	 The pointer to the string that contains the hexidecimally encoded boolean.
 	  @param   isValid				 A reference to the boolean type that will be set to true if the string contains
