@@ -31,11 +31,13 @@
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
+	#include "ArduinoJson-v6.12.0.h"
 #else
 	#include "WProgram.h"
+	#include "../../Light Server/src/ArduinoJson-v6.12.0.h"
 #endif
 
-#include "../../Light Server/src/ArduinoJson-v6.12.0.h"
+
 
 #include "StringProcessor.h"
 #include "DomainInterfaces.h"

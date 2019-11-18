@@ -17,15 +17,28 @@ namespace LS {
 		int newR = 0, newG = 0, newB = 0;
 
 		if (this->fadeOut == false) {
-			newR = min(this->startColour.red + this->currentStep * this->step, this->endColour.red);
-			newG = min(this->startColour.green + this->currentStep * this->step, this->endColour.green);
-			newB = min(this->startColour.blue + this->currentStep * this->step, this->endColour.blue);
+			newR = startColour.red + currentStep * step;
+			newG = startColour.green + currentStep * step;
+			newB = startColour.blue + currentStep * step;
+
+			newR = min(newR, this->endColour.red);
+			newG = min(newG, this->endColour.green);
+			newB = min(newB, this->endColour.blue);
 		}
 		else {
-			newR = max(this->endColour.red - this->currentStep * this->step, this->startColour.red);
-			newG = max(this->endColour.green - this->currentStep * this->step, this->startColour.green);
-			newB = max(this->endColour.blue - this->currentStep * this->step, this->startColour.blue);
+			int r = endColour.red - currentStep * step;
+			int g = endColour.green - currentStep * step;
+			int b = endColour.blue - currentStep * step;
+
+			//newR = max(r, this->endColour.red);
+			//newG = max(g, this->endColour.green);
+			//newB = max(b, this->endColour.blue);
+			newR = max(r, this->startColour.red);
+			newG = max(g, this->startColour.green);
+			newB = max(b, this->startColour.blue);
 		}
+
+		long val = this->endColour.green - this->currentStep * this->step;
 
 		// Write the colours to the output RI buffer
 		char* pRiBuffer = riBuffer->GetBuffer();
@@ -75,10 +88,20 @@ namespace LS {
 		}
 
 		// Calculate the number of steps
-		int maxDiff = max(this->endColour.red - this->startColour.red, this->endColour.green - this->endColour.blue);
-		maxDiff = max(maxDiff, this->endColour.blue - this->startColour.blue);
+		int redDiff = endColour.red - startColour.red;
+		int greenDiff = endColour.green - startColour.green;
+		int blueDiff = endColour.blue - startColour.blue;
+
+		// int maxDiff = fmax(this->endColour.red - this->startColour.red, this->endColour.green - this->endColour.green);
+		// maxDiff = fmax(maxDiff, this->endColour.blue - this->startColour.blue);
+		int maxDiff = max(redDiff, greenDiff);
+		maxDiff = max(maxDiff, blueDiff);
 		double steps = (double)maxDiff / (double)step;
+		if (steps < 0) steps = 0;
 		this->totalSteps = ceil(steps) + 1;		// rounding!!!
+
+		// Reset the current step to 0
+		currentStep = 0;
 
 		return this->instructionIsValid;
 	}

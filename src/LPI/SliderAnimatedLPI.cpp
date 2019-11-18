@@ -88,6 +88,9 @@ namespace LS {
 		// involved in the animation effect.
 		this->totalSteps = this->ledConfig->numberOfLEDs - this->sliderWidth + 1;
 
+		// Ensure we reset the current step!
+		currentStep = 0;
+
 		return this->instructionIsValid;
 	}
 }

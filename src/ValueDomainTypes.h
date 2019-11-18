@@ -1,6 +1,8 @@
 #ifndef _VALUEDOMAINTYPES_H
 #define _VALUEDOMAINTYPES_H
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdint.h>
 #include <stdio.h>
 #include "FixedSizeCharBuffer.h"
@@ -173,8 +175,8 @@ namespace LS {
 			void SetInfoFromInt(int result) {
 				this->infoBuffer.ClearBuffer();
 				char* buffer = this->infoBuffer.GetBuffer();
-				// sprintf(buffer, "%d", result);
-				sprintf_s(buffer, 100, "%d", result);
+				sprintf(buffer, "%d", result);					
+				// sprintf_s(buffer, 100, "%d", result);		// Arduino doesn't like this?
 			}
 	};
 }

@@ -86,6 +86,10 @@ namespace LS {
 			*/
 			void ResetNoValidate(LPIInstruction* lpiInstrction) {
 				this->lpiInstruction = lpiInstrction;
+
+				// We still must validate the actual instruction because it's this
+				// method that resets the internal values of the instruction.
+				ValidateInstruction();
 			}
 	};
 }
