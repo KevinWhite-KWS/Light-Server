@@ -42,7 +42,8 @@ namespace LS {
 				this->opCode = 3;
 			}
 
-			virtual bool SliderAnimatedLPI::GetNextRI(FixedSizeCharBuffer* riBuffer);
+			// virtual bool SliderAnimatedLPI::GetNextRI(FixedSizeCharBuffer* riBuffer);
+			virtual bool GetNextRI(FixedSizeCharBuffer* riBuffer);
 
 			/*!
 			  @brief   Gets the op-code of the LPI.

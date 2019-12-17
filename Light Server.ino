@@ -14,12 +14,15 @@
 
 
 	TODO:
+		* 05/12/2019: Re-factor LPE as some of the code is a little messy now
+		* 05/11/2019: Possibly consider implement the ability to run an interrupt program?  (Due allows this easily due to resources)
+		* 05/11/2019: Add-in request authentication
+
+	DONE:
 		* 08/08/2019: Add a test class for the ClearNonAnimatedLPI class (methods: Validate, GetTotalNumberOfSteps, GetNextRI)
 		* 08/08/2019: Implement ClearNonAnimatedLPI class
 		* 08/08/2019: Add a method to StringProcessor to extract an instruction into a structure (ins, duration, x, y)
 		* 20/08/2019: Add a test method for the new method to extract an instruction into a structure
-
-	DONE:
 		* 01/08/2019: Add the AreAnyLEDsOn():bool method + unit tests (should only be true if any single LED is not black) [DONE - 08/08/2019]
 		* 01/08/2019: Set up a test Arduino program to check the timings i.e. how quickly does SetRI execute given different inputs?
 					  How quickly does Render execute?  Are any issues forseen with the strict timing requirements?
@@ -45,22 +48,20 @@
 #include "src/LPE.h"
 #include "src/ValueDomainTypes.h"
 #include "src/MemoryFree.h"
+#include "src/LightWebServer.h"
 
-uint32_t next = millis();
-uint32_t interval = 500;
-bool turnOn = true;
+#ifdef __arm__
+	#define BUFFER_SIZE		10000	// Due
+#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
+	#define BUFFER_SIZE		1000	// Mega
+#endif  // __arm__
 
 #define		PIN		6
-#define		NUMLEDS	8
-
-#define		RENDERING_FRAME		1000
-
-#define		RI_1	"FF00000100FF0001R"
-#define		RI_2	"00FF0001FF000001R"
-
-uint32_t nextSetRi = millis() + 39;
-uint32_t nextRender = millis() + 49;
-uint32_t currentMillis = millis();
+#define		NUMLEDS	19
+// individual pixels: 8
+// small strip has: 19
+// long strip has: 118
+#define		RENDERING_FRAME		50
 
 
 using LS::StringProcessor;
@@ -74,6 +75,35 @@ using LS::SliderAnimatedLPI;
 using LS::StochasticNonAnimatedLPI;
 using LS::LPE;
 using LS::LPValidateResult;
+using LS::LightWebServer;
+using LS::FixedSizeCharBuffer;
+using LS::CommandType;
+
+/* + NETWORK STUFF + */
+#define WEBDUINO_SERIAL_DEBUGGING	0
+#include <SPI.h>
+#include <Ethernet.h>
+#include "src/WebServer.h"
+
+/* - NETWORK STUFF - */
+
+/* + NETWORK STUFF + */
+static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+static uint8_t ip[] = { 192, 168, 1, 210 };
+#define PREFIX ""
+WebServer webserv(PREFIX, 80);
+IWebServer* webserver = &webserv;
+int webBufferLen = BUFFER_SIZE;
+FixedSizeCharBuffer webLoadingBuffer = FixedSizeCharBuffer(BUFFER_SIZE);
+LightWebServer lightWebServ(webserver, &webLoadingBuffer);
+/* - NETWORK STUFF - */
+
+
+uint32_t nextSetRi = millis() + 39;
+uint32_t currentMillis = millis();
+
+
+
 
 StringProcessor stringProcessor = StringProcessor();
 LEDConfig ledConfig = LEDConfig(NUMLEDS);
@@ -84,76 +114,13 @@ IPixelController* pixelController = &pixels;
 Renderer render = Renderer(&stringProcessor, &ledConfig, pixelController);
 
 // Values to support LP execution
-FixedSizeCharBuffer riBuffer = FixedSizeCharBuffer(1000);
-FixedSizeCharBuffer lpBuffer = FixedSizeCharBuffer(1000);
+FixedSizeCharBuffer riBuffer = FixedSizeCharBuffer(BUFFER_SIZE);
+FixedSizeCharBuffer lpBuffer = FixedSizeCharBuffer(BUFFER_SIZE);
+FixedSizeCharBuffer webBuffer = FixedSizeCharBuffer(BUFFER_SIZE);
 LPE lpe = LPE(&ledConfig, &stringProcessor);
 
 
 
-/*
-ins: solid green (1 frame duration)
-ins: solid red (1 frame duration)
-*/
-// #define LP_BASIC_TEST "{ \"name\" : \"my program\", \"instructions\" : { \"instruction\":\"0101000000FF00\",  \"instruction\":\"01010000FF0000\"} }"
-/*
-repeat (1..2):
-	ins: solid white
-	repeat(1..2):
-		ins: solid red
-		repeat(1..5):
-			ins: solid green
-			ins: solid blue
-		ins: clear (****)
-*/
-#define LP_COMPLEX_TEST "{ \"name\" : \"my program\", \"instructions\" : { \"repeat\": { \"times\" : 2, \"instructions\" : { \"instruction\" : \"01010000FFFFFF\", \"repeat\" : { \"times\": 2, \"instructions\": { \"instruction\": \"01010000FF0000\", \"repeat\" : { \"times\" : 5, \"instructions\" : { \"instruction\" : \"0101000000FF00\", \"instruction\": \"010100000000FF\" } }, \"instruction\": \"00010000\"  } } } } } }"
-/*
-repeat (1..5):
-	ins: solid green
-	ins: solid red
-ins: clear
-repeat (1..5):
-	ins: solid blue
-	ins: solid white
-ins: clear
-repeat (1..5):
-	ins: solid (FF,FF,00)
-	ins: solid (00,FF,FF) (****)
-*/
-#define LP_COMPLEX_TEST_2 "{ \"name\" : \"my program\", \"instructions\" : { \"repeat\" : { \"times\" : 5, \"instructions\" : { \"instruction\": \"0101000000FF00\", \"instruction\": \"01010000FF0000\"  } }, \"instruction\" : \"00010000\", \"repeat\" : { \"times\" : 5, \"instructions\" : { \"instruction\": \"010100000000FF\", \"instruction\": \"01010000FFFFFF\"  } }, \"instruction\" : \"00010000\", \"repeat\" : { \"times\" : 5, \"instructions\" : { \"instruction\": \"01010000FFFF00\", \"instruction\": \"0101000000FFFF\"  } } } }"
-/*
-repeat (infinite):
-	ins: fade black to red
-	ins: fade red to black
-*/
-// #define LP_INFINITE_FADE_TEST "{ \"name\" : \"fade test\", \"instructions\" : { \"repeat\" : { \"times\": 0, \"instructions\" : { \"instruction\" : \"04050000320000000FF0000\", \"instruction\" : \"04050000321FF0000000000\" } }}}"
-#define LP_INFINITE_FADE_TEST "{ \"name\" : \"fade test\", \"instructions\" : { \"repeat\" : { \"times\": 0, \"instructions\" : { \"instruction\" : \"04010000050000000FF0000\", \"instruction\" : \"04010000051FF0000000000\", \"instruction\" : \"0401000005000000000FF00\", \"instruction\" : \"0401000005100FF00000000\", \"instruction\" : \"040100000500000000000FF\", \"instruction\" : \"040100000510000FF000000\"  } }}}"
-/*
-repeat (infinite):
-	ins: repeat (two red, two green)
-	ins: repeat (one green, two red, one green)
-	ins: repeat (two green, two red)
-	ins: repeat (one red, two green, one red)
-*/
-#define LP_INFINITE_ANTS_TESTS "{ \"name\" : \"fade test\", \"instructions\" : { \"repeat\" : { \"times\": 0, \"instructions\" : { \"instruction\" : \"02050000020202FF000000FF00\", \"instruction\" : \"020500000301020100FF00FF000000FF00\", \"instruction\" : \"0205000002020200FF00FF0000\", \"instruction\" : \"0205000003010201FF000000FF00FF0000\" } }}}"
-/*
-repeat (infinite):
-	ins: repeat (one red, three green)				:	02050000020103FF000000FF00
-	ins: repeat (one green, one red, two green)		:	020500000301010200FF00FF000000FF00
-	ins: repeat (two green, one red, one green)		:	020500000302010100FF00FF000000FF00
-	ins: repeat (three green, one green)			:	0205000002030100FF00FF0000
-*/
-#define LP_INFINITE_ANTS_TESTS2 "{ \"name\" : \"fade test\", \"instructions\" : { \"repeat\" : { \"times\": 0, \"instructions\" : { \"instruction\" : \"02050000020103FF000000FF00\", \"instruction\" : \"020500000301010200FF00FF000000FF00\", \"instruction\" : \"020500000302010100FF00FF000000FF00\", \"instruction\" : \"0205000002030100FF00FF0000\" } }}}"
-/*
-repeat (infinite):
-	ins: slider (two red pixels, green background, start near)		:	03050000190FF000000FF00
-	ins: slider (two red pixels, green background, start far)		:	03050000191FF000000FF00
-*/
-#define LP_INFINITE_KNIGHTRIDER "{ \"name\" : \"knight rider test\", \"instructions\" : { \"repeat\" : { \"times\": 0, \"instructions\" : { \"instruction\" : \"03050000020FF000000FF00\", \"instruction\" : \"03050000021FF000000FF00\" } }}}"
-/*
-repeat (infinite):
-	ins: stochastic (red on black)		:	05050000020101FF000000FF00
-*/
-#define LP_INFINITE_STOCHASTIC "{ \"name\" : \"stochastic test\", \"instructions\" : { \"repeat\" : { \"times\": 0, \"instructions\" : { \"instruction\" : \"0564000002FF0000000000\" } }}}"
 /*
 repeat (infinite):
 	ins: clear
@@ -167,7 +134,7 @@ repeat (infinite):
 */
 #define LP_INFINITE_COMPLEX "{\"name\":\"complexprogram\",\"instructions\":{\"repeat\":{\"times\":0,\"instructions\":{\"instruction\":\"00190000\",\"instruction\":\"040500000A0000000FF0000\",\"repeat\":{\"times\":5,\"instructions\":{\"instruction\":\"0305000002000FF00FF0000\",\"instruction\":\"0305000002100FF00FF0000\"}},\"instruction\":\"040500000A1FF0000000000\",\"repeat\":{\"times\":5,\"instructions\":{\"instruction\":\"0532000002FF0000000000\"}}}}}}"
 
-void ValidateProgram() {
+bool ValidateProgram() {
 	// Validate the program
 	unsigned long startValidate = millis();
 	Serial.print("Pre-validate @ ");
@@ -187,84 +154,78 @@ void ValidateProgram() {
 	Serial.print(result.GetCode());
 	Serial.print(".  Free memory = ");
 	Serial.println(freeMemory());
+
+	if (result.GetCode() == LS::LPValidateCode::Valid) {
+		return true;
+	}
+
+	return false;
 }
 
-bool firstProg = true;
 	// the setup function runs once when you press reset or power the board
 void setup() {
 	// pinMode(LED_BUILTIN, OUTPUT);
 	pixels.begin();
 
 	// Set the program to be loaded here
-	// const char* lp = LP_INFINITE_FADE_TEST;
-	// const char* lp = LP_INFINITE_ANTS_TESTS2;
-	// const char* lp = LP_INFINITE_KNIGHTRIDER;
-	// const char* lp = LP_INFINITE_STOCHASTIC;
 	const char* lp = LP_INFINITE_COMPLEX;
 	lpBuffer.LoadFromBuffer(lp);
 
 	// Validate the program first
 	ValidateProgram();
 	
-	
-	
-	// render.SetRI("00000008");
-	// render.Render();
+	/* + NETWORK STUFF + */
+	// Disable the SD card reader
+	pinMode(4, OUTPUT);
+	digitalWrite(4, HIGH);
+
+	/* initialize the Ethernet adapter */
+	Ethernet.begin(mac, ip);
+	lightWebServ.Start();
+	/* - NETWORK STUFF - */
 }
 
 
-void ExternalTwoProgramTest() {
-	currentMillis = millis();
-
-	if (currentMillis >= nextSetRi) {
-		// Output a debug message with start time of op
-		unsigned long startExecute = millis();
-		Serial.print("Start get RI @ ");
-		Serial.print(startExecute);
-		Serial.print(".  Free memory = ");
-		Serial.println(freeMemory());
-
-		// Get the next RI to be rendered
-		bool hasInstruction = lpe.GetNextRI(&riBuffer);
-
-		if (hasInstruction) {
-			unsigned long endGetRi = millis() - startExecute;
-			Serial.print("End get RI ");
-			Serial.print(millis());
-			Serial.print(".  Duration = ");
-			Serial.print(endGetRi);
-			Serial.print(".  Next RI = ");
-			Serial.print(riBuffer.GetBuffer());
-			Serial.print(".  Free memory = ");
-			Serial.println(freeMemory());
-
-			// Render the instruction
-			render.SetRI(riBuffer.GetBuffer());
-			render.Render();
-		}
-		else {
-			firstProg != firstProg;
-
-			if (firstProg) {
-				Serial.println("NO INSTRUCTION TO RENDER - LOADING FIRST PROGRAM");
-				lpBuffer.LoadFromBuffer(LP_COMPLEX_TEST);
-			}
-			else {
-				Serial.println("NO INSTRUCTION TO RENDER - LOADING SECOND PROGRAM");
-				lpBuffer.LoadFromBuffer(LP_COMPLEX_TEST);
-			}
-			LPValidateResult result = LPValidateResult();
-			lpe.ValidateLP(&lpBuffer, &result);
-		}
-
-		nextSetRi = currentMillis + RENDERING_FRAME;
-	}
-}
 
 void SingleProgramTest() {
 	currentMillis = millis();
 
 	if (currentMillis >= nextSetRi) {
+		/* + NETWORK STUFF + */
+		CommandType cmdType = lightWebServ.HandleNextCommand();
+
+		if (cmdType == CommandType::INVALID) {
+			lightWebServ.RespondError();
+		}
+		else if (cmdType == CommandType::LOADPROGRAM) {
+			char* buf = lightWebServ.GetLoadingBuffer(false);
+
+			lpBuffer.ClearBuffer();
+			lpBuffer.LoadFromBuffer(buf);
+			bool valid = ValidateProgram();
+
+			if (!valid) {
+				lightWebServ.RespondError();
+			}
+			else {
+				lightWebServ.RespondOK();
+			}
+		}
+
+
+
+		unsigned long endWeb = millis() - currentMillis;
+		//Serial.print("End check webServer @ ");
+		//Serial.print(millis());
+		//Serial.print(".  Duration = ");
+		//Serial.print(endWeb);
+		//Serial.print(".  Free memory = ");
+		//Serial.println(freeMemory());
+		/* - NETWORK STUFF - */
+
+
+
+
 		// Output a debug message with start time of op
 		Serial.print("Start get RI @ ");
 		Serial.print(currentMillis);
@@ -303,8 +264,5 @@ void SingleProgramTest() {
 }
 
 void loop() {
-	// ExternalTwoProgramTest();
-
 	SingleProgramTest();
-
 }

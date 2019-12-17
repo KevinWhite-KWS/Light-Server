@@ -41,7 +41,8 @@ namespace LS {
 				this->opCode = 2;
 			}
 
-			virtual bool PatternNonAnimatedLPI::GetNextRI(FixedSizeCharBuffer* riBuffer);
+			// virtual bool PatternNonAnimatedLPI::GetNextRI(FixedSizeCharBuffer* riBuffer);
+			virtual bool GetNextRI(FixedSizeCharBuffer* riBuffer);
 
 			/*!
 			  @brief   Gets the op-code of the LPI.
