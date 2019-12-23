@@ -31,11 +31,17 @@ namespace LS {
 	*/
 	class LightWebServer : public ILightWebServer {
 		
-
 		protected:
 			IWebServer* webServer;
 			FixedSizeCharBuffer* loadingBuffer;
 			CommandType currentCommand;
+
+			/*!
+			@brief	Loads the loading buffer from the body of the incoming web server request.
+			@param	lightWebServer		A pointer to this LightWebServer instance.  Required as the handler has to be a static method.
+			@param	server				A pointer to the web server.
+			*/
+			static void LoadBody(ILightWebServer* lightWebServer, IWebServer& server);
 
 			/*!
 			@brief  Handles an invalid web command.  Sets the web server status to "Invalid".
@@ -56,6 +62,26 @@ namespace LS {
 			@param	tailComplete		True if the tail is complete
 			*/
 			static void HandleCommandLoadProgram(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
+			/*!
+			@brief  Handles a request to turn-off the LEDS.  Sets the web server status to "POWEROFF".
+			@param	lightWebServer		A pointer to this LightWebServer instance.  Required as the handler has to be a static method.
+			@param	server				A pointer to the web server.
+			@param	type				The verb of the connection or INVALID for an invalid request.
+			@param	header				A pointer to the header.
+			@param	tailComplete		True if the tail is complete
+			*/
+			static void HandleCommandPowerOff(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
+			/*!
+			@brief  Handles a request to turn-on the LEDS to a specific colour (or white if no valid colour has been specified.  
+				    Sets the web server status to "POWERON".
+			@param	lightWebServer		A pointer to this LightWebServer instance.  Required as the handler has to be a static method.
+			@param	server				A pointer to the web server.
+			@param	type				The verb of the connection or INVALID for an invalid request.
+			@param	header				A pointer to the header.
+			@param	tailComplete		True if the tail is complete
+			*/
+			static void HandleCommandPowerOn(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
+
 
 		public:
 			/*!
@@ -78,6 +104,12 @@ namespace LS {
 			void SetCommandType(CommandType commandType);
 
 			/*!
+			@brief		Gets the current command type.
+			@returns	CommandType		The type of command that has been received.
+			*/
+			CommandType GetCommandType();
+
+			/*!
 			@brief  Gets a reference to the buffer that is used to load the request.
 			@param	clearBuffer			True to clear the buffer when retriving or false to leave the buffer as is.
 			@returns	char*			A reference to the loading buffer.
@@ -94,6 +126,11 @@ namespace LS {
 			@brief		Closes the current connection and responds with a HTTP OK.
 			*/
 			void RespondOK();
+
+			/*!
+			@brief		Closes the current connection and respons with a HTTP NO CONTENT (204).
+			*/
+			void RespondNoContent();
 
 			/*!
 			@brief		Closes the current connection and responds with a HTTP ERROR.

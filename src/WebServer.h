@@ -518,18 +518,10 @@ void WebServer::printf(const __FlashStringHelper *format, ... )
 bool WebServer::dispatchCommand(ConnectionType requestType, char *verb,
         bool tail_complete)
 {
-	/* DEBUG */
-	Serial.println("DispatchCommand...");
-	Serial.println(verb[0]);
-	Serial.println(verb);
-
   // if there is no URL, i.e. we have a prefix and it's requested without a
   // trailing slash or if the URL is just the slash
   if ((verb[0] == 0) || ((verb[0] == '/') && (verb[1] == 0)))
   {
-	  /* DEBUG */
-	  Serial.println("1:DispatchCommand...");
-
     m_defaultCmd(lightWebServer, *this, requestType, (char*)"", tail_complete);
     return true;
   }
@@ -537,9 +529,6 @@ bool WebServer::dispatchCommand(ConnectionType requestType, char *verb,
   // we're looking at the default command with GET parameters passed
   if ((verb[0] == '/') && (verb[1] == '?'))
   {
-	  /* DEBUG */
-	  Serial.println("2:DispatchCommand...");
-
     verb+=2; // skip over the "/?" part of the url
     m_defaultCmd(lightWebServer, *this, requestType, verb, tail_complete);
     return true;
@@ -548,9 +537,6 @@ bool WebServer::dispatchCommand(ConnectionType requestType, char *verb,
   // if the first character is a slash,  there's more after it.
   if (verb[0] == '/')
   {
-	  /* DEBUG */
-	  Serial.println("3:DispatchCommand...");
-
     uint8_t i;
     char *qm_loc;
     uint16_t verb_len;
@@ -564,16 +550,8 @@ bool WebServer::dispatchCommand(ConnectionType requestType, char *verb,
     verb_len = (qm_loc == NULL) ? strlen(verb) : (qm_loc - verb);
     qm_offset = (qm_loc == NULL) ? 0 : 1;
 
-	/* DEBUG */
-	Serial.print("# CMDS : ");
-	Serial.println(m_cmdCount);
-
     for (i = 0; i < m_cmdCount; ++i)
     {
-		/* DEBUG */
-		Serial.print("CMD : ");
-		Serial.println(m_commands[i].verb);
-
       if ((verb_len == strlen(m_commands[i].verb))
           && (strncmp(verb, m_commands[i].verb, verb_len) == 0))
       {

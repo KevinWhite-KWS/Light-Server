@@ -2,6 +2,13 @@
 
 namespace LS{
 	/*!
+	  @brief  Stops the execution of the current LP (if one is executing).
+	*/
+	void LPE::StopLP() {
+		lpValid = false;		// Next call to "GetNextRI" will simply return
+	}
+
+	/*!
 	  @brief   Gets the Light Program Instruction (LPI) object instance that represents the string
 			   of the LPI.
 	  @param   instructionBuffer	 A pointer to the FixedSizeCharBuffer that contains the LPI.

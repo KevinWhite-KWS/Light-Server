@@ -7,6 +7,8 @@ namespace LS{
 
 		// Initialises the event hooks
 		webServer->addCommand("program", &LightWebServer::HandleCommandLoadProgram);
+		webServer->addCommand("power/off", &LightWebServer::HandleCommandPowerOff);
+		webServer->addCommand("power/on", &LightWebServer::HandleCommandPowerOn);
 		webServer->setDefaultCommand(&LightWebServer::HandleCommandInvalid);
 		webServer->setFailureCommand(&LightWebServer::HandleCommandInvalid);
 
@@ -28,23 +30,47 @@ namespace LS{
 		currentCommand = commandType;
 	}
 
-	void LightWebServer::HandleCommandInvalid(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
-		lightWebServer->SetCommandType(CommandType::INVALID);
+	CommandType LightWebServer::GetCommandType() {
+		return currentCommand;
 	}
 
-	void LightWebServer::HandleCommandLoadProgram(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
-		lightWebServer->SetCommandType(CommandType::LOADPROGRAM);
-
+	void LightWebServer::LoadBody(ILightWebServer* lightWebServer, IWebServer& server) {
 		char* loadingBuffer = lightWebServer->GetLoadingBuffer();
 		char b = 0;
 
 		while ((b = server.read()) != -1
 			&& b != 255) {			// Cruically important to ALSO check for 255.  Otherwise, will be stuck in an infinite loop.
-			Serial.print(b);
-
 			*loadingBuffer = b;
 			loadingBuffer++;
 		}
+	}
+
+	void LightWebServer::HandleCommandInvalid(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		lightWebServer->SetCommandType(CommandType::INVALID);
+	}
+
+	void LightWebServer::HandleCommandPowerOff(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		lightWebServer->SetCommandType(CommandType::POWEROFF);
+	}
+
+	void LightWebServer::HandleCommandLoadProgram(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		lightWebServer->SetCommandType(CommandType::LOADPROGRAM);
+
+		LightWebServer::LoadBody(lightWebServer, server);
+		//char* loadingBuffer = lightWebServer->GetLoadingBuffer();
+		//char b = 0;
+
+		//while ((b = server.read()) != -1
+		//	&& b != 255) {			// Cruically important to ALSO check for 255.  Otherwise, will be stuck in an infinite loop.
+		//	*loadingBuffer = b;
+		//	loadingBuffer++;
+		//}
+	}
+
+	void LightWebServer::HandleCommandPowerOn(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		lightWebServer->SetCommandType(CommandType::POWERON);
+
+		LightWebServer::LoadBody(lightWebServer, server);
 	}
 
 	CommandType LightWebServer::HandleNextCommand() {
@@ -59,6 +85,11 @@ namespace LS{
 
 	void LightWebServer::RespondOK() {
 		webServer->httpSuccess();
+		webServer->closeConnection();
+	}
+
+	void LightWebServer::RespondNoContent() {
+		webServer->httpNoContent();
 		webServer->closeConnection();
 	}
 

@@ -78,6 +78,7 @@ using LS::LPValidateResult;
 using LS::LightWebServer;
 using LS::FixedSizeCharBuffer;
 using LS::CommandType;
+using LS::Colour;
 
 /* + NETWORK STUFF + */
 #define WEBDUINO_SERIAL_DEBUGGING	0
@@ -196,6 +197,32 @@ void SingleProgramTest() {
 
 		if (cmdType == CommandType::INVALID) {
 			lightWebServ.RespondError();
+		} 
+		else if (cmdType == CommandType::POWEROFF) {
+			lpe.StopLP();
+			pixelController->fill(0);
+			pixelController->show();
+			lightWebServ.RespondNoContent();
+		}
+		else if (cmdType == CommandType::POWERON) {
+			lpe.StopLP();
+
+			// See if we received a valid colour
+			char* buf = lightWebServ.GetLoadingBuffer(false);
+			bool isValidColour = false;
+			Colour colour = stringProcessor.ExtractColourFromHexEncoded(buf, isValidColour);
+
+			if (isValidColour) {
+				// Use that valid colour
+				uint32_t packedColour = Adafruit_NeoPixel::Color(colour.red, colour.green, colour.blue);
+				pixelController->fill(packedColour);
+			}
+			else {
+				// Otherwise just fill them white
+				pixelController->fill(16777215);
+			}
+			pixelController->show();
+			lightWebServ.RespondNoContent();
 		}
 		else if (cmdType == CommandType::LOADPROGRAM) {
 			char* buf = lightWebServ.GetLoadingBuffer(false);

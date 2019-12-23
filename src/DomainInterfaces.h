@@ -1,6 +1,8 @@
 #ifndef _DOMAININTERFACES_H
 #define _DOMAININTERFACES_H
 
+#include <stdint.h>
+
 namespace LS {
 	/*!
 	@brief  Interface that defines the contract for a class that controls a set of LEDs.
@@ -12,6 +14,7 @@ namespace LS {
 			virtual void setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) = 0;
 			virtual void show() = 0;
 			virtual uint32_t getPixelColor(uint16_t n) const = 0;
+			virtual void fill(uint32_t c = 0, uint16_t first = 0, uint16_t count = 0) = 0;
 	};
 
 
@@ -25,7 +28,9 @@ namespace LS {
 	enum CommandType { 
 		NONE, 
 		INVALID, 
-		LOADPROGRAM 
+		LOADPROGRAM,
+		POWEROFF,
+		POWERON
 	};
 
 	/*!
@@ -65,8 +70,9 @@ namespace LS {
 			virtual void setDefaultCommand(Command* cmd) = 0;
 			virtual void setFailureCommand(Command* cmd) = 0;
 			virtual void httpFail() = 0;
+			virtual void httpNoContent() = 0;
 			virtual void httpSuccess(const char* contentType = "text/html; charset=utf-8",
-				const char* extraHeaders = NULL) = 0;
+				const char* extraHeaders = nullptr) = 0;
 			virtual int read() = 0;
 			virtual void flushBuf() = 0;
 			virtual void addCommand(const char* verb, Command* cmd) = 0;

@@ -141,6 +141,8 @@ namespace LS {
 			bool GetNextRI(FixedSizeCharBuffer* riBuffer);
 
 			void ValidateLP(FixedSizeCharBuffer* lp, LPValidateResult* result);
+
+			void StopLP();
 	};
 }
 #endif
