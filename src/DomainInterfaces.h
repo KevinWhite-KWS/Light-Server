@@ -13,8 +13,9 @@ namespace LS {
 			IPixelController() { }
 			virtual void setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) = 0;
 			virtual void show() = 0;
-			virtual uint32_t getPixelColor(uint16_t n) const = 0;
 			virtual void fill(uint32_t c = 0, uint16_t first = 0, uint16_t count = 0) = 0;
+			virtual uint16_t numPixels(void) const = 0;
+			virtual uint32_t getPixelColor(uint16_t n) const = 0;
 	};
 
 
@@ -30,7 +31,9 @@ namespace LS {
 		INVALID, 
 		LOADPROGRAM,
 		POWEROFF,
-		POWERON
+		POWERON,
+		CHECKPOWER,
+		GETABOUT
 	};
 
 	/*!
@@ -79,6 +82,7 @@ namespace LS {
 			virtual void processConnection(char* buff, int* bufflen) = 0;
 			virtual void setLightWebServer(ILightWebServer* lightWebServer) = 0;
 			virtual void closeConnection() = 0;
+			virtual void printP(const char* str) = 0;
 	};
 
 	/*!

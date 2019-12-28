@@ -81,8 +81,24 @@ namespace LS {
 			@param	tailComplete		True if the tail is complete
 			*/
 			static void HandleCommandPowerOn(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
-
-
+			/*!
+			@brief  Handles a request to GET the state of the LEDS (whether any are presently on or not).  Sets the web server status to "CHECKPOWER".
+			@param	lightWebServer		A pointer to this LightWebServer instance.  Required as the handler has to be a static method.
+			@param	server				A pointer to the web server.
+			@param	type				The verb of the connection or INVALID for an invalid request.
+			@param	header				A pointer to the header.
+			@param	tailComplete		True if the tail is complete
+			*/
+			static void HandleCommandCheckPower(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
+			/*!
+			@brief  Handles a request to GET the current configuration values.  Sets the web server status to "GETCONFIG".
+			@param	lightWebServer		A pointer to this LightWebServer instance.  Required as the handler has to be a static method.
+			@param	server				A pointer to the web server.
+			@param	type				The verb of the connection or INVALID for an invalid request.
+			@param	header				A pointer to the header.
+			@param	tailComplete		True if the tail is complete
+			*/
+			static void HandleCommandGetAbout(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
 		public:
 			/*!
 			@brief  Default constructor sets references to the mandatory properties.
@@ -124,8 +140,9 @@ namespace LS {
 
 			/*!
 			@brief		Closes the current connection and responds with a HTTP OK.
+			@param		str				The body response to be writtern (if any).
 			*/
-			void RespondOK();
+			void RespondOK(const char* str = nullptr);
 
 			/*!
 			@brief		Closes the current connection and respons with a HTTP NO CONTENT (204).

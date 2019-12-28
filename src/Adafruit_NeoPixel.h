@@ -255,8 +255,8 @@ class Adafruit_NeoPixel : public IPixelController {
     @brief   Return the number of pixels in an Adafruit_NeoPixel strip object.
     @return  Pixel count (0 if not set).
   */
-  uint16_t          numPixels(void) const { return numLEDs; }
-  uint32_t          getPixelColor(uint16_t n) const;
+  virtual uint16_t          numPixels(void) const { return numLEDs; }
+  virtual uint32_t          getPixelColor(uint16_t n) const;
   /*!
     @brief   An 8-bit integer sine wave function, not directly compatible
              with standard trigonometric units like radians or degrees.

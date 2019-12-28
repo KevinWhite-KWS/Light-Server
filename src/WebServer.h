@@ -307,7 +307,7 @@ public:
   // output standard headers indicating "200 Success".  You can change the
   // type of the data you're outputting or also add extra headers like
   // "Refresh: 1".  Extra headers should each be terminated with CRLF.
-  void httpSuccess(const char *contentType = "text/html; charset=utf-8",
+  void httpSuccess(const char *contentType = "application/json; charset=utf-8",
                    const char *extraHeaders = NULL);
 
   // used with POST to output a redirect to another URL.  This is

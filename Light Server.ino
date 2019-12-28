@@ -63,6 +63,8 @@
 // long strip has: 118
 #define		RENDERING_FRAME		50
 
+#define		LS_VERSION	"1.0.0"
+#define		LDL_VERSION	"1.0.0"
 
 using LS::StringProcessor;
 using LS::Renderer;
@@ -118,6 +120,8 @@ Renderer render = Renderer(&stringProcessor, &ledConfig, pixelController);
 FixedSizeCharBuffer riBuffer = FixedSizeCharBuffer(BUFFER_SIZE);
 FixedSizeCharBuffer lpBuffer = FixedSizeCharBuffer(BUFFER_SIZE);
 FixedSizeCharBuffer webBuffer = FixedSizeCharBuffer(BUFFER_SIZE);
+FixedSizeCharBuffer webResponseBuffer = FixedSizeCharBuffer(1000);
+StaticJsonDocument<1000> webResponseDoc;
 LPE lpe = LPE(&ledConfig, &stringProcessor);
 
 
@@ -238,7 +242,31 @@ void SingleProgramTest() {
 				lightWebServ.RespondOK();
 			}
 		}
+		else if (cmdType == CommandType::CHECKPOWER) {
+			// Check whether any LED is on (i.e. a non-zero value)
+			uint16_t pixelCounter = 0;
+			uint16_t totalPixels = pixelController->numPixels();
+			bool anyOn = false;
+			while (!anyOn && pixelCounter < totalPixels) {
+				anyOn = pixelController->getPixelColor(pixelCounter++) != 0;
+			}
 
+			// Respond with the body response - i.e. state of pixels
+			webResponseDoc.clear();
+			webResponseDoc["power"] = (anyOn ? "on" : "off");
+			serializeJsonPretty(webResponseDoc, webResponseBuffer.GetBuffer(), 1000);
+
+			lightWebServ.RespondOK(webResponseBuffer.GetBuffer());
+		}
+		else if (cmdType == CommandType::GETABOUT) {
+			webResponseDoc.clear();
+			webResponseDoc["LEDs"] = NUMLEDS;
+			webResponseDoc["LS Version"] = LS_VERSION;
+			webResponseDoc["LDL Version"] = LDL_VERSION;
+			serializeJsonPretty(webResponseDoc, webResponseBuffer.GetBuffer(), 1000);
+
+			lightWebServ.RespondOK(webResponseBuffer.GetBuffer());
+		}
 
 
 		unsigned long endWeb = millis() - currentMillis;
@@ -253,7 +281,7 @@ void SingleProgramTest() {
 
 
 
-		// Output a debug message with start time of op
+		// Output a debug message with start time of op 
 		Serial.print("Start get RI @ ");
 		Serial.print(currentMillis);
 		Serial.print(".  Free memory = ");
