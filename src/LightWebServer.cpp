@@ -1,9 +1,10 @@
 #include "LightWebServer.h"
 
 namespace LS{
-	LightWebServer::LightWebServer(IWebServer* webServer, FixedSizeCharBuffer* loadingBuffer) {
+	LightWebServer::LightWebServer(IWebServer* webServer, FixedSizeCharBuffer* loadingBuffer, char* basicAuthCredentials) {
 		this->webServer = webServer;
 		this->loadingBuffer = loadingBuffer;
+		this->authCredentials = basicAuthCredentials;
 
 		// Initialises the event hooks
 		webServer->addCommand("program", &LightWebServer::HandleCommandLoadProgram);
@@ -11,6 +12,7 @@ namespace LS{
 		webServer->addCommand("power/on", &LightWebServer::HandleCommandPowerOn);
 		webServer->addCommand("power", &LightWebServer::HandleCommandCheckPower);
 		webServer->addCommand("about", &LightWebServer::HandleCommandGetAbout);
+		webServer->addCommand("config/leds", &LightWebServer::HandleCommandSetLeds);
 		webServer->setDefaultCommand(&LightWebServer::HandleCommandInvalid);
 		webServer->setFailureCommand(&LightWebServer::HandleCommandInvalid);
 
@@ -36,6 +38,16 @@ namespace LS{
 		return currentCommand;
 	}
 
+	bool LightWebServer::CheckAuth(ILightWebServer* lightWebServer, IWebServer& server) {
+		bool isAuthed = server.checkCredentials(lightWebServer->GetAuthCredentials());
+		if (!isAuthed) {
+			lightWebServer->SetCommandType(CommandType::NOAUTH);
+			return false;
+		}
+
+		return true;
+	}
+
 	void LightWebServer::LoadBody(ILightWebServer* lightWebServer, IWebServer& server) {
 		char* loadingBuffer = lightWebServer->GetLoadingBuffer();
 		char b = 0;
@@ -52,22 +64,30 @@ namespace LS{
 	}
 
 	void LightWebServer::HandleCommandPowerOff(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		if (LightWebServer::CheckAuth(lightWebServer, server) == false) return;	// Check authentication
+
 		lightWebServer->SetCommandType(CommandType::POWEROFF);
 	}
 
 	void LightWebServer::HandleCommandLoadProgram(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		if (LightWebServer::CheckAuth(lightWebServer, server) == false) return;	// Check authentication
+
 		lightWebServer->SetCommandType(CommandType::LOADPROGRAM);
 
 		LightWebServer::LoadBody(lightWebServer, server);
 	}
 
 	void LightWebServer::HandleCommandPowerOn(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		if (LightWebServer::CheckAuth(lightWebServer, server) == false) return;	// Check authentication
+
 		lightWebServer->SetCommandType(CommandType::POWERON);
 
 		LightWebServer::LoadBody(lightWebServer, server);
 	}
 
 	void LightWebServer::HandleCommandCheckPower(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		if (LightWebServer::CheckAuth(lightWebServer, server) == false) return;	// Check authentication
+
 		if (type != IWebServer::ConnectionType::GET) {
 			lightWebServer->SetCommandType(CommandType::INVALID);
 			return;
@@ -77,12 +97,27 @@ namespace LS{
 	}
 
 	void LightWebServer::HandleCommandGetAbout(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		if (LightWebServer::CheckAuth(lightWebServer, server) == false) return;	// Check authentication
+
 		if (type != IWebServer::ConnectionType::GET) {
 			lightWebServer->SetCommandType(CommandType::INVALID);
 			return;
 		}
 
 		lightWebServer->SetCommandType(CommandType::GETABOUT);
+	}
+
+	void LightWebServer::HandleCommandSetLeds(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		if (LightWebServer::CheckAuth(lightWebServer, server) == false) return;	// Check authentication
+
+		if (type != IWebServer::ConnectionType::POST) {
+			lightWebServer->SetCommandType(CommandType::INVALID);
+			return;
+		}
+
+		lightWebServer->SetCommandType(CommandType::SETLEDS);
+
+		LightWebServer::LoadBody(lightWebServer, server);
 	}
 
 	CommandType LightWebServer::HandleNextCommand() {
@@ -112,6 +147,11 @@ namespace LS{
 
 	void LightWebServer::RespondError() {
 		webServer->httpFail();
+		webServer->closeConnection();
+	}
+
+	void LightWebServer::RespondNotAuthorised() {
+		webServer->httpUnauthorized();
 		webServer->closeConnection();
 	}
 }

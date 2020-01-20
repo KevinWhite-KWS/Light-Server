@@ -35,6 +35,15 @@ namespace LS {
 			IWebServer* webServer;
 			FixedSizeCharBuffer* loadingBuffer;
 			CommandType currentCommand;
+			const char* authCredentials;				// Base64 encoded authentication credentials
+
+			/*!
+			 @brief		Checks the authentication header against the stored credentials.
+			 @param		lightWebServer	A pointer to this LightWebServer instance.  Required as the handler has to be a static method.
+			 @param		server			A pointer to the web server.
+			 @returns	bool			True if the authentication credentials are valid, false otherwise.
+			*/
+			static bool CheckAuth(ILightWebServer* lightWebServer, IWebServer& server);
 
 			/*!
 			@brief	Loads the loading buffer from the body of the incoming web server request.
@@ -99,13 +108,22 @@ namespace LS {
 			@param	tailComplete		True if the tail is complete
 			*/
 			static void HandleCommandGetAbout(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
+			/*!
+			@brief  Handles a request to set the number of connected LEDS.  Sets the web server status to "SETLEDS".
+			@param	lightWebServer		A pointer to this LightWebServer instance.  Required as the handler has to be a static method.
+			@param	server				A pointer to the web server.
+			@param	type				The verb of the connection or INVALID for an invalid request.
+			@param	header				A pointer to the header.
+			@param	tailComplete		True if the tail is complete
+			*/
+			static void HandleCommandSetLeds(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
 		public:
 			/*!
 			@brief  Default constructor sets references to the mandatory properties.
 			@param	webServer			A pointer to the web server.
 			@param	loadingBuffer		A pointer to the buffer that is used for loading received requests.
 			*/
-			LightWebServer(IWebServer* webServer, FixedSizeCharBuffer* loadingBuffer);
+			LightWebServer(IWebServer* webServer, FixedSizeCharBuffer* loadingBuffer, char *basicAuthCredentials);
 
 			/*!
 			@brief  Starts the web server so that connections can be processed.
@@ -133,6 +151,15 @@ namespace LS {
 			char* GetLoadingBuffer(bool clearBuffer = true);
 
 			/*!
+			  @brief	Gets a reference to the buffer that contains the Base64 encoded
+						basic credentials to be used for authenticating requests.
+			  @returns	char*			A pointer to the Base64 encoded user credentials.
+			*/
+			const char* GetAuthCredentials() {
+				return authCredentials;
+			}
+
+			/*!
 			@brief		Checks whether a new command has been received and returns the command type.
 			@returns	CommandType		The type of command that has been received (if any).
 			*/
@@ -153,6 +180,11 @@ namespace LS {
 			@brief		Closes the current connection and responds with a HTTP ERROR.
 			*/
 			void RespondError();
+
+			/*!
+			@brief		Closes the current connection and responds with a HTTP NOT AUTHORISED
+			*/
+			void RespondNotAuthorised();
 	};
 }
 #endif

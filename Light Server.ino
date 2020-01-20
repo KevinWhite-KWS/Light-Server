@@ -63,8 +63,10 @@
 // long strip has: 118
 #define		RENDERING_FRAME		50
 
-#define		LS_VERSION	"1.0.0"
-#define		LDL_VERSION	"1.0.0"
+#define		LS_VERSION			"1.0.0"
+#define		LDL_VERSION			"1.0.0"
+
+#define		BASIC_AUTH_SUPER	"U3VwZXI6MXhZYTFtYW4yKg=="	// Super:1xYa1man2*
 
 using LS::StringProcessor;
 using LS::Renderer;
@@ -83,7 +85,7 @@ using LS::CommandType;
 using LS::Colour;
 
 /* + NETWORK STUFF + */
-#define WEBDUINO_SERIAL_DEBUGGING	0
+#define WEBDUINO_SERIAL_DEBUGGING	2
 #include <SPI.h>
 #include <Ethernet.h>
 #include "src/WebServer.h"
@@ -98,7 +100,7 @@ WebServer webserv(PREFIX, 80);
 IWebServer* webserver = &webserv;
 int webBufferLen = BUFFER_SIZE;
 FixedSizeCharBuffer webLoadingBuffer = FixedSizeCharBuffer(BUFFER_SIZE);
-LightWebServer lightWebServ(webserver, &webLoadingBuffer);
+LightWebServer lightWebServ(webserver, &webLoadingBuffer, BASIC_AUTH_SUPER);
 /* - NETWORK STUFF - */
 
 
@@ -170,6 +172,8 @@ bool ValidateProgram() {
 	// the setup function runs once when you press reset or power the board
 void setup() {
 	// pinMode(LED_BUILTIN, OUTPUT);
+	SerialUSB.begin(115200);
+
 	pixels.begin();
 
 	// Set the program to be loaded here
@@ -188,6 +192,8 @@ void setup() {
 	Ethernet.begin(mac, ip);
 	lightWebServ.Start();
 	/* - NETWORK STUFF - */
+
+	
 }
 
 
@@ -202,6 +208,9 @@ void SingleProgramTest() {
 		if (cmdType == CommandType::INVALID) {
 			lightWebServ.RespondError();
 		} 
+		if (cmdType == CommandType::NOAUTH) {
+			lightWebServ.RespondNotAuthorised();
+		}
 		else if (cmdType == CommandType::POWEROFF) {
 			lpe.StopLP();
 			pixelController->fill(0);
@@ -267,7 +276,22 @@ void SingleProgramTest() {
 
 			lightWebServ.RespondOK(webResponseBuffer.GetBuffer());
 		}
+		else if (cmdType == CommandType::SETLEDS) {
+			char* buf = lightWebServ.GetLoadingBuffer(false);
+			bool validNumber = false;
+			int newNoLeds = stringProcessor.ExtractNumberFromHexEncoded(buf, 10, 200, validNumber);
+			// newNoLeds is a hex encoded value!  Dec encoded better?
+			// is it consistent with the rest of the API?
 
+			if (!validNumber) {
+				lightWebServ.RespondError();
+			}
+			else {
+				// Re-config the LEDs
+
+				lightWebServ.RespondOK();
+			}
+		}
 
 		unsigned long endWeb = millis() - currentMillis;
 		//Serial.print("End check webServer @ ");

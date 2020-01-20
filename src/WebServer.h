@@ -338,7 +338,7 @@ public:
 	  flushBuf();
 
 #if WEBDUINO_SERIAL_DEBUGGING > 1
-	  Serial.println("*** stopping connection ***");
+      SerialUSB.println("*** stopping connection ***");
 #endif
 	  reset();
   }
@@ -618,15 +618,15 @@ void WebServer::processConnection(char *buff, int *bufflen)
     buff[0] = 0;
     ConnectionType requestType = INVALID;
 #if WEBDUINO_SERIAL_DEBUGGING > 1
-    Serial.println("*** checking request ***");
+    SerialUSB.println("*** checking request ***");
 #endif
     getRequest(requestType, buff, bufflen);
 #if WEBDUINO_SERIAL_DEBUGGING > 1
-    Serial.print("*** requestType = ");
-    Serial.print((int)requestType);
-    Serial.print(", request = \"");
-    Serial.print(buff);
-    Serial.println("\" ***");
+    SerialUSB.print("*** requestType = ");
+    SerialUSB.print((int)requestType);
+    SerialUSB.print(", request = \"");
+    SerialUSB.print(buff);
+    SerialUSB.println("\" ***");
 #endif
 
     // don't even look further at invalid requests.
@@ -638,7 +638,7 @@ void WebServer::processConnection(char *buff, int *bufflen)
     {
       processHeaders();
 #if WEBDUINO_SERIAL_DEBUGGING > 1
-      Serial.println("*** headers complete ***");
+      SerialUSB.println("*** headers complete ***");
 #endif
 
       if (strcmp(buff, "/robots.txt") == 0)
@@ -650,10 +650,17 @@ void WebServer::processConnection(char *buff, int *bufflen)
         favicon(requestType);
       }
     }
+
+	// CORS (KW - 12 Jan 2019)
+	if (requestType == OPTIONS) {
+		httpSuccess();
+        closeConnection();
+	}
+
     // Only try to dispatch command if request type and prefix are correct.
     // Fix by quarencia.
 
-    if (requestType == INVALID ||
+    else if (requestType == INVALID ||
         strncmp(buff, m_urlPrefix, urlPrefixLen) != 0)
     {
       m_failureCmd(lightWebServer, *this, requestType, buff, (*bufflen) >= 0);
@@ -661,7 +668,6 @@ void WebServer::processConnection(char *buff, int *bufflen)
     else if (!dispatchCommand(requestType, buff + urlPrefixLen,
              (*bufflen) >= 0))
     {
-		Serial.println("Cannot dispatch");
       m_failureCmd(lightWebServer, *this, requestType, buff, (*bufflen) >= 0);
     }
 
@@ -789,12 +795,14 @@ void WebServer::httpSuccess(const char *contentType,
   printP(webServerHeader);
 #endif
 
-  P(successMsg2) = 
-    "Access-Control-Allow-Origin: *" CRLF
-    "Content-Type: ";
+  P(successMsg2) =
+	  "Access-Control-Allow-Origin: *" CRLF
+	  "Access-Control-Allow-Methods: POST GET" CRLF
+	  "Access-Control-Allow-Headers: authorization" CRLF;
+    //"Content-Type: ";
 
   printP(successMsg2);
-  print(contentType);
+  //print(contentType);
   printCRLF();
   if (extraHeaders)
     print(extraHeaders);
@@ -836,7 +844,7 @@ int WebServer::read()
         if (m_contentLength == 0)
         {
 #if WEBDUINO_SERIAL_DEBUGGING > 1
-          Serial.println("\n*** End of content, terminating connection");
+          SerialUSB.println("\n*** End of content, terminating connection");
 #endif
           return -1;
         }
@@ -856,11 +864,11 @@ int WebServer::read()
 
 #if WEBDUINO_SERIAL_DEBUGGING
         if (ch == '\r')
-          Serial.print("<CR>");
+            SerialUSB.print("<CR>");
         else if (ch == '\n')
-          Serial.println("<LF>");
+            SerialUSB.println("<LF>");
         else
-          Serial.print((char)ch);
+            SerialUSB.print((char)ch);
 #endif
         return ch;
       }
@@ -871,7 +879,7 @@ int WebServer::read()
         {
           // connection timed out, destroy client, return EOF
 #if WEBDUINO_SERIAL_DEBUGGING
-          Serial.println("*** Connection timed out");
+            SerialUSB.println("*** Connection timed out");
 #endif
           reset();
           return -1;
@@ -881,7 +889,7 @@ int WebServer::read()
 
     // connection lost, return EOF
 #if WEBDUINO_SERIAL_DEBUGGING
-    Serial.println("*** Connection lost");
+    SerialUSB.println("*** Connection lost");
 #endif
     return -1;
   }
@@ -1229,11 +1237,14 @@ void WebServer::getRequest(WebServer::ConnectionType &type,
   else if (expect("POST "))
 	  type = POST;
   else if (expect("PUT "))
-    type = PUT;
+	  type = PUT;
   else if (expect("DELETE "))
-    type = DELETE;
+	  type = DELETE;
   else if (expect("PATCH "))
-    type = PATCH;
+	  type = PATCH;
+  // CORS support
+  else if (expect("OPTIONS "))
+	  type = OPTIONS;
 
   // if it doesn't start with any of those, we have an unknown method
   // so just get out of here
@@ -1275,9 +1286,9 @@ void WebServer::processHeaders()
     {
       readInt(m_contentLength);
 #if WEBDUINO_SERIAL_DEBUGGING > 1
-      Serial.print("\n*** got Content-Length of ");
-      Serial.print(m_contentLength);
-      Serial.print(" ***");
+      SerialUSB.print("\n*** got Content-Length of ");
+      SerialUSB.print(m_contentLength);
+      SerialUSB.print(" ***");
 #endif
       continue;
     }
@@ -1286,9 +1297,9 @@ void WebServer::processHeaders()
     {
       readHeader(m_authCredentials,51);
 #if WEBDUINO_SERIAL_DEBUGGING > 1
-      Serial.print("\n*** got Authorization: of ");
-      Serial.print(m_authCredentials);
-      Serial.print(" ***");
+      SerialUSB.print("\n*** got Authorization: of ");
+      SerialUSB.print(m_authCredentials);
+      SerialUSB.print(" ***");
 #endif
       continue;
     }

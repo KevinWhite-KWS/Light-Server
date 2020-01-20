@@ -28,12 +28,14 @@ namespace LS {
 	*/
 	enum CommandType { 
 		NONE, 
-		INVALID, 
-		LOADPROGRAM,
-		POWEROFF,
-		POWERON,
-		CHECKPOWER,
-		GETABOUT
+		NOAUTH,			// Not authorised (missing valid basic auth header)
+		INVALID,		// Not a recognised / valid request
+		LOADPROGRAM,	// Attmpt to load an LP
+		POWEROFF,		// Turn off all LEDs
+		POWERON,		// Turn on all LEDs to white unless an explicit colour has been specified
+		CHECKPOWER,		// Returns the state of the LEDS (whether any are curently on or not)
+		GETABOUT,		// Returns information about the server (versions and stuff)
+		SETLEDS			// Sets the number of connected LEDs
 	};
 
 	/*!
@@ -49,7 +51,7 @@ namespace LS {
 	{
 		public:
 			// passed to a command to indicate what kind of request was received
-			enum ConnectionType { INVALID, GET, HEAD, POST, PUT, DELETE, PATCH };
+			enum ConnectionType { INVALID, GET, HEAD, POST, PUT, DELETE, PATCH, OPTIONS /* CORS */ };
 
 			// any commands registered with the web server have to follow
 			// this prototype.
@@ -76,6 +78,7 @@ namespace LS {
 			virtual void httpNoContent() = 0;
 			virtual void httpSuccess(const char* contentType = "text/html; charset=utf-8",
 				const char* extraHeaders = nullptr) = 0;
+			virtual void httpUnauthorized() = 0;
 			virtual int read() = 0;
 			virtual void flushBuf() = 0;
 			virtual void addCommand(const char* verb, Command* cmd) = 0;
@@ -83,6 +86,7 @@ namespace LS {
 			virtual void setLightWebServer(ILightWebServer* lightWebServer) = 0;
 			virtual void closeConnection() = 0;
 			virtual void printP(const char* str) = 0;
+			virtual bool checkCredentials(const char authCredentials[45]) = 0;
 	};
 
 	/*!
@@ -111,6 +115,13 @@ namespace LS {
 			  @returns	char*			A pointer to the loading buffer.
 			*/
 			virtual char* GetLoadingBuffer(bool clearBuffer = true) = 0;
+
+			/*!
+			  @brief	Gets a reference to the buffer that contains the Base64 encoded
+						basic credentials to be used for authenticating requests.
+			  @returns	char*			A pointer to the Base64 encoded user credentials.
+			*/
+			virtual const char* GetAuthCredentials() = 0;
 	};
 }
 
