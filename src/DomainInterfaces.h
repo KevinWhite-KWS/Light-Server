@@ -1,9 +1,24 @@
 #ifndef _DOMAININTERFACES_H
 #define _DOMAININTERFACES_H
 
+
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
 #include <stdint.h>
 
 namespace LS {
+	/*
+	@brief	Interface that defines hte contract for a class that provides application logging functionality.
+	*/
+	class IAppLogger {
+		public:
+			virtual void logEvent(uint32_t start, uint8_t level, const char* event, const char* trigger, uint32_t end = 0, const char* msg = nullptr) = 0;
+	};
+
 	/*!
 	@brief  Interface that defines the contract for a class that controls a set of LEDs.
 	*/
@@ -122,6 +137,33 @@ namespace LS {
 			  @returns	char*			A pointer to the Base64 encoded user credentials.
 			*/
 			virtual const char* GetAuthCredentials() = 0;
+
+			/*!
+			@brief		Closes the current connection and responds with a HTTP ERROR.
+			*/
+			virtual void RespondError() = 0;
+
+			/*!
+			@brief		Closes the current connection and responds with a HTTP NOT AUTHORISED
+			*/
+			virtual void RespondNotAuthorised() = 0;
+
+			/*!
+			@brief		Closes the current connection and respons with a HTTP NO CONTENT (204).
+			*/
+			virtual void RespondNoContent() = 0;
+
+			/*!
+			@brief		Closes the current connection and respons with a HTTP OK (200).
+			@param		str			Optional pointer to a buffer that contains the text to be sent in the body.
+			*/
+			virtual void RespondOK(const char* str) = 0;
+
+			/*!
+			@brief		Checks whether a new command has been received and returns the command type.
+			@returns	CommandType		The type of command that has been received (if any).
+			*/
+			virtual CommandType HandleNextCommand() = 0;
 	};
 }
 

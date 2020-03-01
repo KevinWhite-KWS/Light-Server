@@ -779,7 +779,7 @@ void WebServer::httpNoContent()
 #endif
 
   P(noContentMsg2) = 
-    CRLF
+    "Access-Control-Allow-Origin: *" CRLF
     CRLF;
 
   printP(noContentMsg2);
