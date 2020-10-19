@@ -65,8 +65,16 @@ namespace LS{
 		this->currentIns = nullptr;
 		this->loopIterationsRemaining = 0;
 		this->loopsRemaining[0] = this->loopsRemaining[1] = this->loopsRemaining[2] = this->loopsRemaining[3] = this->loopsRemaining[4] = this->loopsRemaining[5] = 0;
-		this->loopsLPIndices[1] = this->loopsLPIndices[2] = this->loopsLPIndices[3] = this->loopsLPIndices[4] = this->loopsLPIndices[5] = 0;
-		this->loopsLPIndices[1] = 1;	// first set of instructions is always going to be placed beginning at 1
+		this->loopsLPIndices[0] = this->loopsLPIndices[1] = this->loopsLPIndices[2] = this->loopsLPIndices[3] = this->loopsLPIndices[4] = this->loopsLPIndices[5] = 0;
+		
+		// The following initialisation code is required on
+		// items 0 and 1.  Not doing so causes a bug to occur
+		// when a new program is loaded.  This code is a little
+		// messy and could do with some cleaning up.
+		this->loopsLPIndices[0] = this->loopsLPIndices[1] = 1;	// first set of instructions is always going to be placed beginning at 1
+
+		// this->loopsLPIndices[0] = 1;	// first set of instructions is always going to be placed beginning at 1
+
 		this->instructionsDepth = 0;
 		this->infiniteLoopCounter = 0;
 		// this->currentInstruction = nullptr;

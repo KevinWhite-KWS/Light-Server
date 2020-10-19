@@ -78,6 +78,24 @@ namespace LS {
 			appLogger->logEvent(currentExecuteTime, 0, "Cycle", "Start");
 #endif
 
+
+
+			// Render
+			riBuffer->ClearBuffer();
+			bool hasInstruction = lpe->GetNextRI(riBuffer);
+			if (hasInstruction) {
+#if defined(DEBUG_RENDER) || defined(DEBUG_ALL)
+				uint32_t startRender = millis();
+				appLogger->logEvent(startRender, 1, "Render", "Start Render");
+				appLogger->logEvent(startRender, 1, "Render", riBuffer->GetBuffer());
+#endif
+				renderer->SetRI(riBuffer->GetBuffer());
+				renderer->Render();
+#if defined(DEBUG_RENDER) || defined(DEBUG_ALL)
+				appLogger->logEvent(startRender, 1, "Render", "End Render", millis());
+#endif
+			}
+
 			// Check if a command is waiting
 			ICommand* commandHandler = GetNextCommand();
 
@@ -93,22 +111,15 @@ namespace LS {
 #endif
 			}
 
-			// Render
-			riBuffer->ClearBuffer();
-			bool hasInstruction = lpe->GetNextRI(riBuffer);
-			if (hasInstruction) {
-#if defined(DEBUG_RENDER) || defined(DEBUG_ALL)
-				uint32_t startRender = millis();
-				appLogger->logEvent(startRender, 1, "Render", "Start Render");
-#endif
-				renderer->SetRI(riBuffer->GetBuffer());
-				renderer->Render();
-#if defined(DEBUG_RENDER) || defined(DEBUG_ALL)
-				appLogger->logEvent(startRender, 1, "Render", "End Render", millis());
-#endif
+			nextCycleExecuteTime = currentExecuteTime + CYCLE_TIME;
+			if (nextCycleExecuteTime < millis()		// long loading cycle e.g. loading program from web takes 200ms
+				|| millis() < 1000					// overflow with millis i.e. > 50 days program time, so overflow back to 0
+				) {
+				nextCycleExecuteTime = millis() + CYCLE_TIME;
 			}
+			// nextCycleExecuteTime += CYCLE_TIME;
 
-			nextCycleExecuteTime += CYCLE_TIME;
+
 #if defined(DEBUG_CYCLE) || defined(DEBUG_ALL)
 			appLogger->logEvent(currentExecuteTime, 0, "Cycle", "End", millis());
 #endif
