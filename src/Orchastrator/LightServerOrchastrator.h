@@ -12,11 +12,8 @@
 #include "../Commands/CommandFactory.h"
 
 namespace LS {
-	#define		ORCHASTRATOR_DEBUG_ALL		// define this to see orchastrator debugging output
-	// #define		ORCHASTRATOR_DEBUG_CYCLE	// define this to see orchastrator cycle-related debugging output
-	// #define		ORCHASTRATOR_DEBUG_COMMANDS	// define this to see command execution debugging output
-	// #define		ORCHASTRATOR_DEBUG_RENDERING	// define this to see orchastrator rendering-related debugging output
-
+	
+	// #define		ORCHASTRATOR_DEBUG_ALL		// define this to see orchastrator debugging output
 	class LightServerOrchastrator : public IOrchastor {
 		private:
 			Timer* timer;

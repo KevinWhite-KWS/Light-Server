@@ -64,7 +64,7 @@ namespace LS {
 	// (2) for when debugging output is required.  This contains additional code to cause debug messages to be sent via the serial connection.
 	//     The additional statements are contained in /** START: DEBUG **/ and /** END: DEBUG **/ blocks.
 	// If any changes are made to (1) then they should be reflected in (2).
-#if not defined(ORCHASTRATOR_DEBUG_ALL)
+#ifndef ORCHASTRATOR_DEBUG_ALL
 	/*!
 			@brief	Executes the orchastrator which causes the following actions:
 					1.
@@ -105,7 +105,7 @@ namespace LS {
 	}
 #endif
 
-#if defined(ORCHASTRATOR_DEBUG_ALL)
+#ifdef ORCHASTRATOR_DEBUG_ALL
 	/*!
 		@brief	Executes the orchastrator which causes the following actions:
 				1.

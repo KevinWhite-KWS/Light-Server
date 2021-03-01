@@ -6,7 +6,6 @@
 #include "LpState.h"
 #include "..\Instructions\LpInstruction.h"
 #include "IJsonInstructionBuilder.h"
-#include "..\..\LPI\LPIFactory.h"
 #include "..\LpiExecutors\LpiExecutorFactory.h"
 #include "..\..\StringProcessor.h"
 

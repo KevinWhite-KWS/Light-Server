@@ -16,8 +16,8 @@
 
 #include "ICommand.h"
 #include "../DomainInterfaces.h"
-#include "../LPE.h"
 #include "../ArduinoJson-v6.17.2.h"
+#include "../FixedSizeCharBuffer.h"
 
 namespace LS {
 	/*!

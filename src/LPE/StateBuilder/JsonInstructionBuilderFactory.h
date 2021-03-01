@@ -11,7 +11,6 @@
 #include "LpJsonInstructionBuilder.h"
 #include "RepeatJsonInstructionBuilder.h"
 #include "..\InstructionType.h"
-#include "..\..\LPI\LPIFactory.h"
 #include "..\LpiExecutors\LpiExecutorFactory.h"
 
 namespace LS {

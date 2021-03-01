@@ -16,7 +16,7 @@
 
 #include "ICommand.h"
 #include "../DomainInterfaces.h"
-#include "../LPE.h"
+#include "../StringProcessor.h"
 
 namespace LS {
 	/*!

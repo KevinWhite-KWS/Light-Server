@@ -58,6 +58,10 @@
 #define		WEBDUINO_SERIAL_DEBUGGING	2		// define this to see web server debugging output
 
 
+namespace LS {
+	// #define		ORCHASTRATOR_DEBUG_ALL		// define this to see orchastrator debugging output
+}
+
 #include <SPI.h>
 #include <Ethernet.h>
 
@@ -118,7 +122,6 @@ static uint8_t ip[] = { 192, 168, 5, 210 };
 
 
 // Instantiate dependencies required by LightServerOrchastrator
-
 // 1. Timer: for determining when the next instruction should be rendered
 LS::ArduinoTimer timer;
 // 2. LpExecutor: executes Light Program to determine next rendering instruction

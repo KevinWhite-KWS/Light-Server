@@ -25,11 +25,13 @@ do {
     $randomDelay = Get-Random -Minimum 5 -Maximum 60
 
     try {
-        $request = Invoke-WebRequest "$apiBaseURl/program" -Body  $currentProgram -Method 'POST' -Headers $header -ContentType "application/json; charset=utf-8"
         Write-Host "Sending $currentProgramName for $randomDelay" -ForegroundColor Green -NoNewline
+        $request = Invoke-WebRequest "$apiBaseURl/program" -Body  $currentProgram -Method 'POST' -Headers $header -ContentType "application/json; charset=utf-8" -TimeoutSec 10
     }
     catch [Exception] {
+        Write-Host ""
         Write-Host "Exception: $_" -ForegroundColor Red
+        $randomDelay = 0
     }
 
     # write a status as each delay second ticks away

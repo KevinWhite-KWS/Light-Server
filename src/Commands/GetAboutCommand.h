@@ -16,8 +16,9 @@
 
 #include "ICommand.h"
 #include "../DomainInterfaces.h"
-#include "../LPE.h"
+#include "../ValueDomainTypes.h"
 #include "../ArduinoJson-v6.17.2.h"
+#include "../FixedSizeCharBuffer.h"
 
 #define		LS_VERSION			"1.0.0"
 #define		LDL_VERSION			"1.0.0"

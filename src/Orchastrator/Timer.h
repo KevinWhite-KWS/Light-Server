@@ -2,7 +2,6 @@
 #define _Timer_H
 
 #include <stdint.h>
-#include <hardwareSerial.h>
 
 namespace LS {
 	/*!
