@@ -1,0 +1,11 @@
+{
+	"name" : "Simple - Infinite - Stotastic",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    "0514000002FF0000000000"
+  		]
+  	}}
+	]
+}

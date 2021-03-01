@@ -11,7 +11,7 @@ namespace LS {
 		// Stop any lgiht program that is currently executing or otherwise
 		// the next instruction will be rendered immediatly after the LEDS
 		// have been 'turned-off'
-		lpe->StopLP();
+		orchastor->StopPrograms();
 
 		// Set the LEDs to black - effectively turning them off
 		pixelController->fill(0);

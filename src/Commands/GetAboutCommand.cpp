@@ -9,7 +9,7 @@ namespace LS {
 	*/
 	bool GetAboutCommand::ExecuteCommand() {
 		webDoc->clear();
-		(*webDoc)["LEDs"] = NUMLEDS;
+		(*webDoc)["LEDs"] = ledConfig->numberOfLEDs;
 		(*webDoc)["LS Version"] = LS_VERSION;
 		(*webDoc)["LDL Version"] = LDL_VERSION;
 		serializeJsonPretty(*webDoc, webResponse->GetBuffer(), 1000);

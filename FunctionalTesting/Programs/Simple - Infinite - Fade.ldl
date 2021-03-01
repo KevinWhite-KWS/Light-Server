@@ -1,0 +1,12 @@
+{
+	"name" : "Simple - Infinite - Fade",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    "0401000001000000000FF00",
+    "0401000001133FF33000000"
+  		]
+  	}}
+	]
+}

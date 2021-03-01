@@ -1,6 +1,214 @@
 #include "LPE.h"
 
+//#include <Windows.h>
+//#include <iostream>
+//#include <sstream>
+//
+//#define DBOUT( s )            \
+//{                             \
+//   std::ostringstream os_;    \
+//   os_ << s;                   \
+//   OutputDebugString( os_.str().c_str() );  \
+//}
+
 namespace LS{
+	/** BEGIN: LPE V2 **/
+	/*
+	enum InstructionType {
+		Repeat,
+		LP
+	};
+
+	class LPState {
+	public: 
+		LPInstruction lpInstructions[50] = {};
+		RepeatInstruction repeatInstructions[25] = {};
+
+		Instruction* instructionPointer = NULL;
+
+		uint8_t lpInsIndex = 0;
+		uint8_t repeatIndex = 0;
+
+		Instruction* firstInstruction() {
+			return instructionPointer;
+		}
+
+		void reset() {
+			instructionPointer = NULL;
+			lpInsIndex = 0;
+			repeatIndex = 0;
+
+			// reset the state of all LP instructions
+			for (int i = 0; i < 50; i++) {
+				lpInstructions[i].reset();
+			}
+
+			// reset the state of all repeat instructions
+			for (int i = 0; i < 25; i++) {
+				repeatInstructions[i].reset();
+			}
+		}
+
+		Instruction* setNextLpInstruction(const char* lpi) {
+			if (lpInsIndex >= 50) {
+				return NULL;
+			}
+
+			lpInstructions[lpInsIndex++].lpi = lpi;
+
+			if (instructionPointer == NULL) {
+				instructionPointer = &lpInstructions[lpInsIndex - 1];
+			}
+
+			return &lpInstructions[lpInsIndex - 1];
+		}
+
+		RepeatInstruction* setNextRepeatInstruction(uint16_t times) {
+			if (repeatIndex >= 25) {
+				return NULL;
+			}
+
+			repeatInstructions[repeatIndex++].remainingIterations = times;
+			repeatInstructions[repeatIndex].numberIterations = times;
+
+			if (instructionPointer == NULL) {
+				instructionPointer = &repeatInstructions[repeatIndex - 1];
+			}
+
+			return &repeatInstructions[repeatIndex - 1];
+		}
+	};
+
+	class LPStateBuilder {
+	protected:
+		uint8_t insCounter = 0;
+		uint8_t repeatcounter = 0;
+
+
+
+		void ProcessInstructions(JsonArray* instructionsArr, LPState* lpState, RepeatInstruction* parent) {
+			Instruction* prevInstruction = NULL;
+			Instruction* currentInstruction = NULL;
+
+			for (const JsonVariant value : *instructionsArr) {
+				bool isRepeat = value.containsKey("repeat");
+				if (isRepeat) {
+					currentInstruction = lpState->setNextRepeatInstruction(value["repeat"]["times"].as<uint16_t>());
+					currentInstruction->setParent(parent);
+
+					if (parent != NULL && parent->firstChild == NULL) parent->firstChild = currentInstruction;
+
+					JsonArray repeatInsArr = value["repeat"]["instructions"];
+					ProcessInstructions(&repeatInsArr, lpState, (RepeatInstruction*)currentInstruction);
+				}
+				else {
+					// const char* instructions = value.as<char*>();
+					currentInstruction = lpState->setNextLpInstruction(value.as<char*>());
+					currentInstruction->setParent(parent);
+
+					if (parent != NULL && parent->firstChild == NULL) parent->firstChild = currentInstruction;
+
+
+				}
+
+				if (prevInstruction) {
+					prevInstruction->setSibling(currentInstruction);
+				}
+				prevInstruction = currentInstruction;
+			}
+		}
+
+	public:
+		void BuildGraph(StaticJsonDocument<5000>* lpProgram, LPState* lpState) {
+			JsonArray instructionsArr = (*lpProgram)["instructions"];
+
+			ProcessInstructions(&instructionsArr, lpState, NULL);
+
+			int x = 5;
+		}
+	};
+
+	class LPEV2 {
+	public:
+		void DoProcess(StaticJsonDocument<5000>* jsonDoc) {
+			LPState newLpState;
+			LPStateBuilder lpStateBuilder;
+
+			lpStateBuilder.BuildGraph(jsonDoc, &newLpState);
+
+
+			// PROTOTYPE CODE TO 'WALK' THE GRAPH
+			Instruction* currentInstruction = newLpState.firstInstruction();
+			uint8_t depth = 0;
+			while (currentInstruction != NULL) {
+				//for (int i = 0; i < depth; i++) DBOUT("\t");
+
+				if (currentInstruction->insType == InstructionType::LP) {
+					LPInstruction* lpIns = (LPInstruction*)currentInstruction;
+					//DBOUT("LPI: " << lpIns->lpi << "\n");
+
+					if (currentInstruction->next == NULL) {
+						depth--;
+					}
+
+					// the next instruction will either by the following sibling
+					// or otherwise the parent.  If both are NULL then it
+					// means we are at the end of the program!
+					currentInstruction = currentInstruction->next 
+						? currentInstruction->next 
+						: currentInstruction->parent;
+				}
+				else if (currentInstruction->insType == InstructionType::Repeat) {
+					RepeatInstruction* repeatIns = (RepeatInstruction*)currentInstruction;
+					//DBOUT("Repeat [Iteration #]: " << repeatIns->remainingIterations << "\n");
+
+					if (repeatIns->remainingIterations > 0) {
+						repeatIns->remainingIterations--;
+						depth++;
+
+						currentInstruction = repeatIns->firstChild;
+					}
+					else {
+						repeatIns->resetLoop();
+
+						if (currentInstruction->next == NULL) {
+							depth--;
+						}
+
+						// the next instruction will either by the following sibling
+						// or otherwise the parent.  If both are NULL then it
+						// means we are at the end of the program!
+						currentInstruction = currentInstruction->next
+							? currentInstruction->next
+							: currentInstruction->parent;
+					}
+				}
+			}
+
+			int x = 10;
+		}
+	};
+
+	// END: LPE V2
+
+	// V2 TODO 
+	//
+	//	1. Implement LPIFactory (unit tests + implementatin) [KW - 14 Dec 2020 - DONE]
+	//	2. Implement LPValidator:
+	//		2.a		Get some prototyping code working first then:
+	//		2.b		Implement LpJsonInstructionValidator (unit tests + implementation)
+	//		2.c		Implement RepeatInstructionValidator (unit tests + implementation)	[KW - 17 Dec 2020 - DONE]
+	//		2.d		Implement LPValidator (unit tests + implementation)					[KW - 17 Dec 2020 - DONE]
+	//		2.e		Ensure the validators return something of use in the result
+
+	//
+	*/
+
+
+
+
+
+
 	/*!
 	  @brief  Stops the execution of the current LP (if one is executing).
 	*/
@@ -36,6 +244,7 @@ namespace LS{
 			case LPI_Fade:
 			case LPI_Stochastic:
 			case LPI_Blocks:
+			case LPI_Rainbow:
 				lpi = lpis[currentLPIInstruction->opcode];
 				break;
 		}
@@ -100,6 +309,15 @@ namespace LS{
 			return;
 		}
 
+		/** LPE V2: PROTOTYPE CODE **/
+		//LPEV2 lpeV2;
+		//lpeV2.DoProcess(&this->lpeDoc);
+		/** **/
+		
+		
+
+
+
 		// Get the mandatory instructions property
 		JsonObject instructions = this->lpeDoc["instructions"];
 		if (instructions.isNull() == true) {
@@ -133,9 +351,9 @@ namespace LS{
 			instructionsDepth++;
 		}
 
-		for (JsonObject::iterator it = instructionsObject->begin(); it != instructionsObject->end(); ++it) {
-			const char* key = it->key().c_str();
-			const char* val = it->value().as<char*>();
+		 for (JsonObject::iterator it = instructionsObject->begin(); it != instructionsObject->end(); ++it) {
+			 const char* key = it->key().c_str();
+			 const char* val = it->value().as<char*>();
 
 			if (strcmp(key, "instruction") == 0) {
 				countValidInstructions++;

@@ -31,16 +31,17 @@
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
-	#include "ArduinoJson-v6.12.0.h"
+	#include "ArduinoJson-v6.17.2.h"
 #else
 	#include "WProgram.h"
-	#include "../../Light-Server/src/ArduinoJson-v6.12.0.h"
+	#include "../../Light-Server/src/ArduinoJson-v6.17.2.h"
 #endif
 
 
 
 #include "StringProcessor.h"
 #include "DomainInterfaces.h"
+#include "LPI\LPIFactory.h"
 #include "LPI\LPI.h"
 #include "LPI\ClearNonAnimatedLPI.h"
 #include "LPI\SolidNonAnimatedLPI.h"
@@ -50,17 +51,10 @@
 #include "LPI\PatternNonAnimatedLPI.h"
 #include "LPI\StochasticNonAnimatedLPI.h"
 #include "LPI\BlocksNonAnimatedLPI.h"
+#include "LPI\RainbowAnimatedLPI.h"
 
 namespace LS {
-	enum LPIType { 
-		LPI_Clear,
-		LPI_Solid,
-		LPI_Pattern,
-		LPI_Slider,
-		LPI_Fade,
-		LPI_Stochastic,
-		LPI_Blocks
-	};
+
 
 	/*!
 	@brief  Class that renders the attached LEDs according to the given RI.
@@ -69,8 +63,9 @@ namespace LS {
 		protected:
 			const LEDConfig* ledConfig;
 			StringProcessor* stringProcessor;
-			LPI* lpis[7];					
-			StaticJsonDocument<1000> lpeDoc;		// Statically allocated memory buffer to store the deserialized LP
+			LPI* lpis[8];				
+			// StaticJsonDocument<1000> lpeDoc;		// Statically allocated memory buffer to store the deserialized LP
+			StaticJsonDocument<5000> lpeDoc;
 			FixedSizeCharBuffer lpi = FixedSizeCharBuffer(1000);
 
 			LPIInstruction* currentLPIInstruction = new LPIInstruction();	// NEED TO FREE!
@@ -136,6 +131,7 @@ namespace LS {
 				lpis[LPI_Fade] = new FadeAnimatedLPI(ledConfig, stringProcessor);
 				lpis[LPI_Stochastic] = new StochasticNonAnimatedLPI(ledConfig, stringProcessor);
 				lpis[LPI_Blocks] = new BlocksNonAnimatedLPI(ledConfig, stringProcessor);
+				lpis[LPI_Rainbow] = new RainbowAnimatedLPI(ledConfig, stringProcessor);
 			}
 
 			bool GetNextRI(FixedSizeCharBuffer* riBuffer);

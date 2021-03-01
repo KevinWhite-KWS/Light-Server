@@ -1,0 +1,11 @@
+{
+	"name" : "Simple - Infinite - Rainbow",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    "070100000A3C003FF00003366FF33CC00"
+  		]
+  	}}
+	]
+}

@@ -19,20 +19,21 @@ namespace LS {
 		lpBuffer->LoadFromBuffer(buf);
 
 		// Validate the Light Program
-		LPValidateResult result = LPValidateResult();
-		lpe->ValidateLP(lpBuffer, &result);
+		lpValidator->ValidateLp(lpBuffer, &validateResult);
 
-		if (result.GetCode() != LS::LPValidateCode::Valid) {
+		if (validateResult.GetCode() != LS::LPValidateCode::Valid) {
 			// The received Light Program is not validate.  Respond
 			// with an error code 400.
 			lightWebServer->RespondError();
 			return false;
 		}
-		else {
-			// The received Light Program is validate.  Respond with
-			// a success code of 204.
-			lightWebServer->RespondNoContent();
-		}
+
+		// The LP is valid so we need to build a tree representation of
+		// that Light Program which will be used to execute the program
+		lpStateBuilder->BuildState(lpBuffer, lpState);
+		
+		// Finally, we can respond with a successful response.
+		lightWebServer->RespondNoContent();
 
 		return true;
 	}

@@ -37,7 +37,7 @@ namespace LS {
 		#define BUFFER_SIZE		1000	// Mega
 	#endif  // __arm__
 
-	#define DEBUG_ALL					// define to output ALL debugging messages (this will add overhead to the processing!)
+	// #define DEBUG_ALL					// define to output ALL debugging messages (this will add overhead to the processing!)
 
 	//#define DEBUG_CYCLE			// define to output cycle debugging message
 	//#define DEBUG_COMMAND			// define to output command debugging message
@@ -123,11 +123,11 @@ namespace LS {
 			/* Create instances of each of the commands */
 			invalidCommand = new InvalidCommand(lightWebServer);
 			noAuthCommand = new NoAuthCommand(lightWebServer);
-			powerOffCommand = new PowerOffCommand(lightWebServer, pixelController, lpe);
-			powerOnCommand = new PowerOnCommand(lightWebServer, pixelController, lpe, &stringProcessor);
-			loadProgramCommand = new LoadProgramCommand(lightWebServer, lpe, lpBuffer);
+			// powerOffCommand = new PowerOffCommand(lightWebServer, pixelController, lpe);
+			//powerOnCommand = new PowerOnCommand(lightWebServer, pixelController, lpe, &stringProcessor);
+			// loadProgramCommand = new LoadProgramCommand(lightWebServer, lpe, lpBuffer);
 			checkPowerCommand = new CheckPowerCommand(lightWebServer, pixelController, &webResponseDoc, webResponseBuffer);
-			getAboutCommand = new GetAboutCommand(lightWebServer, &webResponseDoc, webResponseBuffer);
+			// getAboutCommand = new GetAboutCommand(lightWebServer, &webResponseDoc, webResponseBuffer);
 			setLedsCommand = new SetLedsCommand(lightWebServer, &stringProcessor);
 		}
 

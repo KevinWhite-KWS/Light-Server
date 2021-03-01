@@ -16,7 +16,8 @@ namespace LS {
 	*/
 	class IAppLogger {
 		public:
-			virtual void logEvent(uint32_t start, uint8_t level, const char* event, const char* trigger, uint32_t end = 0, const char* msg = nullptr) = 0;
+			virtual void logEvent(uint32_t start, uint8_t level, const char* event, const char* trigger, bool isStartEvent = true, uint32_t end = 0, const char* msg = nullptr) = 0;
+			virtual void StartLogging() = 0;
 	};
 
 	/*!

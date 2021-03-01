@@ -105,6 +105,7 @@ namespace LS {
 				uint32_t statrExecuteCommand = millis();
 				appLogger->logEvent(statrExecuteCommand, 1, "Command", "Start Execute");
 #endif
+
 				commandHandler->ExecuteCommand();
 #if defined(DEBUG_COMMAND) || defined(DEBUG_ALL)
 				appLogger->logEvent(statrExecuteCommand, 1, "Command", "End Execute", millis());

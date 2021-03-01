@@ -17,7 +17,7 @@
 #include "ICommand.h"
 #include "../DomainInterfaces.h"
 #include "../LPE.h"
-#include "../ArduinoJson-v6.12.0.h"
+#include "../ArduinoJson-v6.17.2.h"
 
 #define		LS_VERSION			"1.0.0"
 #define		LDL_VERSION			"1.0.0"
@@ -34,17 +34,21 @@ namespace LS {
 		ILightWebServer* lightWebServer;
 		StaticJsonDocument<1000>* webDoc;
 		FixedSizeCharBuffer* webResponse;
+		LEDConfig* ledConfig;
 	public:
 		/*!
 		  @brief   Executes the command that gets information
 				   the server.
 		  @param   lightWebServer		Pointer to the class that handles web requests.
 		  @param   webDoc				Pointer to the Arduino JSON document that is used to construct the JSON web response.
+		  @param   webResponse			Pointer to the buffer that stores the HTTP reponse.
+		  @param   ledConfig			Pointer to the class that contains the LED configuration details.
 		*/
-		GetAboutCommand(ILightWebServer* lightWebServer, StaticJsonDocument<1000>* webDoc, FixedSizeCharBuffer* webResponse) {
+		GetAboutCommand(ILightWebServer* lightWebServer, StaticJsonDocument<1000>* webDoc, FixedSizeCharBuffer* webResponse, LEDConfig* ledConfig) {
 			this->lightWebServer = lightWebServer;
 			this->webDoc = webDoc;
 			this->webResponse = webResponse;
+			this->ledConfig = ledConfig;
 		}
 
 		/*!

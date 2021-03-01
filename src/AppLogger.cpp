@@ -12,7 +12,7 @@ namespace LS {
 	  @param   end     The end time of the event in milliseconds (can be 0)
 	  @param   msg     Any additional message relevant to the event (can be null)
 	*/
-	void AppLogger::logEvent(uint32_t start, uint8_t level, const char* event, const char* trigger, uint32_t end, const char* msg) {
+	void AppLogger::logEvent(uint32_t start, uint8_t level, const char* event, const char* trigger, bool isStartEvent, uint32_t end, const char* msg) {
 #ifndef DISABLE_LOGGING
 		uint32_t duration = (end > 0 && start > 0 ? end - start : 0);
 		
@@ -20,9 +20,10 @@ namespace LS {
 		for (int i = 0; i < level; i++) { indent[i] = '.'; }
 		indent[level] = 0;
 
-		Log.verbose("%s[%s]\t\t[%s]\t\t[%d ms]\t[%d]\t[%d]\t[%d bytes]\t[%s]\r\n",
+		Log.verbose("%s[%s]\t\t[%s]\t\t[%s]\t\t[%d ms]\t[%d]\t[%d]\t[%d bytes]\t[%s]\r\n",
 			indent,
 			event,
+			(isStartEvent ? "START" : "END"),
 			trigger,
 			duration,
 			start,

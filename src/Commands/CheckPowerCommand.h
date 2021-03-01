@@ -17,8 +17,7 @@
 #include "ICommand.h"
 #include "../DomainInterfaces.h"
 #include "../LPE.h"
-#include "../Adafruit_NeoPixel.h"
-#include "../ArduinoJson-v6.12.0.h"
+#include "../ArduinoJson-v6.17.2.h"
 
 namespace LS {
 	/*!

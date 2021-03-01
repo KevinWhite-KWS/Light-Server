@@ -1,0 +1,12 @@
+{
+	"name" : "Simple - Infinite - Slider",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    "03010000010FF000000FF00",
+    "03010000011FF000000FF00"
+  		]
+  	}}
+	]
+}

@@ -16,7 +16,7 @@
 
 #include "ICommand.h"
 #include "../DomainInterfaces.h"
-#include "../LPE.h"
+#include "../Orchastrator/IOrchastor.h"
 
 namespace LS {
 	/*!
@@ -27,21 +27,20 @@ namespace LS {
 	{
 	private:
 		ILightWebServer* lightWebServer;
+		IOrchastor* orchastor;
 		IPixelController* pixelController;
-		LPE* lpe;
 	public:
 		/*!
 		  @brief   Executes the command that causes the power
 				   to be turned-off to the LEDs.
 		  @param   lightWebServer		Pointer to the class that handles web requests.
 		  @param   pixelController		Pointer to the class that interacts with the LEDs.
-		  @param   lpe				    Pointer to the Light Program Executor instance that handles
-										execution of Light Programs.
+		  @param   orchastor		    Pointer to the orchastrating class.
 		*/
-		PowerOffCommand(ILightWebServer* lightWebServer, IPixelController* pixelController, LPE* lpe) {
+		PowerOffCommand(ILightWebServer* lightWebServer, IPixelController* pixelController, IOrchastor* orchastor) {
 			this->lightWebServer = lightWebServer;
 			this->pixelController = pixelController;
-			this->lpe = lpe;
+			this->orchastor = orchastor;
 		}
 
 		/*!

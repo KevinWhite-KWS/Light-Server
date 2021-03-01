@@ -57,37 +57,135 @@
 
 #define		WEBDUINO_SERIAL_DEBUGGING	2		// define this to see web server debugging output
 
+
 #include <SPI.h>
 #include <Ethernet.h>
 
-#include "src/Renderer.h"
-#include "src/Adafruit_NeoPixel.h"
-#include "src/FixedSizeCharBuffer.h"
-#include "src/LPE.h"
-#include "src/LightWebServer.h"
-#include "src/CommandExecutor.h"
+
+// *** Redundant references? ***
+// #include "src/Renderer.h"
+// #include "src/LPE.h"
+// #include "src/CommandExecutor.h"
 #include "src/AppLogger.h"
+
+
+// 1. Timer
+#include "src/Orchastrator/ArduinoTimer.h"
+// 2. LpExecutor
+#include "src/LPE/LpiExecutors/LpiExecutorFactory.h"
+#include "src/LPE/Executor/LpExecutor.h"
+// 3. LpState
+#include "src/LPE/StateBuilder/LpJsonState.h"
+// 4. PixelRenderer
+#include "src/Adafruit_NeoPixel.h"
+#include "src/Renderer/PixelRenderer.h"
+// 5. LightWebServer
+#include "src/FixedSizeCharBuffer.h"
+#include "src/LightWebServer.h"
 #include "src/WebServer.h"
+// 6. CommandFactory
+#include "src/LPE/Validation/JsonInstructionValidatorFactory.h"
+#include "src/LPE/Validation/LpJsonValidator.h"
+#include "src/LPE/StateBuilder/JsonInstructionBuilderFactory.h"
+#include "src/LPE/StateBuilder/LpJsonStateBuilder.h"
+#include "src/Commands/CommandFactory.h"
+// ** Orchastrator **
+#include "src/Orchastrator/LightServerOrchastrator.h"
+// 7. Individual commands
+#include "src/Commands/NoAuthCommand.h"
+#include "src/Commands/InvalidCommand.h"
+#include "src/Commands/LoadProgramCommand.h"
+#include "src/Commands/PowerOffCommand.h"
+#include "src/Commands/PowerOnCommand.h"
+#include "src/Commands/CheckPowerCommand.h"
+#include "src/Commands/GetAboutCommand.h"
+#include "src/Commands/SetLedsCommand.h"
 
 
 static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-static uint8_t ip[] = { 192, 168, 1, 210 };
+
+// NOTE: for when connected to the Eero
+static uint8_t ip[] = { 192, 168, 5, 210 };
+// NOTE: for when connected directly to the router
+// static uint8_t ip[] = { 192, 168, 1, 210 };
 
 // Instantiate the classes that handle activating the LEDS
-LS::LEDConfig ledConfig = LS::LEDConfig(NUMLEDS);
-Adafruit_NeoPixel pixels(NUMLEDS, PIN, NEO_GRB + NEO_KHZ800);
+
+
 
 // Instantiate the classes that handle the web interface
+
+
+
+// Instantiate dependencies required by LightServerOrchastrator
+
+// 1. Timer: for determining when the next instruction should be rendered
+LS::ArduinoTimer timer;
+// 2. LpExecutor: executes Light Program to determine next rendering instruction
+LS::LpiExecutorFactory lpiExecutorFactory = LS::LpiExecutorFactory();
+LS::StringProcessor stringProcessor;
+LS::LEDConfig ledConfig = LS::LEDConfig(NUMLEDS);
+LS::LpExecutor executor = LS::LpExecutor(&lpiExecutorFactory, &stringProcessor, &ledConfig);
+// 3. LpState: stores the tree representation of a parsed Light Program
+LS::LpJsonState primaryState;
+// 4. PixelRenderer: interacts with and activates individual LEDs on the connected hardware
+Adafruit_NeoPixel pixels(NUMLEDS, PIN, NEO_GRB + NEO_KHZ800);
+LS::PixelRenderer renderer = LS::PixelRenderer(&pixels, &ledConfig);
+// 5. ILightServer: receives and executes HTTP commands
 WebServer webserv("", 80);
 LS::IWebServer* webserver = &webserv;
 LS::FixedSizeCharBuffer webLoadingBuffer = LS::FixedSizeCharBuffer(BUFFER_SIZE);
 LS::LightWebServer lightWebServ(webserver, &webLoadingBuffer, BASIC_AUTH_SUPER);
+// 6. CommandFactory: returns command instances for received HTTP commands.  These are then executed.
+LS::CommandFactory commandFactory;
+// ** Orchastrator **
+LS::LightServerOrchastrator orchastrator = LS::LightServerOrchastrator(
+	&timer,
+	&executor,
+	&primaryState,
+	&renderer,
+	&lightWebServ,
+	&commandFactory
+);
+// 7. Individual commands that are added to the command factory
+LS::NoAuthCommand noAuthCommand = LS::NoAuthCommand(&lightWebServ);
+LS::InvalidCommand invalidCommand = LS::InvalidCommand(&lightWebServ);
+LS::FixedSizeCharBuffer lpBuffer = LS::FixedSizeCharBuffer(BUFFER_SIZE);
+LS::JsonInstructionValidatorFactory instructionValidatorFactory = LS::JsonInstructionValidatorFactory(&lpiExecutorFactory, &stringProcessor, &ledConfig);
+LS::LpJsonValidator validator = LS::LpJsonValidator(&instructionValidatorFactory);
+LS::JsonInstructionBuilderFactory instructionBuilderFactory = LS::JsonInstructionBuilderFactory(&lpiExecutorFactory, &stringProcessor, &ledConfig);
+LS::LpJsonStateBuilder stateBuilder = LS::LpJsonStateBuilder(&instructionBuilderFactory);
+LS::LoadProgramCommand loadProgramCommand = LS::LoadProgramCommand(&lightWebServ, &lpBuffer, &validator, &stateBuilder, &primaryState);
+LS::PowerOffCommand powerOffCommand = LS::PowerOffCommand(&lightWebServ, &pixels, &orchastrator);
+LS::PowerOnCommand powerOnCommand = LS::PowerOnCommand(&lightWebServ, &pixels, &orchastrator, &stringProcessor);
+StaticJsonDocument<1000> webDoc;
+LS::FixedSizeCharBuffer webReponse = LS::FixedSizeCharBuffer(BUFFER_SIZE);
+LS::CheckPowerCommand checkPowerCommand = LS::CheckPowerCommand(&lightWebServ, &pixels, &webDoc, &webReponse);
+LS::GetAboutCommand getAboutCommand = LS::GetAboutCommand(&lightWebServ, &webDoc, &webReponse, &ledConfig);
+LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor);
 
-LS::CommandExecutor* commandExecutor = nullptr;
+
+// LS::CommandExecutor* commandExecutor = nullptr;
+LS::AppLogger appLogger;
 void setup() {
-	LS::IAppLogger* appLogger = new LS::AppLogger();
-	commandExecutor = new LS::CommandExecutor(&pixels, &ledConfig, &lightWebServ, appLogger);
+	// add the individual command references to the command factory
+	commandFactory.SetCommand(LS::CommandType::NOAUTH, &noAuthCommand);
+	commandFactory.SetCommand(LS::CommandType::INVALID, &invalidCommand);
+	commandFactory.SetCommand(LS::CommandType::LOADPROGRAM, &loadProgramCommand);
+	commandFactory.SetCommand(LS::CommandType::POWEROFF, &powerOffCommand);
+	commandFactory.SetCommand(LS::CommandType::POWERON, &powerOnCommand);
+	commandFactory.SetCommand(LS::CommandType::CHECKPOWER, &checkPowerCommand);
+	commandFactory.SetCommand(LS::CommandType::GETABOUT, &getAboutCommand);
+	commandFactory.SetCommand(LS::CommandType::SETLEDS, &setLedsCommand);
 
+	// add the app logger class so the orchastrator can log events
+	// for debugging purposes
+	
+	LS::IAppLogger* appLog = (LS::IAppLogger*)&appLogger;
+	appLogger.StartLogging();
+	orchastrator.SetAppLogger(appLog);
+
+	// start the pixel renderer
 	pixels.begin();
 
 	// Disable the SD card reader
@@ -98,11 +196,14 @@ void setup() {
 	Ethernet.begin(mac, ip);
 	lightWebServ.Start();
 
-	commandExecutor->Start();
+	// ensure the orchastrator is ready to execyte
+	orchastrator.Start();
 }
 
 
 void loop() {
-	commandExecutor->Execute();
+	// execute the orchastrator on each loop.  If it's not time
+	// then Execute will simply return with no action performed.
+	orchastrator.Execute();
 }
 

@@ -26,9 +26,9 @@ using namespace std;
 namespace LS {
     class AppLogger : public IAppLogger {
         public:
-            AppLogger() {
-                SerialUSB.begin(115200);
-                Log.begin(LOG_LEVEL_VERBOSE, &SerialUSB);
+            void StartLogging() {
+                Serial.begin(115200);
+                Log.begin(LOG_LEVEL_VERBOSE, &Serial);
             }
 
             /*!
@@ -39,10 +39,11 @@ namespace LS {
               @param   level   The 'level' of the event i.e. embedding level
               @param   event   The name of the event i.e. cycle for the execution cycle
               @param   trigger The trigger of the event i.e. started
+              @param   isStartEvent True if the event being logged is the 'start' event e.g. at the beginning of a block.
               @param   end     The end time of the event in milliseconds (can be 0)
               @param   msg     Any additional message relevant to the event (can be null)
             */
-            void logEvent(uint32_t start, uint8_t level, const char* event, const char* trigger, uint32_t end = 0, const char* msg = nullptr);
+            void logEvent(uint32_t start, uint8_t level, const char* event, const char* trigger, bool isStartEvent = true, uint32_t end = 0, const char* msg = nullptr);
     };
 }
 #endif

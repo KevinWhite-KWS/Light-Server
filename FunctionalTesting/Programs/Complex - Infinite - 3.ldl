@@ -1,0 +1,31 @@
+{
+	"name" : "Complex - Infinite - 3",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    {	"repeat": {
+    		"times" : 2,
+    		"instructions": [
+      "0401000014000000000FF00",
+      "0401000014133FF33000000"
+    		]
+    	}},
+    {	"repeat": {
+    		"times" : 2,
+    		"instructions": [
+      "04010000140000000FF0000",
+      "04010000141FF0000000000"
+    		]
+    	}},
+    {	"repeat": {
+    		"times" : 2,
+    		"instructions": [
+      "0401000014000000033CCFF",
+      "0401000014133CCFF000000"
+    		]
+    	}}
+  		]
+  	}}
+	]
+}

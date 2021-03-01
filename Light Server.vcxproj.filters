@@ -19,9 +19,6 @@
     <None Include="src\arduino folders read me.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Adafruit_NeoPixel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -31,43 +28,7 @@
     <ClCompile Include="src\FixedSizeCharBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\LPI\ClearNonAnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\LPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\NonAnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\SolidNonAnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\AnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\SliderAnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\PatternNonAnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\FadeAnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\StochasticNonAnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPI\BlocksNonAnimatedLPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LPE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\MemoryFree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\LightWebServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Commands\InvalidCommand.cpp">
@@ -94,20 +55,119 @@
     <ClCompile Include="src\Commands\SetLedsCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CommandExecutor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ArduinoLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\AppLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LPE\Validation\IJsonInstructionValidator.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Validation\LpiJsonInstructionValidator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Validation\RepeatJsonInstructionValidator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Validation\LpJsonValidator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Validation\JsonInstructionValidatorFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Instructions\Instruction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Instructions\InstructionWithChild.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Instructions\LpInstruction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Instructions\RepeatInstruction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\StateBuilder\LpState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\StateBuilder\LpJsonState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\StateBuilder\RepeatJsonInstructionBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\StateBuilder\LpJsonInstructionBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\StateBuilder\JsonInstructionBuilderFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\StateBuilder\LpJsonStateBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\Executor\LpExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\LpiExecutorOutput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\LpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\ClearNonAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\LpiExecutorFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\AnimatedLpiExecutors\SliderAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\LpiExecutorParams.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\NonAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\SolidNonAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\PatternNonAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\AnimatedLpiExecutors\FadeAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\StochasticNonAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\BlocksNonAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LPE\LpiExecutors\AnimatedLpiExecutors\RainbowAnimatedLpiExecutor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\PixelRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Commands\CommandFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orchastrator\Timer.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orchastrator\Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Orchastrator\LightServerOrchastrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LightWebServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="__vm\.Light Server.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -132,46 +192,10 @@
     <ClInclude Include="src\WProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\LPI\ClearNonAnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\LPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\NonAnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\SolidNonAnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\AnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\SliderAnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\PatternNonAnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\FadeAnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\StochasticNonAnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPI\BlocksNonAnimatedLPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LPE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\MemoryFree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\WebServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LightWebServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Commands\ICommand.h">
@@ -201,19 +225,127 @@
     <ClInclude Include="src\Commands\SetLedsCommand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CommandExecutor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ArduinoLog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ArduinoJson-v6.12.0.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\AppLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="__vm\.Light-Server.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ArduinoJson-v6.17.2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Validation\LpiJsonInstructionValidator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Validation\RepeatJsonInstructionValidator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Validation\LpJsonValidator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Validation\JsonInstructionValidatorFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Instructions\Instruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Instructions\InstructionWithChild.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Instructions\LpInstruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Instructions\RepeatInstruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\StateBuilder\LpState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\StateBuilder\LpJsonState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\StateBuilder\IJsonInstructionBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\StateBuilder\RepeatJsonInstructionBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\StateBuilder\LpJsonInstructionBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\StateBuilder\JsonInstructionBuilderFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\InstructionType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\StateBuilder\LpJsonStateBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\Executor\LpExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\LpiExecutorOutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\LpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\NonAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\AnimatedLpiExecutors\AnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\ClearNonAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\LpiExecutorFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\AnimatedLpiExecutors\SliderAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\LpiExecutorParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\SolidNonAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\PatternNonAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\AnimatedLpiExecutors\FadeAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\StochasticNonAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\NonAnimatedLpiExecutors\BlocksNonAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\LpiExecutors\AnimatedLpiExecutors\RainbowAnimatedLpiExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\PixelRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Commands\CommandFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orchastrator\IOrchastor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orchastrator\ArduinoTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Orchastrator\LightServerOrchastrator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LightWebServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

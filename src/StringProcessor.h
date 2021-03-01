@@ -21,19 +21,19 @@ namespace LS {
 	class StringProcessor {
 		public:
 
-			const Colour ExtractColourFromHexEncoded(const char* colourString, bool& isValid);
+			virtual const Colour ExtractColourFromHexEncoded(const char* colourString, bool& isValid);
 
-			const uint8_t ExtractNumberFromHexEncoded(const char* numberString, uint8_t minExpectedValue, uint8_t maxExpectedValue, bool& isValid);
+			virtual const uint8_t ExtractNumberFromHexEncoded(const char* numberString, uint8_t minExpectedValue, uint8_t maxExpectedValue, bool& isValid);
 
-			const RI ExtractRIFromHexEncoded(const char* riString, bool& isValid);
+			virtual const RI ExtractRIFromHexEncoded(const char* riString, bool& isValid);
 
-			const LPIInstruction ExtractLPIFromHexEncoded(const char* instructionString, bool& isValid);
+			virtual const LPIInstruction ExtractLPIFromHexEncoded(const char* instructionString, bool& isValid);
 
-			bool ExtractLPIFromHexEncoded(const char* instructionString, LPIInstruction* lpInstruction);
+			virtual bool ExtractLPIFromHexEncoded(const char* instructionString, LPIInstruction* lpInstruction);
 
-			const bool ExtractBoolFromHexEncoded(const char* instructionString, bool& isValid);
+			virtual const bool ExtractBoolFromHexEncoded(const char* instructionString, bool& isValid);
 
-			const void ConvertNumberToHexEncoded(char* putBuffer, uint8_t number);
+			virtual const void ConvertNumberToHexEncoded(char* putBuffer, uint8_t number);
 		};
 
 }

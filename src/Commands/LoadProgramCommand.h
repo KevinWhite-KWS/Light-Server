@@ -16,7 +16,9 @@
 
 #include "ICommand.h"
 #include "../DomainInterfaces.h"
-#include "../LPE.h"
+#include "../LPE/Validation/LpJsonValidator.h"
+#include "../LPE/StateBuilder/LpJsonStateBuilder.h"
+#include "../LPE/StateBuilder/LpJsonState.h"
 
 namespace LS {
 	/*!
@@ -27,21 +29,34 @@ namespace LS {
 	{
 	private:
 		ILightWebServer* lightWebServer;
-		LPE* lpe;
 		FixedSizeCharBuffer* lpBuffer;
+		LpJsonValidator* lpValidator;
+		LpJsonStateBuilder* lpStateBuilder;
+		LpJsonState* lpState;
+	protected:
+		LPValidateResult validateResult;
 	public:
 		/*!
 		  @brief   Executes the command that cause a Light Program to be loaded.
 		  @param   lightWebServer		Pointer to the class that handles web requests.
-		  @param   lpe				    Pointer to the Light Program Executor instance that handles
-										execution of Light Programs.
 		  @param   lpBuffer				Pointer to the buffer that stores the Light Program
 										to be loaded.
+		  @param   lpValidator			Pointer to the class that validates Light Programs before they are loaded.
+		  @param   lpStateBuilder		Pointer to the class that builds a tree represents of a Light Program which
+										can then be executed.
+		  @param   lpState				Pointer to the class that stores the tree representations of a Light Program.
 		*/
-		LoadProgramCommand(ILightWebServer* lightWebServer, LPE* lpe, FixedSizeCharBuffer* lpBuffer) {
+		LoadProgramCommand(ILightWebServer* lightWebServer, 
+			FixedSizeCharBuffer* lpBuffer, 
+			LpJsonValidator* lpValidator, 
+			LpJsonStateBuilder* lpStateBuilder, 
+			LpJsonState* lpState) {
+
 			this->lightWebServer = lightWebServer;
-			this->lpe = lpe;
 			this->lpBuffer = lpBuffer;
+			this->lpValidator = lpValidator;
+			this->lpStateBuilder = lpStateBuilder;
+			this->lpState = lpState;
 		}
 
 		/*!

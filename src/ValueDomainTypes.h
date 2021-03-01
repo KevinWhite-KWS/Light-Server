@@ -8,6 +8,12 @@
 #include "FixedSizeCharBuffer.h"
 
 namespace LS {
+	/* Buffer allocation sizes */
+	#define BUFFER_LPI_LOADING			1000		// buffer size for loading an individual LPI
+	#define	BUFFER_LPI_VALIDATION		1000		// buffer size for validating an individual LPI
+	#define BUFFER_LP_VALIDATION		5000		// buffer size for validating an entire LP
+	#define	BUFFER_LP					5000		// buffer size for an executing LP
+
 	/*!
 	@brief  Struct that represents a three component colour: red, green, and blue.
 	*/
@@ -26,6 +32,31 @@ namespace LS {
 			this->green = green;
 			this->blue = blue;
 		}
+
+		/*!
+			@brief		Sets this colour from another colour instance.
+			@param		colour		The colour instance from which to set the values.
+			@author		Kevin White
+			@date		2 Jan 2021
+		*/
+		void SetFromColour(Colour* colour) {
+			red = colour->red;
+			green = colour->green;
+			blue = colour->blue;
+		}
+
+		/*!
+			@brief		Compares this colour with another colour and determines whether
+						they are the same colour.
+			@returns	True if the two colours are the same or false if they are different.
+			@author		Kevin White
+			@date		3 Jan 2021
+		*/
+		bool operator==(const Colour& otherColour) const {
+			return this->red == otherColour.red
+				&& this->green == otherColour.green
+				&& this->blue == otherColour.blue;
+		}
 	};
 
 	/*!
@@ -43,6 +74,29 @@ namespace LS {
 		RI(Colour colourToUse, uint8_t numberToAffect) {
 			colour = colourToUse;
 			number = numberToAffect;
+		}
+
+		/*!
+			@brief		Compares this RI with another RI in order to determine whether
+						they are the same colour and same number of LEDs.
+			@returns	True if the two RIs are the same or false if they are different in any way.
+			@author		Kevin White
+			@date		3 Jan 2021
+		*/
+		bool operator==(const RI& otherRi) const {
+			return this->number == otherRi.number
+				&& this->colour == otherRi.colour;
+		}
+
+		/*!
+			@brief		Compares this RI with another RI in order to determine whether
+						they are the same colour and same number of LEDs.
+			@returns	True if the two RIs are the different, false if they are the same.
+			@author		Kevin White
+			@date		3 Jan 2021
+		*/
+		bool operator!=(const RI& otherRi) const {
+			return !(*this == otherRi);
 		}
 	};
 
@@ -117,7 +171,7 @@ namespace LS {
 		NoIntructions = 7,
 		InvalidProperty = 8,
 		Maximum5NestedLoopsAllowed = 9,
-		LoopHasInvalidTimesValue = 10,
+		LoopHasInvalidTimesValue = 10
 	};
 
 	/*!
