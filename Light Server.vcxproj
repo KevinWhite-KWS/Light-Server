@@ -130,6 +130,7 @@
     <ClInclude Include="src\Commands\SetLedsCommand.h" />
     <ClInclude Include="src\AppLogger.h" />
     <ClInclude Include="src\LightWebServer.h" />
+    <ClInclude Include="src\LPE\EffectHelpers\GradientEffect.h" />
     <ClInclude Include="src\LPE\Executor\LpExecutor.h" />
     <ClInclude Include="src\LPE\Instructions\Instruction.h" />
     <ClInclude Include="src\LPE\Instructions\InstructionWithChild.h" />
@@ -190,6 +191,7 @@
     <ClCompile Include="src\Commands\PowerOnCommand.cpp" />
     <ClCompile Include="src\Commands\SetLedsCommand.cpp" />
     <ClCompile Include="src\LightWebServer.cpp" />
+    <ClCompile Include="src\LPE\EffectHelpers\GradientEffect.cpp" />
     <ClCompile Include="src\LPE\Executor\LpExecutor.cpp" />
     <ClCompile Include="src\LPE\Instructions\Instruction.cpp" />
     <ClCompile Include="src\LPE\Instructions\InstructionWithChild.cpp" />

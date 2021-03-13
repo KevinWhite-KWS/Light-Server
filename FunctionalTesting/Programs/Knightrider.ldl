@@ -1,0 +1,19 @@
+{
+	"name" : "Knightrider",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    {	"repeat": {
+    		"times" : 2,
+    		"instructions": [
+      "030200000101414FF0000000000",
+      "030200000111414FF0000000000"
+    		]
+    	}},
+    "030100000100A0AFF0000000000",
+    "030100000110A0AFF0000000000"
+  		]
+  	}}
+	]
+}

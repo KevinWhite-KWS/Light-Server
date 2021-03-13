@@ -19,7 +19,7 @@ namespace LS {
 
 		// we should have a number specifying the width of the slider
 		bool lpiIsValid = false;
-		uint8_t numberOfBlocks = stringProcessor->ExtractNumberFromHexEncoded(lpiBuffer, 1, 50, lpiIsValid);
+		stringProcessor->ExtractNumberFromHexEncoded(lpiBuffer, 1, 50, lpiIsValid);
 		if (!lpiIsValid) {
 			return false;
 		}
@@ -31,8 +31,22 @@ namespace LS {
 			return false;
 		}
 
-		// finally, we should have two colours - first one for slider and second for background
+		// now we check that a value has been specified for the head length (0 - 100)
 		lpiBuffer += 1;
+		stringProcessor->ExtractNumberFromHexEncoded(lpiBuffer, 0, 100, lpiIsValid);
+		if (!lpiIsValid) {
+			return false;
+		}
+
+		// also, check for a valid tail length (0 - 100)
+		lpiBuffer += 2;
+		stringProcessor->ExtractNumberFromHexEncoded(lpiBuffer, 0, 100, lpiIsValid);
+		if (!lpiIsValid) {
+			return false;
+		}
+
+		// finally, we should have two colours - first one for slider and second for background
+		lpiBuffer += 2;
 		for (int i = 0; i < 2; i++) {
 			stringProcessor->ExtractColourFromHexEncoded(lpiBuffer, lpiIsValid);
 			if (!lpiIsValid) {
@@ -102,8 +116,10 @@ namespace LS {
 		bool isValid;
 		uint8_t sliderWidth = stringProcessor->ExtractNumberFromHexEncoded(lpiBuffer, 1, 50, isValid);
 		bool startFar = stringProcessor->ExtractBoolFromHexEncoded(lpiBuffer + 2, isValid);
-		Colour sliderColour = stringProcessor->ExtractColourFromHexEncoded(lpiBuffer + 3, isValid);
-		Colour backgroundColour = stringProcessor->ExtractColourFromHexEncoded(lpiBuffer + 9, isValid);
+		uint8_t headLength = stringProcessor->ExtractNumberFromHexEncoded(lpiBuffer + 3, 0, 100, isValid);
+		uint8_t tailLength = stringProcessor->ExtractNumberFromHexEncoded(lpiBuffer + 5, 0, 100, isValid);
+		Colour sliderColour = stringProcessor->ExtractColourFromHexEncoded(lpiBuffer + 7, isValid);
+		Colour backgroundColour = stringProcessor->ExtractColourFromHexEncoded(lpiBuffer + 13, isValid);
 
 		// calculate the values that determine the number of LEDs to be rendered
 		uint8_t numLedsBeforeSlider = step;
@@ -115,14 +131,103 @@ namespace LS {
 			numLedsAfterSlider = step;
 		}
 
-		// add the rendering instructions for the pre-slider background colour, 
-		// slider colour, post-slider background colour
+		// render the part before the slider
+		if (numLedsBeforeSlider > 0) {
+			// render an optional graduated tail
+			if (tailLength > 0) {
+				RenderTail(numLedsBeforeSlider, lpiExecParams, output, sliderWidth, tailLength, backgroundColour, sliderColour);
+			}
+			else {
+				output->SetNextRenderingInstruction(&backgroundColour, numLedsBeforeSlider);
+			}
+		}
+
+		// render the slider
+		output->SetNextRenderingInstruction(&sliderColour, sliderWidth);
+
+		// render the part after the slider
+		if (numLedsAfterSlider > 0) {
+			// render an optional graduated head
+			if (headLength > 0) {
+				RenderHead(numLedsAfterSlider, lpiExecParams, output, sliderWidth, headLength, backgroundColour, sliderColour);
+			}
+
+			if (numLedsAfterSlider > 0) {
+				output->SetNextRenderingInstruction(&backgroundColour, numLedsAfterSlider);
+			}
+		}
+	}
+
+	/*!
+		@brief		Render a graduated tail (the graduation that comes before the slider).
+		@param		numLedsBeforeSlider		The number of pixels that come before the slider
+		@param		lpiExecParams			The basic parametes necessary to execute an instruction.
+		@param		output					A pointer to the class that is used to set the pixel
+											outputs from executing the instruction.
+		@param		sliderWidth				The width of the slider in pixels.
+		@param		tailLength				The length of the tail in pixels.
+		@param		backgroundColour		The background colour of the slider.
+		@param		sliderColour			The slider colour.
+		@author		Kevin White
+		@date		10 March 2021
+	*/
+	void SliderAnimatedLpiExecutor::RenderTail(
+		uint8_t &numLedsBeforeSlider, 
+		LpiExecutorParams* lpiExecParams, 
+		LpiExecutorOutput* output,
+		uint8_t &sliderWidth,
+		uint8_t &tailLength,
+		Colour &backgroundColour,
+		Colour &sliderColour
+	) {
+		uint8_t numTailPixels = (lpiExecParams->GetLedConfig()->numberOfLEDs - sliderWidth) * ((float)tailLength / 100);
+		uint8_t tailStep = min(numLedsBeforeSlider, numTailPixels);
+		uint8_t tailPixelsToRender = numLedsBeforeSlider - numTailPixels < 0 ? numLedsBeforeSlider : numTailPixels;
+
+		numLedsBeforeSlider = numLedsBeforeSlider - tailPixelsToRender;
 		if (numLedsBeforeSlider > 0) {
 			output->SetNextRenderingInstruction(&backgroundColour, numLedsBeforeSlider);
 		}
-		output->SetNextRenderingInstruction(&sliderColour, sliderWidth);
-		if (numLedsAfterSlider > 0) {
-			output->SetNextRenderingInstruction(&backgroundColour, numLedsAfterSlider);
+
+		gradientEffect.Reset(sliderColour, backgroundColour, numTailPixels);
+		Colour newTailColour;
+		for (int i = 0; i < tailPixelsToRender; i++) {
+			gradientEffect.CalculatetepColour(tailStep--, newTailColour);
+			output->SetNextRenderingInstruction(&newTailColour, 1);
+		}
+	}
+
+	/*!
+		@brief		Render a graduated head (the graduation that comes after the slider).
+		@param		numLedsAfterSlider		The number of pixels that come after the slider
+		@param		lpiExecParams			The basic parametes necessary to execute an instruction.
+		@param		output					A pointer to the class that is used to set the pixel
+											outputs from executing the instruction.
+		@param		sliderWidth				The width of the slider in pixels.
+		@param		headLength				The length of the head in pixels.
+		@param		backgroundColour		The background colour of the slider.
+		@param		sliderColour			The slider colour.
+		@author		Kevin White
+		@date		10 March 2021
+	*/
+	void SliderAnimatedLpiExecutor::RenderHead(
+		uint8_t& numLedsAfterSlider,
+		LpiExecutorParams* lpiExecParams,
+		LpiExecutorOutput* output,
+		uint8_t& sliderWidth,
+		uint8_t& headLength,
+		Colour& backgroundColour,
+		Colour& sliderColour
+	) {
+		uint8_t numHeadPixels = (lpiExecParams->GetLedConfig()->numberOfLEDs - sliderWidth) * ((float)headLength / 100);
+
+		gradientEffect.Reset(sliderColour, backgroundColour, numHeadPixels);
+		Colour newHeadColour;
+		if (numHeadPixels > numLedsAfterSlider) numHeadPixels = numLedsAfterSlider;
+		for (int i = 1; i < numHeadPixels + 1; i++) {
+			gradientEffect.CalculatetepColour(i, newHeadColour);
+			output->SetNextRenderingInstruction(&newHeadColour, 1);
+			numLedsAfterSlider--;
 		}
 	}
 }

@@ -166,6 +166,9 @@
     <ClCompile Include="src\LightWebServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LPE\EffectHelpers\GradientEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.Light Server.vsarduino.h">
@@ -346,6 +349,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\LightWebServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LPE\EffectHelpers\GradientEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

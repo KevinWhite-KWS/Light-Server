@@ -11,6 +11,10 @@
 #include "..\..\..\ValueDomainTypes.h"
 #include "..\LpiExecutorParams.h"
 #include "..\LpiExecutor.h"
+#include "..\..\EffectHelpers\GradientEffect.h"
+
+#define max(a,b) (a>b?a:b)
+#define min(a,b) (a<b?a:b)
 
 namespace LS {
 	/*!
@@ -19,6 +23,30 @@ namespace LS {
 		@date		2 Jan 2021
 	*/
 	class SliderAnimatedLpiExecutor : public AnimatedLpiExecutor {
+	private:
+		GradientEffect gradientEffect;
+
+	protected:
+		void RenderTail(
+			uint8_t& numLedsBeforeSlider,
+			LpiExecutorParams* lpiExecParams,
+			LpiExecutorOutput* output,
+			uint8_t& sliderWidth,
+			uint8_t& tailLength,
+			Colour& backgroundColour,
+			Colour& sliderColour
+		);
+
+		void RenderHead(
+			uint8_t& numLedsAfterSlider,
+			LpiExecutorParams* lpiExecParams,
+			LpiExecutorOutput* output,
+			uint8_t& sliderWidth,
+			uint8_t& headLength,
+			Colour& backgroundColour,
+			Colour& sliderColour
+		);
+
 	public:
 		virtual bool ValidateLpi(LpiExecutorParams* lpiExecParams);
 		virtual uint16_t GetNumberOfSteps(LpiExecutorParams* lpiExecParams);
