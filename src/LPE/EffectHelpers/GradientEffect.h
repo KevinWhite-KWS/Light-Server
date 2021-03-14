@@ -21,7 +21,7 @@ namespace LS {
 		@date		9 March 2021
 	*/
 	class GradientEffect  {
-	private:
+	protected:
 		Colour startColour;
 		Colour endColour;
 		uint8_t steps;
