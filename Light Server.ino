@@ -55,6 +55,10 @@
 
 #define		BASIC_AUTH_SUPER	"U3VwZXI6MXhZYTFtYW4yKg=="	// Super:1xYa1man2*
 
+#define		DISCOVERY_HANDSHAKE_MSG		"LDL-HOLA?"
+#define		DISCOVERY_PORT				8888
+#define		DISCOVERY_FOUND_MSG			"{ \"server\" : \"1.0.0\" }"
+
 #define		WEBDUINO_SERIAL_DEBUGGING	2		// define this to see web server debugging output
 
 
@@ -64,14 +68,7 @@ namespace LS {
 
 #include <SPI.h>
 #include <Ethernet.h>
-
-
-// *** Redundant references? ***
-// #include "src/Renderer.h"
-// #include "src/LPE.h"
-// #include "src/CommandExecutor.h"
-#include "src/AppLogger.h"
-
+#include <EthernetUdp.h>
 
 // 1. Timer
 #include "src/Orchastrator/ArduinoTimer.h"
@@ -94,6 +91,7 @@ namespace LS {
 #include "src/LPE/StateBuilder/LpJsonStateBuilder.h"
 #include "src/Commands/CommandFactory.h"
 // ** Orchastrator **
+#include "src/AppLogger.h"
 #include "src/Orchastrator/LightServerOrchastrator.h"
 // 7. Individual commands
 #include "src/Commands/NoAuthCommand.h"
@@ -104,7 +102,9 @@ namespace LS {
 #include "src/Commands/CheckPowerCommand.h"
 #include "src/Commands/GetAboutCommand.h"
 #include "src/Commands/SetLedsCommand.h"
-
+// 8. Networking
+#include "src/Networking/EthernetUdpService.h"
+#include "src/Networking/EthernetUdpDiscoveryService.h"
 
 static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
@@ -112,14 +112,6 @@ static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 static uint8_t ip[] = { 192, 168, 5, 210 };
 // NOTE: for when connected directly to the router
 // static uint8_t ip[] = { 192, 168, 1, 210 };
-
-// Instantiate the classes that handle activating the LEDS
-
-
-
-// Instantiate the classes that handle the web interface
-
-
 
 // Instantiate dependencies required by LightServerOrchastrator
 // 1. Timer: for determining when the next instruction should be rendered
@@ -166,10 +158,18 @@ LS::FixedSizeCharBuffer webReponse = LS::FixedSizeCharBuffer(BUFFER_SIZE);
 LS::CheckPowerCommand checkPowerCommand = LS::CheckPowerCommand(&lightWebServ, &pixels, &webDoc, &webReponse);
 LS::GetAboutCommand getAboutCommand = LS::GetAboutCommand(&lightWebServ, &webDoc, &webReponse, &ledConfig);
 LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor);
-
-
-// LS::CommandExecutor* commandExecutor = nullptr;
 LS::AppLogger appLogger;
+// 8: Networking: e.g. UDP discovery service
+LS::EthernetUdpService ethernetUdpService;
+LS::EthernetUdpDiscoveryService discoveryService = LS::EthernetUdpDiscoveryService(DISCOVERY_PORT, DISCOVERY_FOUND_MSG, DISCOVERY_HANDSHAKE_MSG, &ethernetUdpService);
+
+// *** DISCOVERY SERVICE ***
+// EthernetUDP udp;
+//unsigned int localPort = 8888;      // local port to listen on
+//char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
+//char replyBuffer[] = "LDL;1.0.0;";        // a string to send back
+
+
 void setup() {
 	// add the individual command references to the command factory
 	commandFactory.SetCommand(LS::CommandType::NOAUTH, &noAuthCommand);
@@ -196,15 +196,55 @@ void setup() {
 	digitalWrite(4, HIGH);
 
 	// initialize the Ethernet adapter
-	Ethernet.begin(mac, ip);
+	Serial.println("Initialize Ethernet with DHCP:");
+	while (Ethernet.begin(mac) == 0) {
+		Serial.println("Failed to configure Ethernet using DHCP");
+		if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+			Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+		}
+		else if (Ethernet.linkStatus() == LinkOFF) {
+			Serial.println("Ethernet cable is not connected.");
+		}
+
+		delay(1);
+	}
+	Serial.print("My IP address: ");
+	Serial.println(Ethernet.localIP());
+
+	// Ethernet.begin(mac, ip);
 	lightWebServ.Start();
 
 	// ensure the orchastrator is ready to execyte
 	orchastrator.Start();
+
+	// *** DISCOVERY SERVICE ***
+	// start listening for incoming UDP packets
+	// udp.begin(localPort);
+	discoveryService.StartDiscoveryService();
 }
 
 
 void loop() {
+	// *** DISCOVERY SERVICE ***
+	// check if a UDP packet has been received
+	discoveryService.CheckForHandshake();
+	//int packetSize = udp.parsePacket();
+	//if (packetSize) {
+	//	// read the packet into packetBufffer
+	//	udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+	//	if (strcmp(DISCOVERY_MSG, packetBuffer) == 0) {
+	//		// somehow has made contact so respond with
+	//		// a reply that lets them know we are here and waiting!
+	//		udp.beginPacket(udp.remoteIP(), udp.remotePort());
+	//		udp.write(replyBuffer);
+	//		udp.endPacket();
+
+	//		for (int i = 0; i < UDP_TX_PACKET_MAX_SIZE; i++) {
+	//			packetBuffer[i] = 0x00;
+	//		}
+	//	}
+	//}
+
 	// execute the orchastrator on each loop.  If it's not time
 	// then Execute will simply return with no action performed.
 	orchastrator.Execute();

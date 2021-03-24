@@ -169,6 +169,12 @@
     <ClCompile Include="src\LPE\EffectHelpers\GradientEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Networking\UdpDiscoveryService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Networking\EthernetUdpDiscoveryService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.Light Server.vsarduino.h">
@@ -352,6 +358,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\LPE\EffectHelpers\GradientEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Networking\UdpDiscoveryService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Networking\EthernetUdpDiscoveryService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Networking\IUdpService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Networking\EthernetUdpService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

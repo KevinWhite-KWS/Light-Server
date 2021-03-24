@@ -6,8 +6,43 @@
     25 Feb 2021
 #>
 
+Clear-Host
+
+. "$PSScriptRoot\LDL-Server-UDP-Discover.ps1"
+
+$ldlDiscoveryPort = "8888"
+[LdlServerDiscover]$discoverService=[LdlServerDiscover]::new($ldlDiscoveryPort)
+
+# do the initial server discovery
+$discoveredServers = @()#$discoverService.DiscoverServers()
+
+
+Function DiscoverLdlServers() {
+    Write-Host "Discovering LDL servers on the local network via UDP..." -ForegroundColor Green
+    $servers = $discoverService.DiscoverServers();
+
+    if($null -eq $servers -or $servers.Count -eq 0) {
+        Write-Host "...could not find any servers.  Are they connected to the local network?" -ForegroundColor Red
+    } else {
+        $servers | ForEach-Object {
+            $serverIp = $_.ip
+            Write-Host "...found server @ $serverIp" -ForegroundColor Green
+        }
+    }
+
+    return $servers
+}
+
+
+# $discoveredServers | ForEach-Object {
+#     [LdlServerInfo]$server = $_
+#     $serverIp = $server.ip
+#     Write-Host "Found server @ $serverIp"
+# }
+
+
 $importFolder = "$PSscriptRoot\Programs\*.ldl"
-$apiBaseUrl="http://192.168.5.210"  
+$apiProtocol= "http"
 $accessToken = "U3VwZXI6MXhZYTFtYW4yKg=="
 $header = @{
     "Authorization"="Basic " + $accessToken
@@ -16,7 +51,7 @@ $header = @{
 
 $inputPrograms = Get-ChildItem -Path $importFolder
 
-Clear-Host
+
 
 do {
     $randomProgramIndex = Get-Random -Minimum -0 -Maximum $inputPrograms.Count
@@ -24,14 +59,29 @@ do {
     $currentProgramName = $inputPrograms[$randomProgramIndex].Name
     $randomDelay = Get-Random -Minimum 5 -Maximum 60
 
+    # try and discover LDL servers on the local network is necessary
+    if($null -eq $discoveredServers -or $discoveredServers.Count -eq 0) {
+        $discoveredServers = DiscoverLdlServers
+    }
+
     try {
-        Write-Host "Sending $currentProgramName for $randomDelay" -ForegroundColor Green -NoNewline
-        $request = Invoke-WebRequest "$apiBaseURl/program" -Body  $currentProgram -Method 'POST' -Headers $header -ContentType "application/json; charset=utf-8" -TimeoutSec 10
+        if($null -ne $discoveredServers -and $discoveredServers.Count -gt 0) {
+            $discoveredServers | ForEach-Object {
+                [LdlServerInfo]$ldlServerInfo = $_
+                $serverIp = $ldlServerInfo.ip
+                $serviceUrl = "${apiProtocol}://$serverIp/program"
+                Write-Host "Sending $currentProgramName for $randomDelay seconds to server $serverIp : " -ForegroundColor Green -NoNewline
+                $response = Invoke-WebRequest $serviceUrl -Body  $currentProgram -Method 'POST' -Headers $header -ContentType "application/json; charset=utf-8" -TimeoutSec 10
+            }
+        }
     }
     catch [Exception] {
         Write-Host ""
         Write-Host "Exception: $_" -ForegroundColor Red
         $randomDelay = 0
+
+        # try and discover ldl servers on the next iteration
+        $discoveredServers = $null
     }
 
     # write a status as each delay second ticks away
