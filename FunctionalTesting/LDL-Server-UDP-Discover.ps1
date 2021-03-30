@@ -1,5 +1,35 @@
 <#
     .Description
+    Simple LDL server UDP discovery service.  This service broadcasts
+    a UDP packet on port 8888 with a simple message containing the
+    handshake (LDL-HOLA?).  Then, replies are listened for for a short
+    while.  Those replies are then checked to determine whether they
+    contained the expected reponse for a handshake.  The expected
+    response consists of a JSON reply containing the LDL server version number
+    as well as other information.
+    Kevin White
+    30 Mar 2021
+
+    .Example
+    # The following is the basic usage for the discovery service
+    [LdlServerDiscover]$discoverService = New-Object LdlServerDiscover -ArgumentList "8888"
+    $discoveredServers = $discoverService.DiscoverServers()
+
+    $discoveredServers | ForEach-Object {
+     [LdlServerInfo]$ldlServerInfo = $_
+        #   ...useful and exciting code...
+    }
+
+    # instead of $discoveredServers = $discoverService.DiscoverServers()
+    # the following can be used in order to output some useful console messages
+    $discoveredServers = [LdlServerDiscover]::DiscoverServersVerbose($discoverService)
+#>
+
+
+
+
+<#
+    .Description
     Stores the information relevant to about an LDL server including:
         - ip address
         - ldl server version
@@ -9,9 +39,6 @@
 class LdlServerInfo {
     [string]$ip
     [string]$server
-
-    hidden LdlServerInfo() {
-    }
 
     <#
         .Description
@@ -50,6 +77,8 @@ class LdlServerDiscover {
     hidden $handshakeBytes
     hidden $maxDiscoverSeconds = 10
 
+    hidden $asciiEncoding
+
     <#
         .Description
         Constructor initialises the discovering port number.
@@ -60,13 +89,44 @@ class LdlServerDiscover {
     LdlServerDiscover($port = 8888) {
         $this.port = $port
 
-        $asciiEncoding = new-object system.text.asciiencoding
-        $this.handshakeBytes = $asciiEncoding.GetBytes($this.handshake)
+        $this.asciiEncoding = new-object system.text.asciiencoding
+        $this.handshakeBytes = $this.asciiEncoding.GetBytes($this.handshake)
     }
 
     <#
         .Description
-        Discovers LDL servers running on the local network
+        Checks the responses received from broadcasting the UDP discovery
+        message to see if any have responded with the expected handshake response.
+        Kevin White
+        30 Mar 21
+        .Outputs    [array]Collecton of discovered servers as LdlServerInfo instances.
+    #>    
+    hidden [array]ProcessUdpReplies($ldlServersPotentiallyFound) {
+        $discoveredLdlServers = New-Object 'Collections.Generic.List[LdlServerInfo]'
+
+        for($keyCounter = 0; $keyCounter -lt $ldlServersPotentiallyFound.Count; $keyCounter++) {
+            $ip = $ldlServersPotentiallyFound.Keys[$keycounter]
+            $reply = $ldlServersPotentiallyFound.Values[$keyCounter]
+            $replyObj = $reply | ConvertFrom-Json
+            
+            if($null -ne $replyObj) {
+                # a valid response is one that is in the expected JSON format
+                # this reply includes the version of the LDL server
+                [LdlServerInfo]$serverInfo = [LdlServerInfo]::FromHashTable($replyObj, $ip)
+                if($null -ne $serverInfo) {
+                    $discoveredLdlServers.Add($serverInfo)
+                }
+            }                
+        }
+
+        return $discoveredLdlServers
+    }
+
+    <#
+        .Description
+        Discovers LDL servers running on the local network by broadcasting
+        a UDP handshake message and checking received replies for expected
+        LDL handshake response.
         Kevin White
         22 Mar 21
         .Outputs    [array]Collecton of discovered servers as LdlServerInfo instances.
@@ -75,7 +135,7 @@ class LdlServerDiscover {
         $receiveEndpoint = New-Object system.net.ipendpoint([system.net.ipaddress]::Any,$this.port)
         $broadcastEndPoint = New-Object system.net.ipendpoint([system.net.ipaddress]::Broadcast,$this.port)
         
-        $asciiEncoding = new-object system.text.asciiencoding
+        # $asciiEncoding = new-object system.text.asciiencoding
         $discoveredLdlServers = New-Object 'Collections.Generic.List[LdlServerInfo]'
 
         $udpClient = new-Object system.Net.Sockets.Udpclient
@@ -98,7 +158,7 @@ class LdlServerDiscover {
                     $receivebytes = $udpClient.Receive([ref]$receiveEndpoint)
                     $from = $receiveEndpoint.Address.ToString()
 
-                    [string]$returndata = $asciiEncoding.GetString($receivebytes)
+                    [string]$returndata = $this.asciiEncoding.GetString($receivebytes)
 
                     if($null -ne $returndata -and $returndata -ne $this.handshake) {
                         # we get one!
@@ -113,20 +173,7 @@ class LdlServerDiscover {
             }
 
             # see what we got - any LDL servers?
-            
-            $ldlServersPotentiallyFound.Keys | ForEach-Object {
-                $ip = $_
-                $reply = $ldlServersPotentiallyFound[$ip]
-
-                $replyObj = $reply | ConvertFrom-Json
-
-                if($null -ne $replyObj) {
-                    [LdlServerInfo]$serverInfo = [LdlServerInfo]::FromHashTable($replyObj, $ip)
-                    if($null -ne $serverInfo) {
-                        $discoveredLdlServers.Add($serverInfo)
-                    }
-                }
-            };
+            $discoveredLdlServers = $this.ProcessUdpReplies($ldlServersPotentiallyFound)
         }
         finally {
             $udpClient.Close()
@@ -134,8 +181,28 @@ class LdlServerDiscover {
 
         return $discoveredLdlServers
     }
-}
 
-# example simple usage
-# [LdlServerDiscover]$discoverService = New-Object LdlServerDiscover -ArgumentList "8888"
-# $discoveredServers = $discoverService.DiscoverServers()
+    <#
+        .Description
+        Attempts to discover the LDL servers on the local network and additionally
+        outputs some messages to the console to show the progress of the discovering process.
+        Kevin White
+        30 Mar 2021
+    #>    
+    static [array]DiscoverServersVerbose([LdlServerDiscover]$discoverService) {
+        Write-Host "Discovering LDL servers on the local network via UDP..." -ForegroundColor Green
+        $servers = $discoverService.DiscoverServers();
+    
+        if($null -eq $servers -or $servers.Count -eq 0) {
+            Write-Host "...could not find any servers.  Are they connected to the local network?" -ForegroundColor Red
+        } else {
+            $servers | ForEach-Object {
+                $serverIp = $_.ip
+                $reply = $_ | ConvertTo-Json
+                Write-Host "...found server @ $serverIp with reply $reply" -ForegroundColor Green
+            }
+        }
+    
+        return $servers        
+    }
+}

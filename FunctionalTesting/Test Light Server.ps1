@@ -11,35 +11,10 @@ Clear-Host
 . "$PSScriptRoot\LDL-Server-UDP-Discover.ps1"
 
 $ldlDiscoveryPort = "8888"
-[LdlServerDiscover]$discoverService=[LdlServerDiscover]::new($ldlDiscoveryPort)
+$discoverService=[LdlServerDiscover]::new($ldlDiscoveryPort)
 
 # do the initial server discovery
 $discoveredServers = @()#$discoverService.DiscoverServers()
-
-
-Function DiscoverLdlServers() {
-    Write-Host "Discovering LDL servers on the local network via UDP..." -ForegroundColor Green
-    $servers = $discoverService.DiscoverServers();
-
-    if($null -eq $servers -or $servers.Count -eq 0) {
-        Write-Host "...could not find any servers.  Are they connected to the local network?" -ForegroundColor Red
-    } else {
-        $servers | ForEach-Object {
-            $serverIp = $_.ip
-            Write-Host "...found server @ $serverIp" -ForegroundColor Green
-        }
-    }
-
-    return $servers
-}
-
-
-# $discoveredServers | ForEach-Object {
-#     [LdlServerInfo]$server = $_
-#     $serverIp = $server.ip
-#     Write-Host "Found server @ $serverIp"
-# }
-
 
 $importFolder = "$PSscriptRoot\Programs\*.ldl"
 $apiProtocol= "http"
@@ -61,7 +36,7 @@ do {
 
     # try and discover LDL servers on the local network is necessary
     if($null -eq $discoveredServers -or $discoveredServers.Count -eq 0) {
-        $discoveredServers = DiscoverLdlServers
+        $discoveredServers = [LdlServerDiscover]::DiscoverServersVerbose($discoverService)
     }
 
     try {
