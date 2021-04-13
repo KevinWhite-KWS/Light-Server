@@ -1,6 +1,7 @@
 <#
     Randomly uploads programs every 5 - 60 seconds to the light server.
-    The purpose is to test stability.
+    The purpose is to test stability and allow pre-writtern programs
+    to be uploaded.
 
     Kevin White
     25 Feb 2021
