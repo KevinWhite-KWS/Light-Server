@@ -33,4 +33,6 @@ $colours.Add([ColourQuantity]::new([Colour]::new(255,0,0), $currentTemperature))
 $colours.Add([ColourQuantity]::new([colour]::new(0,0,0), 100 - $currentTemperature))
 $ins = $ldlProgram.AddInstruction([BlocksEffectLDLInstruction]::new(1, $colours))
 
-[LDLHelper]::UploadLDLProgramVerbose($ldlProgram, "192.168.6.77", 8888)
+# $ip = "192.168.6.77"    #   blank for UDP discovery
+$ip = ""
+[LDLHelper]::UploadLDLProgramVerbose($ldlProgram, "", 8888)

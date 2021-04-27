@@ -228,22 +228,11 @@ void loop() {
 	// *** DISCOVERY SERVICE ***
 	// check if a UDP packet has been received
 	discoveryService.CheckForHandshake();
-	//int packetSize = udp.parsePacket();
-	//if (packetSize) {
-	//	// read the packet into packetBufffer
-	//	udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-	//	if (strcmp(DISCOVERY_MSG, packetBuffer) == 0) {
-	//		// somehow has made contact so respond with
-	//		// a reply that lets them know we are here and waiting!
-	//		udp.beginPacket(udp.remoteIP(), udp.remotePort());
-	//		udp.write(replyBuffer);
-	//		udp.endPacket();
+	// NOTE:
+	// if UDP discovery is not working then check if there is a 2nd ethernet adapter.In particular, if
+	// a VirtualBox adapter is enabled it will prevent the UDP service from functioning.In this case
+	// disable the VirtualBox adapter.
 
-	//		for (int i = 0; i < UDP_TX_PACKET_MAX_SIZE; i++) {
-	//			packetBuffer[i] = 0x00;
-	//		}
-	//	}
-	//}
 
 	// execute the orchastrator on each loop.  If it's not time
 	// then Execute will simply return with no action performed.

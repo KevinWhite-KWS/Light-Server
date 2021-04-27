@@ -20,6 +20,7 @@ namespace LS {
 		if (packetSize) {
 			// read the packet into packetBufffer
 			udp->read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+
 			CheckMessageReceived(packetBuffer);
 		}
 	}

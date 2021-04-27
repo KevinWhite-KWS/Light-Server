@@ -13,6 +13,13 @@
     $ins = $infiniteLoop.AddInstruction([SolidEffectLDLInstruction]::new(20, [Colour]::new(0,0,255)))   # set LEDs to blue for 20 rendering frames
     $currentProgram = $ldlProgram.SerializeToLDL()                              #   Serialize the program to LDL (JSON) - this can now be sent to the server
 
+
+    NOTES:
+    If UDP discovery is not working then check if there is a 2nd ethernet adapter.  In particular, if
+    a VirtualBox adapter is enabled it will prevent the UDP service from functioning.  In this case
+    disable the VirtualBox adapter.
+
+
     Kevin White
     13 April 2021
 #>
@@ -154,7 +161,10 @@ class LdlServerDiscover {
     #>
     [Collections.Generic.List[LdlServerInfo]]DiscoverServers() {
         $receiveEndpoint = New-Object system.net.ipendpoint([system.net.ipaddress]::Any,$this.port)
-        $broadcastEndPoint = New-Object system.net.ipendpoint([system.net.ipaddress]::Broadcast,$this.port)
+        # $broadcastEndPoint = New-Object system.net.ipendpoint([system.net.ipaddress]::Broadcast,$this.port)
+        # $broadcastIp = [ipaddress]"192.168.6.77"
+        $broadcastIp = [system.net.ipaddress]::Broadcast
+        $broadcastEndPoint = New-Object system.net.ipendpoint($broadcastIp,$this.port)
         
         # $asciiEncoding = new-object system.text.asciiencoding
         $discoveredLdlServers = [Collections.Generic.List[LdlServerInfo]]::new()
