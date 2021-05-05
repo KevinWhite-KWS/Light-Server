@@ -14,8 +14,6 @@
 Clear-Host
 
 
-
-. "$PSScriptRoot\LDL-Server-UDP-Discover.ps1"
 . "$PSScriptRoot\LDL-Server-API.ps1"
 
 # add the colours you wish to see in the generated effects here
@@ -42,7 +40,7 @@ do {
     $currentProgram = ""
 
     $ldlProgram = [LDLProgram]::new("Random program")
-    $infiniteLoop = $ldlProgram.AddInstructon([LoopLDLInstruction]::new(0))
+    $infiniteLoop = $ldlProgram.AddInstruction([LoopLDLInstruction]::new(0))
 
     # add between 5 - 15 randomly generated instructions that
     # use any of the colours in $coloursToUse

@@ -9,7 +9,8 @@
 
 Clear-Host
 
-. "$PSScriptRoot\LDL-Server-UDP-Discover.ps1"
+# . "$PSScriptRoot\LDL-Server-UDP-Discover.ps1"
+. "$PSScriptRoot\LDL-Server-API.ps1"
 
 $ldlDiscoveryPort = "8888"
 $discoverService=[LdlServerDiscover]::new($ldlDiscoveryPort)

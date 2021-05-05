@@ -22,7 +22,7 @@
 
 #define		LS_VERSION			"1.0.0"
 #define		LDL_VERSION			"1.0.0"
-#define		NUMLEDS	19
+/* #define		NUMLEDS	19*/
 
 namespace LS {
 	/*!

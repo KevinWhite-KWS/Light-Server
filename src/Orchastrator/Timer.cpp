@@ -7,8 +7,8 @@ namespace LS {
 		@date		2 Feb 2021
 	*/
 	Timer::Timer(uint8_t interval) {
-		if (interval < 50) {
-			interval = 50;
+		if (interval < 25) {
+			interval = 25;
 		}
 
 		this->interval = interval;

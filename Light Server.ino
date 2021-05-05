@@ -44,11 +44,13 @@
 #endif  // __arm__
 
 #define		PIN		6
-#define		NUMLEDS	18
+// #define		NUMLEDS	10
+#define		NUMLEDS	50
+
 // individual pixels: 8
 // small strip has: 18
 // long strip has: 118
-#define		RENDERING_FRAME		50
+#define		RENDERING_FRAME		25
 
 #define		LS_VERSION			"1.0.0"
 #define		LDL_VERSION			"1.0.0"
@@ -115,7 +117,7 @@ static uint8_t ip[] = { 192, 168, 5, 210 };
 
 // Instantiate dependencies required by LightServerOrchastrator
 // 1. Timer: for determining when the next instruction should be rendered
-LS::ArduinoTimer timer;
+LS::ArduinoTimer timer(RENDERING_FRAME);
 // 2. LpExecutor: executes Light Program to determine next rendering instruction
 LS::LpiExecutorFactory lpiExecutorFactory = LS::LpiExecutorFactory();
 LS::StringProcessor stringProcessor;

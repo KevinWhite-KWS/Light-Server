@@ -19,7 +19,7 @@ Clear-Host
 # $morseMessage = "hello world"
 $morseMessage = "merry christmas"
 $ldlServerIp = ""
-$dotRenderingFrameDuration = 2
+$dotRenderingFrameDuration = 3
 $dotDashColour = [Colour]::new(255,0,0)
 
 # generate the morse code
@@ -100,4 +100,4 @@ for($i = 0; $i -le $morseMessage.Length - 1; $i++) {
 $ins = $ldlProgram.AddInstruction([ClearEffectLDLInstruction]::new($dotRenderingFrameDuration))
 
 # send the program to all LDL servers
-[LDLHelper]::UploadLDLProgramVerbose($ldlProgram, "192.168.6.77", 8888)
+[LDLHelper]::UploadLDLProgramVerbose($ldlProgram, "", 8888)
