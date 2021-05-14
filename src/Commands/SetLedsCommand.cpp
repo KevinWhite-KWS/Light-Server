@@ -20,6 +20,15 @@ namespace LS {
 			return false;
 		}
 		
+		// clear all LEDs that are on at the moment and set the new length of pixels
+		pixelController->fill(0, 0, 0);
+		pixelController->show();
+		pixelController->updateLength(newNoLeds);
+		
+		// save the new number of LEDs to config persistent storage
+		ledConfig->numberOfLEDs = newNoLeds;
+		configPersistance->SaveConfig(ledConfig);
+
 		// TODO: Re-config the LEDs
 		lightWebServer->RespondNoContent();
 

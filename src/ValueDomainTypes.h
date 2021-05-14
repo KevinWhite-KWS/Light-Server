@@ -105,10 +105,15 @@ namespace LS {
 			of pixels available (LEDs).
 	*/
 	struct LEDConfig {
+		uint8_t controlValue = 99;			// value ONLY used to verify that values retrived from storage are valid
 		uint8_t numberOfLEDs;
 
 		LEDConfig(uint8_t numberOfLEDs) {
 			this->numberOfLEDs = numberOfLEDs;
+		}
+
+		bool AreSettingsValid() {
+			return controlValue == 99;
 		}
 	};
 

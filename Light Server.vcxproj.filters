@@ -175,6 +175,18 @@
     <ClCompile Include="src\Networking\EthernetUdpDiscoveryService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ConfigPersistance\DueFlashStorage\DueFlashStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConfigPersistance\DueFlashStorage\efc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConfigPersistance\DueFlashStorage\flash_efc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConfigPersistance\FlashConfigPersistance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.Light Server.vsarduino.h">
@@ -370,6 +382,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Networking\EthernetUdpService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfigPersistance\DueFlashStorage\DueFlashStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfigPersistance\DueFlashStorage\efc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfigPersistance\DueFlashStorage\flash_efc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfigPersistance\IConfigPersistance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfigPersistance\FlashConfigPersistance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

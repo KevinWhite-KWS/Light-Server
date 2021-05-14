@@ -32,6 +32,10 @@ namespace LS {
 		virtual bool SetPixels(LpiExecutorOutput* lpiExecutorOutput);
 		virtual void ShowPixels();
 		virtual bool AreAnyPixelsOn();
+
+		LEDConfig* GetLedConfig() {
+			return ledConfig;
+		}
 	};
 }
 #endif

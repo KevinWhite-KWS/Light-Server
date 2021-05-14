@@ -32,6 +32,7 @@ namespace LS {
 			virtual void fill(uint32_t c = 0, uint16_t first = 0, uint16_t count = 0) = 0;
 			virtual uint16_t numPixels(void) const = 0;
 			virtual uint32_t getPixelColor(uint16_t n) const = 0;
+			virtual void updateLength(uint16_t n) = 0;
 	};
 
 

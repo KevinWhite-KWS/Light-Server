@@ -103,10 +103,15 @@ namespace LS {
 #include "src/Commands/PowerOnCommand.h"
 #include "src/Commands/CheckPowerCommand.h"
 #include "src/Commands/GetAboutCommand.h"
+#include "src/ConfigPersistance/IConfigPersistance.h"
+#include "src/ConfigPersistance/FlashConfigPersistance.h"
 #include "src/Commands/SetLedsCommand.h"
 // 8. Networking
 #include "src/Networking/EthernetUdpService.h"
 #include "src/Networking/EthernetUdpDiscoveryService.h"
+
+
+
 
 static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
@@ -121,6 +126,7 @@ LS::ArduinoTimer timer(RENDERING_FRAME);
 // 2. LpExecutor: executes Light Program to determine next rendering instruction
 LS::LpiExecutorFactory lpiExecutorFactory = LS::LpiExecutorFactory();
 LS::StringProcessor stringProcessor;
+LS::FlashConfigPersistance configPersistance = LS::FlashConfigPersistance();
 LS::LEDConfig ledConfig = LS::LEDConfig(NUMLEDS);
 LS::LpExecutor executor = LS::LpExecutor(&lpiExecutorFactory, &stringProcessor, &ledConfig);
 // 3. LpState: stores the tree representation of a parsed Light Program
@@ -159,17 +165,15 @@ StaticJsonDocument<1000> webDoc;
 LS::FixedSizeCharBuffer webReponse = LS::FixedSizeCharBuffer(BUFFER_SIZE);
 LS::CheckPowerCommand checkPowerCommand = LS::CheckPowerCommand(&lightWebServ, &pixels, &webDoc, &webReponse);
 LS::GetAboutCommand getAboutCommand = LS::GetAboutCommand(&lightWebServ, &webDoc, &webReponse, &ledConfig);
-LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor);
+LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, &configPersistance, &pixels);
 LS::AppLogger appLogger;
 // 8: Networking: e.g. UDP discovery service
 LS::EthernetUdpService ethernetUdpService;
 LS::EthernetUdpDiscoveryService discoveryService = LS::EthernetUdpDiscoveryService(DISCOVERY_PORT, DISCOVERY_FOUND_MSG, DISCOVERY_HANDSHAKE_MSG, &ethernetUdpService);
 
-// *** DISCOVERY SERVICE ***
-// EthernetUDP udp;
-//unsigned int localPort = 8888;      // local port to listen on
-//char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
-//char replyBuffer[] = "LDL;1.0.0;";        // a string to send back
+void readLedConfig() {
+
+}
 
 
 void setup() {
@@ -223,6 +227,23 @@ void setup() {
 	// start listening for incoming UDP packets
 	// udp.begin(localPort);
 	discoveryService.StartDiscoveryService();
+
+	// attempt to read the LED configuration from flash - use defaults if no config values or invalid
+	Serial.println("Reading config from Flash");
+	bool configIsValid = configPersistance.ReadConfig(&ledConfig);
+	if (configIsValid == false) {
+		Serial.println("Config not valid - using defaults");
+		// default configuration values
+		ledConfig.numberOfLEDs = NUMLEDS;
+		ledConfig.controlValue = 99;
+	}
+	else {
+		Serial.print("No LEDS: ");
+		Serial.println(ledConfig.numberOfLEDs);
+		pixels.fill(0, 0, 0);
+		pixels.show();
+		pixels.updateLength(ledConfig.numberOfLEDs);
+	}
 }
 
 
