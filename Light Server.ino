@@ -35,17 +35,29 @@
 		* 28/07/2019: Add LEDConfig structure type. [DONE - 29/07/2019]
 		* 28/07/2019: Modify Renderer constructor to include LEDConfig pointer. [DONE - 29/07/2019]
 		* 28/07/2019: Add SetLEDConfig method to Renderer (build relevent double buffer size, etc.). [DONE - 29/07/2019]
+		* 
+
+	MKR 1010 changes / problems
+		(MKR-Flash)		Flash config persistance does not work
+		(MKR-Wifi)		Wifi instead of Ethernet
+		(MKR-WifiUDP)	UDP using wifi instead of Ethernet UDP
 */
 
-#ifdef __arm__
-#define BUFFER_SIZE		10000	// Due
-#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
-#define BUFFER_SIZE		1000	// Mega
-#endif  // __arm__
+
+
+
+
+//#ifdef __arm__
+//#define BUFFER_SIZE		10000	// Due
+//#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
+//#define BUFFER_SIZE		1000	// Mega
+//#endif  // __arm__
+#define BUFFER_SIZE			1500
+
 
 #define		PIN		6
-// #define		NUMLEDS	10
 #define		NUMLEDS	50
+// #define		NUMLEDS	50
 
 // individual pixels: 8
 // small strip has: 18
@@ -68,9 +80,15 @@ namespace LS {
 	// #define		ORCHASTRATOR_DEBUG_ALL		// define this to see orchastrator debugging output
 }
 
+
+// MKR-Wifi
+// #include <Ethernet.h>
+// #include <EthernetUdp.h>
+char ssid[] = "LittleDaddy";        // your network SSID (name)
+char pass[] = "rodent467*";    // your network password (use for WPA, or use as key for WEP)
 #include <SPI.h>
-#include <Ethernet.h>
-#include <EthernetUdp.h>
+#include <WiFiNINA.h>
+
 
 // 1. Timer
 #include "src/Orchastrator/ArduinoTimer.h"
@@ -85,6 +103,7 @@ namespace LS {
 // 5. LightWebServer
 #include "src/FixedSizeCharBuffer.h"
 #include "src/LightWebServer.h"
+// TEMP
 #include "src/WebServer.h"
 // 6. CommandFactory
 #include "src/LPE/Validation/JsonInstructionValidatorFactory.h"
@@ -103,9 +122,13 @@ namespace LS {
 #include "src/Commands/PowerOnCommand.h"
 #include "src/Commands/CheckPowerCommand.h"
 #include "src/Commands/GetAboutCommand.h"
-#include "src/ConfigPersistance/IConfigPersistance.h"
-#include "src/ConfigPersistance/FlashConfigPersistance.h"
+
+// MKR-Flash
+// #include "src/ConfigPersistance/IConfigPersistance.h"
+// #include "src/ConfigPersistance/FlashConfigPersistance.h"
 #include "src/Commands/SetLedsCommand.h"
+
+
 // 8. Networking
 #include "src/Networking/EthernetUdpService.h"
 #include "src/Networking/EthernetUdpDiscoveryService.h"
@@ -113,20 +136,24 @@ namespace LS {
 
 
 
-static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-
-// NOTE: for when connected to the Eero
-static uint8_t ip[] = { 192, 168, 5, 210 };
-// NOTE: for when connected directly to the router
-// static uint8_t ip[] = { 192, 168, 1, 210 };
-
+////static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+////
+////// NOTE: for when connected to the Eero
+////static uint8_t ip[] = { 192, 168, 5, 210 };
+////// NOTE: for when connected directly to the router
+////// static uint8_t ip[] = { 192, 168, 1, 210 };
+////
 // Instantiate dependencies required by LightServerOrchastrator
 // 1. Timer: for determining when the next instruction should be rendered
 LS::ArduinoTimer timer(RENDERING_FRAME);
 // 2. LpExecutor: executes Light Program to determine next rendering instruction
 LS::LpiExecutorFactory lpiExecutorFactory = LS::LpiExecutorFactory();
 LS::StringProcessor stringProcessor;
-LS::FlashConfigPersistance configPersistance = LS::FlashConfigPersistance();
+
+// MKR-Flash
+// LS::FlashConfigPersistance configPersistance = LS::FlashConfigPersistance();
+
+
 LS::LEDConfig ledConfig = LS::LEDConfig(NUMLEDS);
 LS::LpExecutor executor = LS::LpExecutor(&lpiExecutorFactory, &stringProcessor, &ledConfig);
 // 3. LpState: stores the tree representation of a parsed Light Program
@@ -135,8 +162,10 @@ LS::LpJsonState primaryState;
 Adafruit_NeoPixel pixels(NUMLEDS, PIN, NEO_GRB + NEO_KHZ800);
 LS::PixelRenderer renderer = LS::PixelRenderer(&pixels, &ledConfig);
 // 5. ILightServer: receives and executes HTTP commands
+// TEMP
 WebServer webserv("", 80);
 LS::IWebServer* webserver = &webserv;
+// LS::IWebServer* webserver = nullptr;
 LS::FixedSizeCharBuffer webLoadingBuffer = LS::FixedSizeCharBuffer(BUFFER_SIZE);
 LS::LightWebServer lightWebServ(webserver, &webLoadingBuffer, BASIC_AUTH_SUPER);
 // 6. CommandFactory: returns command instances for received HTTP commands.  These are then executed.
@@ -165,18 +194,34 @@ StaticJsonDocument<1000> webDoc;
 LS::FixedSizeCharBuffer webReponse = LS::FixedSizeCharBuffer(BUFFER_SIZE);
 LS::CheckPowerCommand checkPowerCommand = LS::CheckPowerCommand(&lightWebServ, &pixels, &webDoc, &webReponse);
 LS::GetAboutCommand getAboutCommand = LS::GetAboutCommand(&lightWebServ, &webDoc, &webReponse, &ledConfig);
-LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, &configPersistance, &pixels);
+
+// MKR-Flash
+// LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, &configPersistance, &pixels);
+LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, nullptr, &pixels);
 LS::AppLogger appLogger;
 // 8: Networking: e.g. UDP discovery service
 LS::EthernetUdpService ethernetUdpService;
 LS::EthernetUdpDiscoveryService discoveryService = LS::EthernetUdpDiscoveryService(DISCOVERY_PORT, DISCOVERY_FOUND_MSG, DISCOVERY_HANDSHAKE_MSG, &ethernetUdpService);
 
-void readLedConfig() {
-
-}
-
-
+int status = WL_IDLE_STATUS;
 void setup() {
+	//Initialize serial and wait for port to open:
+	Serial.begin(115200);
+	while (!Serial) {
+	    ; // wait for serial port to connect. Needed for native USB port only
+	}
+
+	while (status != WL_CONNECTED) {
+		Serial.print("Attempting to connect to SSID: ");
+		Serial.println(ssid);
+		// Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+		status = WiFi.begin(ssid, pass);
+
+		// wait 10 seconds for connection:
+		delay(1000);
+	}
+	printWifiStatus();
+
 	// add the individual command references to the command factory
 	commandFactory.SetCommand(LS::CommandType::NOAUTH, &noAuthCommand);
 	commandFactory.SetCommand(LS::CommandType::INVALID, &invalidCommand);
@@ -197,25 +242,27 @@ void setup() {
 	// start the pixel renderer
 	pixels.begin();
 
+	// MKR-Wifi
 	// Disable the SD card reader
-	pinMode(4, OUTPUT);
-	digitalWrite(4, HIGH);
+	// pinMode(4, OUTPUT);
+	// digitalWrite(4, HIGH);
 
+	// MKR-Wifi
 	// initialize the Ethernet adapter
-	Serial.println("Initialize Ethernet with DHCP:");
-	while (Ethernet.begin(mac) == 0) {
-		Serial.println("Failed to configure Ethernet using DHCP");
-		if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-			Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
-		}
-		else if (Ethernet.linkStatus() == LinkOFF) {
-			Serial.println("Ethernet cable is not connected.");
-		}
+	//Serial.println("Initialize Ethernet with DHCP:");
+	//while (Ethernet.begin(mac) == 0) {
+	//	Serial.println("Failed to configure Ethernet using DHCP");
+	//	if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+	//		Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+	//	}
+	//	else if (Ethernet.linkStatus() == LinkOFF) {
+	//		Serial.println("Ethernet cable is not connected.");
+	//	}
 
-		delay(1);
-	}
-	Serial.print("My IP address: ");
-	Serial.println(Ethernet.localIP());
+	//	delay(1);
+	//}
+	//Serial.print("My IP address: ");
+	//Serial.println(Ethernet.localIP());
 
 	// Ethernet.begin(mac, ip);
 	lightWebServ.Start();
@@ -229,6 +276,8 @@ void setup() {
 	discoveryService.StartDiscoveryService();
 
 	// attempt to read the LED configuration from flash - use defaults if no config values or invalid
+	// MKR-Flash
+	/*
 	Serial.println("Reading config from Flash");
 	bool configIsValid = configPersistance.ReadConfig(&ledConfig);
 	if (configIsValid == false) {
@@ -244,6 +293,7 @@ void setup() {
 		pixels.show();
 		pixels.updateLength(ledConfig.numberOfLEDs);
 	}
+	*/
 }
 
 
@@ -251,6 +301,8 @@ void loop() {
 	// *** DISCOVERY SERVICE ***
 	// check if a UDP packet has been received
 	discoveryService.CheckForHandshake();
+	
+	
 	// NOTE:
 	// if UDP discovery is not working then check if there is a 2nd ethernet adapter.In particular, if
 	// a VirtualBox adapter is enabled it will prevent the UDP service from functioning.In this case
@@ -262,3 +314,21 @@ void loop() {
 	orchastrator.Execute();
 }
 
+void printWifiStatus() {
+	// print the SSID of the network you're attached to:
+	Serial.print("SSID: ");
+	Serial.println(WiFi.SSID());
+
+	// print your board's IP address:
+	IPAddress ip = WiFi.localIP();
+	Serial.print("IP Address: ");
+	Serial.println(ip);
+
+	// print the received signal strength:
+	long rssi = WiFi.RSSI();
+	Serial.print("signal strength (RSSI):");
+	Serial.print(rssi);
+	Serial.println(" dBm");
+
+	Serial.println("V1.1");
+}

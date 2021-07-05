@@ -32,14 +32,23 @@ $inputPrograms = Get-ChildItem -Path $importFolder
 
 do {
     $randomProgramIndex = Get-Random -Minimum -0 -Maximum $inputPrograms.Count
+    # $randomProgramIndex = 1
     $currentProgram = Get-Content -Path $inputPrograms[$randomProgramIndex]
     $currentProgramName = $inputPrograms[$randomProgramIndex].Name
     $randomDelay = Get-Random -Minimum 5 -Maximum 60
+    # $randomDelay = 2
 
     # try and discover LDL servers on the local network is necessary
     if($null -eq $discoveredServers -or $discoveredServers.Count -eq 0) {
         $discoveredServers = [LdlServerDiscover]::DiscoverServersVerbose($discoverService)
     }
+
+    # [LdlServerInfo]$ldlServerInfo = $_
+    # $serverIp = "192.168.6.199"
+    # $serviceUrl = "${apiProtocol}://$serverIp/program"
+    # Write-Host "Sending $currentProgramName for $randomDelay seconds to server $serverIp : " -ForegroundColor Green -NoNewline
+    # $response = Invoke-WebRequest $serviceUrl -Body  $currentProgram  -Method 'POST' -Headers $header -ContentType "application/json; charset=utf-8" -TimeoutSec 10
+    # Write-Host $response
 
     try {
         if($null -ne $discoveredServers -and $discoveredServers.Count -gt 0) {

@@ -9,10 +9,14 @@
 
 namespace LS {
 	/* Buffer allocation sizes */
-	#define BUFFER_LPI_LOADING			1000		// buffer size for loading an individual LPI
-	#define	BUFFER_LPI_VALIDATION		1000		// buffer size for validating an individual LPI
-	#define BUFFER_LP_VALIDATION		5000		// buffer size for validating an entire LP
-	#define	BUFFER_LP					5000		// buffer size for an executing LP
+	#define BUFFER_LPI_LOADING			500			// buffer size for loading an individual LPI
+	#define	BUFFER_LPI_VALIDATION		500			// buffer size for validating an individual LPI
+	#define BUFFER_LP_VALIDATION		2000		// buffer size for validating an entire LP
+	#define	BUFFER_LP					2000		// buffer size for an executing LP
+	//#define BUFFER_LPI_LOADING			1000		// buffer size for loading an individual LPI
+	//#define	BUFFER_LPI_VALIDATION		1000		// buffer size for validating an individual LPI
+	//#define BUFFER_LP_VALIDATION		5000		// buffer size for validating an entire LP
+	//#define	BUFFER_LP					5000		// buffer size for an executing LP
 
 	/*!
 	@brief  Struct that represents a three component colour: red, green, and blue.

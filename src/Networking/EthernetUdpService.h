@@ -9,13 +9,17 @@
 
 #include "IUdpService.h"
 #include <stdint.h>
-#include <Ethernet.h>
-#include <EthernetUdp.h>
+
+// MKR-WifiUDP
+//#include <Ethernet.h>
+//#include <EthernetUdp.h>
 
 namespace LS {
 	class EthernetUdpService : public IUdpService {
 	protected:
-		EthernetUDP udp;
+		// MKR-WifiUDP
+		// EthernetUDP udp;
+		WiFiUDP udp;
 	public:
 		virtual uint8_t begin(uint16_t port) {
 			return udp.begin(port);

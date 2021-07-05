@@ -28,6 +28,7 @@ namespace LS {
 			duration,
 			start,
 			end,
+			// TEMP
 			freeMemory(),
 			(msg == nullptr ? "" : msg)
 		);

@@ -13,7 +13,7 @@
 
 namespace LS {
 	
-	// #define		ORCHASTRATOR_DEBUG_ALL		// define this to see orchastrator debugging output
+	#define		ORCHASTRATOR_DEBUG_ALL		// define this to see orchastrator debugging output
 	class LightServerOrchastrator : public IOrchastor {
 		private:
 			Timer* timer;
