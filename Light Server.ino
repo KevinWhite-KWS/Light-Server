@@ -43,21 +43,16 @@
 		(MKR-WifiUDP)	UDP using wifi instead of Ethernet UDP
 */
 
-
-
-
-
 //#ifdef __arm__
 //#define BUFFER_SIZE		10000	// Due
 //#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
 //#define BUFFER_SIZE		1000	// Mega
 //#endif  // __arm__
-#define BUFFER_SIZE			1500
+#define		BUFFER_SIZE			1500
 
 
-#define		PIN		6
-#define		NUMLEDS	50
-// #define		NUMLEDS	50
+#define		PIN					6
+#define		NUMLEDS				50
 
 // individual pixels: 8
 // small strip has: 18
@@ -73,7 +68,7 @@
 #define		DISCOVERY_PORT				8888
 #define		DISCOVERY_FOUND_MSG			"{ \"server\" : \"1.0.0\" }"
 
-#define		WEBDUINO_SERIAL_DEBUGGING	2		// define this to see web server debugging output
+// #define		WEBDUINO_SERIAL_DEBUGGING	2		// define this to see web server debugging output
 
 
 namespace LS {
@@ -84,10 +79,14 @@ namespace LS {
 // MKR-Wifi
 // #include <Ethernet.h>
 // #include <EthernetUdp.h>
+#define		MKR1010
+
 char ssid[] = "LittleDaddy";        // your network SSID (name)
 char pass[] = "rodent467*";    // your network password (use for WPA, or use as key for WEP)
 #include <SPI.h>
 #include <WiFiNINA.h>
+#include <utility/wifi_drv.h>
+
 
 
 // 1. Timer
@@ -124,16 +123,14 @@ char pass[] = "rodent467*";    // your network password (use for WPA, or use as 
 #include "src/Commands/GetAboutCommand.h"
 
 // MKR-Flash
-// #include "src/ConfigPersistance/IConfigPersistance.h"
-// #include "src/ConfigPersistance/FlashConfigPersistance.h"
+#include "src/ConfigPersistance/IConfigPersistance.h"
+#include "src/ConfigPersistance/FlashConfigPersistance.h"
 #include "src/Commands/SetLedsCommand.h"
 
 
 // 8. Networking
 #include "src/Networking/EthernetUdpService.h"
 #include "src/Networking/EthernetUdpDiscoveryService.h"
-
-
 
 
 ////static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -151,10 +148,11 @@ LS::LpiExecutorFactory lpiExecutorFactory = LS::LpiExecutorFactory();
 LS::StringProcessor stringProcessor;
 
 // MKR-Flash
-// LS::FlashConfigPersistance configPersistance = LS::FlashConfigPersistance();
+LS::FlashConfigPersistance configPersistance = LS::FlashConfigPersistance();
 
 
-LS::LEDConfig ledConfig = LS::LEDConfig(NUMLEDS);
+// LS::LEDConfig ledConfig = LS::LEDConfig(NUMLEDS);
+LS::LEDConfig ledConfig = LS::LEDConfig();
 LS::LpExecutor executor = LS::LpExecutor(&lpiExecutorFactory, &stringProcessor, &ledConfig);
 // 3. LpState: stores the tree representation of a parsed Light Program
 LS::LpJsonState primaryState;
@@ -196,8 +194,8 @@ LS::CheckPowerCommand checkPowerCommand = LS::CheckPowerCommand(&lightWebServ, &
 LS::GetAboutCommand getAboutCommand = LS::GetAboutCommand(&lightWebServ, &webDoc, &webReponse, &ledConfig);
 
 // MKR-Flash
-// LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, &configPersistance, &pixels);
-LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, nullptr, &pixels);
+LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, &configPersistance, &pixels, &primaryState);
+// LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, nullptr, &pixels);
 LS::AppLogger appLogger;
 // 8: Networking: e.g. UDP discovery service
 LS::EthernetUdpService ethernetUdpService;
@@ -205,21 +203,45 @@ LS::EthernetUdpDiscoveryService discoveryService = LS::EthernetUdpDiscoveryServi
 
 int status = WL_IDLE_STATUS;
 void setup() {
-	//Initialize serial and wait for port to open:
-	Serial.begin(115200);
-	while (!Serial) {
-	    ; // wait for serial port to connect. Needed for native USB port only
-	}
+	ledConfig.numberOfLEDs = NUMLEDS;
 
+	initOnboardRgbLed();
+
+
+	LS::IAppLogger* appLog = (LS::IAppLogger*)&appLogger;
+	appLogger.StartLogging();
+
+	// red flashing = connecting to Wifi
+	bool isRedHigh = 1;
 	while (status != WL_CONNECTED) {
-		Serial.print("Attempting to connect to SSID: ");
-		Serial.println(ssid);
+		if (isRedHigh) {
+			setOnboardRgbLed(255, 0, 0);
+		}
+		else {
+			setOnboardRgbLed(0, 0, 0);
+		}
+		isRedHigh = !isRedHigh;
+
+
+		// Serial.print("Attempting to connect to SSID: ");
+		// Serial.println(ssid);
+		// Serial.print("Attempting to connect to SSID: ");
+		// Serial.println(ssid);
+		//serialprint("Attempting to connect to SSID: ");
+		//serialprintln(ssid);
+		appLogger.logEvent(0, 0, "Attempting to connect to SSID: ", "STARTUP");
+		appLogger.logEvent(0, 0, ssid, "STARTUP");
+		
 		// Connect to WPA/WPA2 network. Change this line if using open or WEP network:
 		status = WiFi.begin(ssid, pass);
+		// setOnboardRgbLed(0, 0, 255);
 
-		// wait 10 seconds for connection:
+		// wait 1 second for connection:
 		delay(1000);
 	}
+	// amber = wifi connected
+	setOnboardRgbLed(255, 191, 0);
+
 	printWifiStatus();
 
 	// add the individual command references to the command factory
@@ -235,8 +257,7 @@ void setup() {
 	// add the app logger class so the orchastrator can log events
 	// for debugging purposes
 	
-	LS::IAppLogger* appLog = (LS::IAppLogger*)&appLogger;
-	appLogger.StartLogging();
+
 	orchastrator.SetAppLogger(appLog);
 
 	// start the pixel renderer
@@ -249,7 +270,7 @@ void setup() {
 
 	// MKR-Wifi
 	// initialize the Ethernet adapter
-	//Serial.println("Initialize Ethernet with DHCP:");
+
 	//while (Ethernet.begin(mac) == 0) {
 	//	Serial.println("Failed to configure Ethernet using DHCP");
 	//	if (Ethernet.hardwareStatus() == EthernetNoHardware) {
@@ -277,6 +298,21 @@ void setup() {
 
 	// attempt to read the LED configuration from flash - use defaults if no config values or invalid
 	// MKR-Flash
+	// LS::LEDConfig newConfig;
+	ledConfig = configPersistance.ReadConfig();
+	if (ledConfig.numberOfLEDs == 0) {
+		// not initialised so set defaults
+		ledConfig.numberOfLEDs = NUMLEDS;
+	}
+	else {
+		pixels.fill(0, 0, 0);
+		pixels.show();
+		pixels.updateLength(ledConfig.numberOfLEDs);
+	}
+
+
+	// configPersistance.SaveConfig(&newConfig);
+	
 	/*
 	Serial.println("Reading config from Flash");
 	bool configIsValid = configPersistance.ReadConfig(&ledConfig);
@@ -294,10 +330,18 @@ void setup() {
 		pixels.updateLength(ledConfig.numberOfLEDs);
 	}
 	*/
+
+	// green = fully initialised and ready to go
+	setOnboardRgbLed(0, 255, 0);
 }
 
 
 void loop() {
+	// TODO: every x seconds we need to check if Wifi still connected
+	// if not connected we need to re-connect it
+
+
+
 	// *** DISCOVERY SERVICE ***
 	// check if a UDP packet has been received
 	discoveryService.CheckForHandshake();
@@ -316,19 +360,51 @@ void loop() {
 
 void printWifiStatus() {
 	// print the SSID of the network you're attached to:
-	Serial.print("SSID: ");
-	Serial.println(WiFi.SSID());
+	appLogger.logEvent(0, 0, "SSID: ", "STARTUP");
+	appLogger.logEvent(0, 0, WiFi.SSID(), "STARTUP");
+
+	IPAddress ip = WiFi.localIP();
+	appLogger.logEvent(0, 0, "IP Adddress: ", "STARTUP");
+	// appLogger.logEvent(0, 0, , "STARTUP");
+
+
+
+	/*
+	serialprint("SSID: ");
+	serialprintln(WiFi.SSID());
 
 	// print your board's IP address:
 	IPAddress ip = WiFi.localIP();
-	Serial.print("IP Address: ");
-	Serial.println(ip);
+	serialprint("IP Address: ");
+	serialprintln(ip);
 
 	// print the received signal strength:
 	long rssi = WiFi.RSSI();
-	Serial.print("signal strength (RSSI):");
-	Serial.print(rssi);
-	Serial.println(" dBm");
+	serialprint("signal strength (RSSI):");
+	serialprint(rssi);
+	serialprintln(" dBm");
 
-	Serial.println("V1.1");
+	serialprintln("V1.1");
+	*/
+}
+
+
+#define ONBOARD_LED_GREEN_PIN		25
+#define	ONBOARD_LED_RED_PIN			26
+#define ONBOARD_LED_BLUE_PIN		27
+void setOnboardRgbLed(uint8_t red, uint8_t green, uint8_t blue) {
+#ifdef MKR1010
+	WiFiDrv::analogWrite(ONBOARD_LED_GREEN_PIN, green); //GREEN
+	WiFiDrv::analogWrite(ONBOARD_LED_RED_PIN, red);   //RED
+	WiFiDrv::analogWrite(ONBOARD_LED_BLUE_PIN, blue);   //BLUE
+#endif
+}
+
+void initOnboardRgbLed() {
+#ifdef MKR1010
+	WiFiDrv::pinMode(ONBOARD_LED_GREEN_PIN, OUTPUT);
+	WiFiDrv::pinMode(ONBOARD_LED_RED_PIN, OUTPUT);
+	WiFiDrv::pinMode(ONBOARD_LED_BLUE_PIN, OUTPUT);
+	setOnboardRgbLed(0, 0, 0);
+#endif
 }

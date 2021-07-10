@@ -372,5 +372,11 @@
     <ClInclude Include="src\Networking\EthernetUdpService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ConfigPersistance\IConfigPersistance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfigPersistance\FlashConfigPersistance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

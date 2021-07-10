@@ -19,6 +19,7 @@
 #include "../StringProcessor.h"
 #include "../ValueDomainTypes.h"
 #include "../ConfigPersistance/IConfigPersistance.h"
+#include "../LPE/StateBuilder/LpState.h"
 
 namespace LS {
 	/*!
@@ -33,19 +34,26 @@ namespace LS {
 		LEDConfig* ledConfig;
 		IConfigPersistance* configPersistance;
 		IPixelController* pixelController;
+		LpState* programState;
 	public:
 		/*!
 		  @brief   Executes the command to set the configuration of the connected leds.
 		  @param   lightWebServer		Pointer to the class that handles web requests.
 		  @param   stringProcessor		Pointer to the class that provides string parsing functionality.
 		*/
-		SetLedsCommand(ILightWebServer* lightWebServer, StringProcessor* stringProcessor, 
-			LEDConfig* ledConfig, IConfigPersistance* configPersistance, IPixelController* pixelController) {
+		SetLedsCommand(
+			ILightWebServer* lightWebServer, 
+			StringProcessor* stringProcessor, 
+			LEDConfig* ledConfig, 
+			IConfigPersistance* configPersistance, 
+			IPixelController* pixelController, 
+			LpState* programState) {
 			this->lightWebServer = lightWebServer;
 			this->stringProcessor = stringProcessor;
 			this->ledConfig = ledConfig;
 			this->configPersistance = configPersistance;
 			this->pixelController = pixelController;
+			this->programState = programState;
 		}
 
 		/*!

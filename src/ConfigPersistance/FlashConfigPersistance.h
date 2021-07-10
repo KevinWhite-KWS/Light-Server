@@ -10,9 +10,13 @@
 
 #include "../DomainInterfaces.h"
 #include "IConfigPersistance.h"
-#include "DueFlashStorage/DueFlashStorage.h"
+// #include "DueFlashStorage/DueFlashStorage.h"
+#include <FlashStorage_SAMD.h>
 
 namespace LS {
+	// declare this here to reserve some flash memory for storing our config values
+	FlashStorage(led_config_storage, LEDConfig);
+
 	/**
 	 * @brief	Persists the LDL server settings to flash memory.
 	 * @author	Kevin White
@@ -20,7 +24,8 @@ namespace LS {
 	 */
 	class FlashConfigPersistance : public IConfigPersistance {
 	private:
-		DueFlashStorage dueFlashStorage;
+		// DueFlashStorage dueFlashStorage;
+		// FlashStorage(led_config_storage, LEDConfig);
 	public:
 		/**
 		 * @brief	Reads the LDL server settings from flash memory.
@@ -31,14 +36,30 @@ namespace LS {
 		 * @author	Kevin White
 		 * @date	7 May 2021
 		 */
-		bool ReadConfig(LEDConfig* ledConfig);
+		// bool ReadConfig(LEDConfig* ledConfig);
+		LEDConfig ReadConfig() {
+			LEDConfig config;
+			config = led_config_storage.read();
+
+			//byte* configBytes = dueFlashStorage.readAddress(0);
+			//memcpy(config, configBytes, sizeof(LEDConfig));
+
+			// return config->AreSettingsValid();
+			return config;
+		}
 
 		/**
 		 * @brief	Writes the LDL server settings to flash memory.
 		 * @param	ledConfig		The LDL server configuration values
 		 * @date	7 May 2021
 		 */
-		void SaveConfig(LEDConfig* ledConfig);
+		void SaveConfig(LEDConfig* ledConfig) {
+			led_config_storage.write(*ledConfig);
+
+			//byte configBytes[sizeof(LEDConfig)];
+			//memcpy(configBytes, config, sizeof(LEDConfig));
+			//dueFlashStorage.write(0, configBytes, sizeof(LEDConfig));
+		}
 	};
 }
 

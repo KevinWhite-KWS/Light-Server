@@ -1,16 +1,23 @@
 #include "FlashConfigPersistance.h"
 
 namespace LS {
-	bool FlashConfigPersistance::ReadConfig(LEDConfig* config) {
-		byte* configBytes = dueFlashStorage.readAddress(0);
-		memcpy(config, configBytes, sizeof(LEDConfig));
+	LEDConfig FlashConfigPersistance::ReadConfig() {
 
-		return config->AreSettingsValid();
+		LEDConfig config;
+		config = led_config_storage.read();
+
+		//byte* configBytes = dueFlashStorage.readAddress(0);
+		//memcpy(config, configBytes, sizeof(LEDConfig));
+
+		// return config->AreSettingsValid();
+		return config;
 	}
 
 	void FlashConfigPersistance::SaveConfig(LEDConfig* config) {
-		byte configBytes[sizeof(LEDConfig)];
-		memcpy(configBytes, config, sizeof(LEDConfig));
-		dueFlashStorage.write(0, configBytes, sizeof(LEDConfig));
+		led_config_storage.write(*config);
+
+		//byte configBytes[sizeof(LEDConfig)];
+		//memcpy(configBytes, config, sizeof(LEDConfig));
+		//dueFlashStorage.write(0, configBytes, sizeof(LEDConfig));
 	}
 }

@@ -19,8 +19,9 @@ namespace LS {
 	 */
 	class IConfigPersistance {
 	public:
-		virtual bool ReadConfig(LEDConfig* ledConfig);
-		virtual void SaveConfig(LEDConfig* ledConfig);
+		// virtual bool ReadConfig(LEDConfig* ledConfig);
+		virtual LEDConfig ReadConfig() = 0;
+		virtual void SaveConfig(LEDConfig* ledConfig) = 0;
 	};
 }
 

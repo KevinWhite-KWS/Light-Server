@@ -112,9 +112,12 @@ namespace LS {
 		uint8_t controlValue = 99;			// value ONLY used to verify that values retrived from storage are valid
 		uint8_t numberOfLEDs;
 
-		LEDConfig(uint8_t numberOfLEDs) {
-			this->numberOfLEDs = numberOfLEDs;
-		}
+		//LEDConfig(uint8_t numberOfLEDs) {
+		//	this->numberOfLEDs = numberOfLEDs;
+		//}
+
+		//LEDConfig() {
+		//}
 
 		bool AreSettingsValid() {
 			return controlValue == 99;

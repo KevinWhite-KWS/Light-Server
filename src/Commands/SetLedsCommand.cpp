@@ -13,7 +13,6 @@ namespace LS {
 		int newNoLeds = stringProcessor->ExtractNumberFromHexEncoded(buf, 10, 200, validNumber);
 		// newNoLeds is a hex encoded value!  Dec encoded better?
 		// is it consistent with the rest of the API?
-
 		if (!validNumber) {
 			lightWebServer->RespondError();
 
@@ -28,6 +27,10 @@ namespace LS {
 		// save the new number of LEDs to config persistent storage
 		ledConfig->numberOfLEDs = newNoLeds;
 		configPersistance->SaveConfig(ledConfig);
+
+		// Reset the program state as it results in strange renderning behaviour
+		// i.e. user has to upload a new program after configuring the LEDs
+		programState->reset();
 
 		// TODO: Re-config the LEDs
 		lightWebServer->RespondNoContent();

@@ -18,17 +18,22 @@
 #include "ArduinoLog.h"
 #include "DomainInterfaces.h"
 #include "MemoryFree.h"
-// #include <string>
 
-// #define DISABLE_LOGGING         // Enable to disable logging
+#define DISABLE_LOGGING         // Enable to disable logging
 using namespace std;
 
 namespace LS {
     class AppLogger : public IAppLogger {
         public:
             void StartLogging() {
+#ifndef DISABLE_LOGGING
                 Serial.begin(115200);
+                while (!Serial) {
+                    ; // wait for serial port to connect. Needed for native USB port only
+                }
+
                 Log.begin(LOG_LEVEL_VERBOSE, &Serial);
+#endif
             }
 
             /*!

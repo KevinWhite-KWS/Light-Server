@@ -50,6 +50,7 @@ do {
     # $response = Invoke-WebRequest $serviceUrl -Body  $currentProgram  -Method 'POST' -Headers $header -ContentType "application/json; charset=utf-8" -TimeoutSec 10
     # Write-Host $response
 
+    $doDelay = $true
     try {
         if($null -ne $discoveredServers -and $discoveredServers.Count -gt 0) {
             $discoveredServers | ForEach-Object {
@@ -59,6 +60,8 @@ do {
                 Write-Host "Sending $currentProgramName for $randomDelay seconds to server $serverIp : " -ForegroundColor Green -NoNewline
                 $response = Invoke-WebRequest $serviceUrl -Body  $currentProgram -Method 'POST' -Headers $header -ContentType "application/json; charset=utf-8" -TimeoutSec 10
             }
+        } else {
+            $doDelay = $false
         }
     }
     catch [Exception] {
@@ -71,13 +74,15 @@ do {
     }
 
     # write a status as each delay second ticks away
-    For($n = $randomDelay; $n -ne 0; $n--) {
-        if($n % 5 -eq 0) {
-            Write-Host $n -ForegroundColor Green -NoNewLine
-        } else {
-            Write-Host "." -ForegroundColor Green -NoNewline
+    if($doDelay -eq $true) {
+        For($n = $randomDelay; $n -ne 0; $n--) {
+            if($n % 5 -eq 0) {
+                Write-Host $n -ForegroundColor Green -NoNewLine
+            } else {
+                Write-Host "." -ForegroundColor Green -NoNewline
+            }
+            Start-Sleep -Seconds 1
         }
-        Start-Sleep -Seconds 1
     }
     Write-Host ""
 } while(1 -ne 0)
