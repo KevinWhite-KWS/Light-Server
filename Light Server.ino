@@ -41,6 +41,32 @@
 		(MKR-Flash)		Flash config persistance does not work
 		(MKR-Wifi)		Wifi instead of Ethernet
 		(MKR-WifiUDP)	UDP using wifi instead of Ethernet UDP
+
+
+	Buffer Allocations (*** BUFFER ALLOCATION ***)
+		// --- WEB BUFFERS ---
+		// 1500: *** BUFFER ALLOCATION *** - Web receiving buffer
+		// 200:  *** BUFFER ALLOCATION *** - Web response buffer
+		// 200:  *** BUFFER ALLOCATION *** - Web response JSON document buffer
+		// 100:  *** BUFFER ALLOCATION *** - Web response info buffer
+		   ----
+		   2000
+
+		// --- INDIVIDUAL LPIs ---
+		// 500:  *** BUFFER ALLOCATION *** - Individual LPI loading buffer
+		// 500:  *** BUFFER ALLOCATION *** - Individual LPI for validation
+		// 500:  *** BUFFER ALLOCATION *** - Individual LPI building
+		   ----
+		   1500
+
+		// --- ENTIRE LPs ---
+		// 2000: *** BUFFER ALLOCATION *** - An entire LP program requiring validation
+		// 2000: *** BUFFER ALLOCATION *** - Store an entire LP state
+		   ----
+		   4000
+
+
+		TOTAL: 7500
 */
 
 //#ifdef __arm__
@@ -48,7 +74,9 @@
 //#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
 //#define BUFFER_SIZE		1000	// Mega
 //#endif  // __arm__
-#define		BUFFER_SIZE			1500
+#define		BUFFER_SIZE						1500
+#define		BUFFER_JSON_RESPONSE_SIZE		200
+#define		BUFFER_WEB_RESPONSE_SIZE		200
 
 
 #define		PIN					6
@@ -164,6 +192,7 @@ LS::PixelRenderer renderer = LS::PixelRenderer(&pixels, &ledConfig);
 WebServer webserv("", 80);
 LS::IWebServer* webserver = &webserv;
 // LS::IWebServer* webserver = nullptr;
+// *** BUFFER ALLOCATION *** - Web receiving buffer
 LS::FixedSizeCharBuffer webLoadingBuffer = LS::FixedSizeCharBuffer(BUFFER_SIZE);
 LS::LightWebServer lightWebServ(webserver, &webLoadingBuffer, BASIC_AUTH_SUPER);
 // 6. CommandFactory: returns command instances for received HTTP commands.  These are then executed.
@@ -180,16 +209,17 @@ LS::LightServerOrchastrator orchastrator = LS::LightServerOrchastrator(
 // 7. Individual commands that are added to the command factory
 LS::NoAuthCommand noAuthCommand = LS::NoAuthCommand(&lightWebServ);
 LS::InvalidCommand invalidCommand = LS::InvalidCommand(&lightWebServ);
-LS::FixedSizeCharBuffer lpBuffer = LS::FixedSizeCharBuffer(BUFFER_SIZE);
 LS::JsonInstructionValidatorFactory instructionValidatorFactory = LS::JsonInstructionValidatorFactory(&lpiExecutorFactory, &stringProcessor, &ledConfig);
 LS::LpJsonValidator validator = LS::LpJsonValidator(&instructionValidatorFactory);
 LS::JsonInstructionBuilderFactory instructionBuilderFactory = LS::JsonInstructionBuilderFactory(&lpiExecutorFactory, &stringProcessor, &ledConfig);
 LS::LpJsonStateBuilder stateBuilder = LS::LpJsonStateBuilder(&instructionBuilderFactory);
-LS::LoadProgramCommand loadProgramCommand = LS::LoadProgramCommand(&lightWebServ, &lpBuffer, &validator, &stateBuilder, &primaryState);
+LS::LoadProgramCommand loadProgramCommand = LS::LoadProgramCommand(&lightWebServ, &validator, &stateBuilder, &primaryState);
 LS::PowerOffCommand powerOffCommand = LS::PowerOffCommand(&lightWebServ, &pixels, &orchastrator);
 LS::PowerOnCommand powerOnCommand = LS::PowerOnCommand(&lightWebServ, &pixels, &orchastrator, &stringProcessor);
-StaticJsonDocument<1000> webDoc;
-LS::FixedSizeCharBuffer webReponse = LS::FixedSizeCharBuffer(BUFFER_SIZE);
+// *** BUFFER ALLOCATION *** - Web response JSON document buffer
+StaticJsonDocument<BUFFER_JSON_RESPONSE_SIZE> webDoc;
+// ***BUFFER ALLOCATION*** - Web response buffer
+LS::FixedSizeCharBuffer webReponse = LS::FixedSizeCharBuffer(BUFFER_WEB_RESPONSE_SIZE);
 LS::CheckPowerCommand checkPowerCommand = LS::CheckPowerCommand(&lightWebServ, &pixels, &webDoc, &webReponse);
 LS::GetAboutCommand getAboutCommand = LS::GetAboutCommand(&lightWebServ, &webDoc, &webReponse, &ledConfig);
 

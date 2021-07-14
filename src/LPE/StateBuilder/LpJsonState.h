@@ -26,6 +26,7 @@ namespace LS {
 	*/
 	class LpJsonState : public LpState {
 		private:
+			// 2000: *** BUFFER ALLOCATION *** - Store an entire LP state
 			StaticJsonDocument<BUFFER_LP> lpJsonDoc;
 
 		public:

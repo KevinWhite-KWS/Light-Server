@@ -30,6 +30,10 @@ namespace LS{
 		return loadingBuffer->GetBuffer();
 	}
 
+	FixedSizeCharBuffer* LightWebServer::GetLoadingFixedSizeBuffer() {
+		return loadingBuffer;
+	}
+
 	void LightWebServer::SetCommandType(CommandType commandType) {
 		currentCommand = commandType;
 	}

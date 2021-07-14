@@ -10,13 +10,8 @@ namespace LS {
 	bool LoadProgramCommand::ExecuteCommand() {
 		// Get the buffer from the request that contains the body
 		// of the web request i.e. the Light Program that is to be loaded.
-		char* buf = lightWebServer->GetLoadingBuffer(false);
-
-		// Load the request body into the Light Program buffer (lpBuffer)
-		// so that it can be used to validate the program and
-		// load the instruction.
-		lpBuffer->ClearBuffer();
-		lpBuffer->LoadFromBuffer(buf);
+		//// char* buf = lightWebServer->GetLoadingBuffer(false);
+		FixedSizeCharBuffer* lpBuffer = lightWebServer->GetLoadingFixedSizeBuffer();
 
 		// Validate the Light Program
 		lpValidator->ValidateLp(lpBuffer, &validateResult);

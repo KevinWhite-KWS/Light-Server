@@ -29,7 +29,7 @@ namespace LS {
 			LEDConfig* ledConfig;
 			LpiExecutorParams lpiExecutorParams;
 
-			/* BUFFER ALLOCATED */
+			// 500:  *** BUFFER ALLOCATION *** - Individual LPI for validation
 			FixedSizeCharBuffer lpiToBeValidatedBuffer = FixedSizeCharBuffer(BUFFER_LPI_VALIDATION);
 			LPIInstruction lpiToBeValidated;
 		public:

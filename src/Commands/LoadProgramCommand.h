@@ -30,7 +30,6 @@ namespace LS {
 	{
 	private:
 		ILightWebServer* lightWebServer;
-		FixedSizeCharBuffer* lpBuffer;
 		LpJsonValidator* lpValidator;
 		LpJsonStateBuilder* lpStateBuilder;
 		LpJsonState* lpState;
@@ -48,13 +47,11 @@ namespace LS {
 		  @param   lpState				Pointer to the class that stores the tree representations of a Light Program.
 		*/
 		LoadProgramCommand(ILightWebServer* lightWebServer, 
-			FixedSizeCharBuffer* lpBuffer, 
 			LpJsonValidator* lpValidator, 
 			LpJsonStateBuilder* lpStateBuilder, 
 			LpJsonState* lpState) {
 
 			this->lightWebServer = lightWebServer;
-			this->lpBuffer = lpBuffer;
 			this->lpValidator = lpValidator;
 			this->lpStateBuilder = lpStateBuilder;
 			this->lpState = lpState;

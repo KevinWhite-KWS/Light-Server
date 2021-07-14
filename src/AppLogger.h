@@ -19,7 +19,7 @@
 #include "DomainInterfaces.h"
 #include "MemoryFree.h"
 
-#define DISABLE_LOGGING         // Enable to disable logging
+// #define DISABLE_LOGGING         // Enable to disable logging
 using namespace std;
 
 namespace LS {

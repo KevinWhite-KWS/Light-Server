@@ -25,7 +25,7 @@ namespace LS {
 		LpiExecutorFactory* lpiFactory;
 		LpiExecutorParams lpiExecutorParams;
 
-		/* BUFFER ALLOCATED */
+		// 500:  *** BUFFER ALLOCATION *** - Individual LPI building
 		FixedSizeCharBuffer lpiBuffer = FixedSizeCharBuffer(BUFFER_LPI_VALIDATION);
 		LPIInstruction lpiBasics;
 	public:

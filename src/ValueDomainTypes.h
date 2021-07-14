@@ -13,6 +13,10 @@ namespace LS {
 	#define	BUFFER_LPI_VALIDATION		500			// buffer size for validating an individual LPI
 	#define BUFFER_LP_VALIDATION		2000		// buffer size for validating an entire LP
 	#define	BUFFER_LP					2000		// buffer size for an executing LP
+
+
+	#define	BUFFER_JSON_RESPONSE_SIZE	200
+
 	//#define BUFFER_LPI_LOADING			1000		// buffer size for loading an individual LPI
 	//#define	BUFFER_LPI_VALIDATION		1000		// buffer size for validating an individual LPI
 	//#define BUFFER_LP_VALIDATION		5000		// buffer size for validating an entire LP
@@ -194,6 +198,7 @@ namespace LS {
 	class LPValidateResult {
 		protected:
 			LPValidateCode code;
+			// 100:  ***BUFFER ALLOCATION * **-Web response info buffer
 			FixedSizeCharBuffer infoBuffer = FixedSizeCharBuffer(100);
 
 		public:

@@ -150,6 +150,15 @@ namespace LS {
 			*/
 			char* GetLoadingBuffer(bool clearBuffer = true);
 
+
+			/*!
+				@brief		Gets a reference to the buffer that is used to load the body.
+				@returns	FixedSizeCharBuffer*	A reference to the body buffer.
+				@author		Kevin White
+				@date		14 July 2021
+			*/
+			FixedSizeCharBuffer* GetLoadingFixedSizeBuffer();
+
 			/*!
 			  @brief	Gets a reference to the buffer that contains the Base64 encoded
 						basic credentials to be used for authenticating requests.

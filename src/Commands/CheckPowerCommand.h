@@ -18,6 +18,7 @@
 #include "../DomainInterfaces.h"
 #include "../ArduinoJson-v6.17.2.h"
 #include "../FixedSizeCharBuffer.h"
+#include "../ValueDomainTypes.h"
 
 namespace LS {
 	/*!
@@ -30,7 +31,7 @@ namespace LS {
 	private:
 		ILightWebServer* lightWebServer;
 		IPixelController* pixelController;
-		StaticJsonDocument<1000>* webDoc;
+		StaticJsonDocument<BUFFER_JSON_RESPONSE_SIZE>* webDoc;
 		FixedSizeCharBuffer* webResponse;
 	public:
 		/*!
@@ -39,7 +40,7 @@ namespace LS {
 		  @param   pixelController		Pointer to the class that interacts with the LEDs.
 		  @param   webResponseDoc		Pointer to the Arduino JSON document that is used to construct the JSON web response.
 		*/
-		CheckPowerCommand(ILightWebServer* lightWebServer, IPixelController* pixelController, StaticJsonDocument<1000>* webDoc, FixedSizeCharBuffer* webResponse) {
+		CheckPowerCommand(ILightWebServer* lightWebServer, IPixelController* pixelController, StaticJsonDocument<BUFFER_JSON_RESPONSE_SIZE>* webDoc, FixedSizeCharBuffer* webResponse) {
 			this->lightWebServer = lightWebServer;
 			this->pixelController = pixelController;
 			this->webDoc = webDoc;

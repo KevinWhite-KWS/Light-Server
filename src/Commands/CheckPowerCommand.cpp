@@ -19,7 +19,8 @@ namespace LS {
 		// Respond with the body response - i.e. state of pixels
 		webDoc->clear();
 		(*webDoc)["power"] = (anyOn ? "on" : "off");
-		serializeJsonPretty(*webDoc, webResponse->GetBuffer(), 1000);
+		serializeJsonPretty(*webDoc, webResponse->GetBuffer(), BUFFER_JSON_RESPONSE_SIZE);
+		// only requires about 16 bytes in the JSON document
 
 		// Send a 200 reponse back with the state of the LEDs in the body
 		lightWebServer->RespondOK(webResponse->GetBuffer());

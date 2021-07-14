@@ -27,6 +27,7 @@ namespace LS {
 		LEDConfig* ledConfig;
 		LpiExecutorParams lpiExecutorParams;
 		
+		// 500:  *** BUFFER ALLOCATION *** - Individual LPI loading buffer
 		FixedSizeCharBuffer lpiBuffer = FixedSizeCharBuffer(BUFFER_LPI_LOADING);
 		LPIInstruction basicLpiDetails;
 	protected:

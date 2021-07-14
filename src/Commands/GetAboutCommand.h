@@ -33,7 +33,7 @@ namespace LS {
 	{
 	private:
 		ILightWebServer* lightWebServer;
-		StaticJsonDocument<1000>* webDoc;
+		StaticJsonDocument<BUFFER_JSON_RESPONSE_SIZE>* webDoc;
 		FixedSizeCharBuffer* webResponse;
 		LEDConfig* ledConfig;
 	public:
@@ -45,7 +45,7 @@ namespace LS {
 		  @param   webResponse			Pointer to the buffer that stores the HTTP reponse.
 		  @param   ledConfig			Pointer to the class that contains the LED configuration details.
 		*/
-		GetAboutCommand(ILightWebServer* lightWebServer, StaticJsonDocument<1000>* webDoc, FixedSizeCharBuffer* webResponse, LEDConfig* ledConfig) {
+		GetAboutCommand(ILightWebServer* lightWebServer, StaticJsonDocument<BUFFER_JSON_RESPONSE_SIZE>* webDoc, FixedSizeCharBuffer* webResponse, LEDConfig* ledConfig) {
 			this->lightWebServer = lightWebServer;
 			this->webDoc = webDoc;
 			this->webResponse = webResponse;

@@ -19,6 +19,7 @@ namespace LS {
 	class LpJsonValidator {
 		private:
 			JsonInstructionValidatorFactory* validatorFactory;
+			// 2000: *** BUFFER ALLOCATION *** - An entire LP program requiring validation
 			StaticJsonDocument<BUFFER_LP_VALIDATION> validateJsonDoc;
 			
 			bool hasInfiniteLoop = false;

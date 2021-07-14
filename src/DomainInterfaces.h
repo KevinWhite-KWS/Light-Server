@@ -9,6 +9,7 @@
 #endif
 
 #include <stdint.h>
+#include "FixedSizeCharBuffer.h"
 
 namespace LS {
 	/*
@@ -132,6 +133,14 @@ namespace LS {
 			  @returns	char*			A pointer to the loading buffer.
 			*/
 			virtual char* GetLoadingBuffer(bool clearBuffer = true) = 0;
+
+			/*!
+				@brief		Gets a reference to the buffer that is used to load the body.
+				@returns	FixedSizeCharBuffer*	A reference to the body buffer.
+				@author		Kevin White
+				@date		14 July 2021
+			*/
+			virtual FixedSizeCharBuffer* GetLoadingFixedSizeBuffer() = 0;
 
 			/*!
 			  @brief	Gets a reference to the buffer that contains the Base64 encoded
