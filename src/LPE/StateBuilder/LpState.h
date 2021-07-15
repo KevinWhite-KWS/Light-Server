@@ -12,8 +12,13 @@
 #include "../Instructions/LpInstruction.h"
 #include "../Instructions/RepeatInstruction.h"
 
-#define MAX_LPINSTRUCTIONS		100
-#define MAX_REPEATINSTRUCTIONS	25
+// #define MAX_LPINSTRUCTIONS		100
+// #define MAX_REPEATINSTRUCTIONS	25
+
+// xxxx: *** BUFFER ALLOCATION *** - Store a tree structure of a entire LP state
+#define MAX_LPINSTRUCTIONS		65
+#define MAX_REPEATINSTRUCTIONS	15
+
 
 namespace LS {
 	/*!

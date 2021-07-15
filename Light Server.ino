@@ -62,6 +62,7 @@
 		// --- ENTIRE LPs ---
 		// 2000: *** BUFFER ALLOCATION *** - An entire LP program requiring validation
 		// 2000: *** BUFFER ALLOCATION *** - Store an entire LP state
+		// xxxx: *** BUFFER ALLOCATION *** - Store a tree structure of a entire LP state
 		   ----
 		   4000
 

@@ -14,6 +14,8 @@ namespace LS {
 		this->lpiFactory = lpiFactory;
 		this->stringProcessor = stringProcessor;
 		this->ledConfig = ledConfig;
+		
+		//// DON'T KNOW WHAT THS WAS FOR - TO BE REMOVED
 		lpiExecutorParams.Reset(&lpiBuffer, ledConfig, stringProcessor);
 	}
 
@@ -42,7 +44,11 @@ namespace LS {
 
 		// get the LPI executor so we can the number of steps
 		// to complete the LPI
+		
+		//// DON'T KNOW WHAT THS WAS FOR - TO BE REMOVED
 		lpiBuffer.LoadFromBuffer(lpi);
+		
+		
 		LpiExecutor* lpiExecutor = lpiFactory->GetLpiExecutor(lpiBasics.opcode);
 		uint16_t steps = lpiExecutor->GetNumberOfSteps(&lpiExecutorParams);
 

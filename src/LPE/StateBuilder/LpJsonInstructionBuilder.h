@@ -26,7 +26,10 @@ namespace LS {
 		LpiExecutorParams lpiExecutorParams;
 
 		// 500:  *** BUFFER ALLOCATION *** - Individual LPI building
+		//// DON'T KNOW WHAT THS WAS FOR - TO BE REMOVED
 		FixedSizeCharBuffer lpiBuffer = FixedSizeCharBuffer(BUFFER_LPI_VALIDATION);
+
+
 		LPIInstruction lpiBasics;
 	public:
 		LpJsonInstructionBuilder(LpiExecutorFactory* lpiInstructionFactory, StringProcessor* stringBuilder, LEDConfig* ledConfig);
