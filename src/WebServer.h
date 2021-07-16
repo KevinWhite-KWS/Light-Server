@@ -38,8 +38,10 @@
 #include <EthernetServer.h>
 #endif
 #ifdef WIFI
-#include <SPI.h>
-#include <WiFiNINA.h>
+/*** START: WIFI Manager ***/
+// #include <SPI.h>
+// #include <WiFiNINA.h>
+/*** END: WIFI Manager ***/
 #endif
 
 #include "DomainInterfaces.h"

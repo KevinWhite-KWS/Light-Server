@@ -45,12 +45,12 @@
 
 	Buffer Allocations (*** BUFFER ALLOCATION ***)
 		// --- WEB BUFFERS ---
-		// 1500: *** BUFFER ALLOCATION *** - Web receiving buffer
+		// 4000: *** BUFFER ALLOCATION *** - Web receiving buffer
 		// 200:  *** BUFFER ALLOCATION *** - Web response buffer
 		// 200:  *** BUFFER ALLOCATION *** - Web response JSON document buffer
 		// 100:  *** BUFFER ALLOCATION *** - Web response info buffer
 		   ----
-		   2000
+		   4500
 
 		// --- INDIVIDUAL LPIs ---
 		// 500:  *** BUFFER ALLOCATION *** - Individual LPI loading buffer
@@ -60,14 +60,14 @@
 		   1500
 
 		// --- ENTIRE LPs ---
-		// 2000: *** BUFFER ALLOCATION *** - An entire LP program requiring validation
-		// 2000: *** BUFFER ALLOCATION *** - Store an entire LP state
+		// 4000: *** BUFFER ALLOCATION *** - An entire LP program requiring validation
+		// 4000: *** BUFFER ALLOCATION *** - Store an entire LP state
 		// xxxx: *** BUFFER ALLOCATION *** - Store a tree structure of a entire LP state
 		   ----
-		   4000
+		   8000+
 
 
-		TOTAL: 7500
+		TOTAL: 14000
 */
 
 //#ifdef __arm__
@@ -75,7 +75,7 @@
 //#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
 //#define BUFFER_SIZE		1000	// Mega
 //#endif  // __arm__
-#define		BUFFER_SIZE						1500
+#define		BUFFER_SIZE						4000 // 1500
 #define		BUFFER_JSON_RESPONSE_SIZE		200
 #define		BUFFER_WEB_RESPONSE_SIZE		200
 
@@ -110,11 +110,21 @@ namespace LS {
 // #include <EthernetUdp.h>
 #define		MKR1010
 
-char ssid[] = "LittleDaddy";        // your network SSID (name)
-char pass[] = "rodent467*";    // your network password (use for WPA, or use as key for WEP)
-#include <SPI.h>
-#include <WiFiNINA.h>
-#include <utility/wifi_drv.h>
+
+
+
+
+
+/*** START: WIFI Manager ***/
+////char ssid[] = "LittleDaddy";   // your network SSID (name)
+////char pass[] = "rodent467*";    // your network password (use for WPA, or use as key for WEP)
+////#include <SPI.h>
+////#include <WiFiNINA.h>
+////#include <utility/wifi_drv.h>
+#include "src/Networking/WifiConnectManager/defines.h"
+#include "src/Networking/WifiConnectManager/Credentials.h"
+#include "src/Networking/WifiConnectManager/dynamicParams.h"
+/*** END: WIFI Manager ***/
 
 
 
@@ -232,48 +242,141 @@ LS::AppLogger appLogger;
 LS::EthernetUdpService ethernetUdpService;
 LS::EthernetUdpDiscoveryService discoveryService = LS::EthernetUdpDiscoveryService(DISCOVERY_PORT, DISCOVERY_FOUND_MSG, DISCOVERY_HANDSHAKE_MSG, &ethernetUdpService);
 
-int status = WL_IDLE_STATUS;
+/*** START: WIFI Manager ***/
+//// int status = WL_IDLE_STATUS;
+void heartBeatPrint(void)
+{
+	static int num = 1;
+
+	if (WiFi.status() == WL_CONNECTED) {
+		// Serial.print("H");        // H means connected to WiFi
+		// green = connected to Wifi
+		setOnboardRgbLed(0, 255, 0);
+
+		// Serial.println(freeMemory());
+
+	}
+	else {
+		// Serial.print("F");        // F means not connected to WiFi
+		// red = not connected to Wifi
+		setOnboardRgbLed(255, 0, 0);
+
+		// Serial.println(freeMemory());
+	}
+
+	if (num == 80)
+	{
+		// Serial.println();
+		num = 1;
+	}
+	else if (num++ % 10 == 0)
+	{
+		// Serial.print(" ");
+	}
+}
+
+void check_status()
+{
+	static unsigned long checkstatus_timeout = 0;
+
+	//KH
+#define HEARTBEAT_INTERVAL    20000L
+  // Print hearbeat every HEARTBEAT_INTERVAL (20) seconds.
+	if ((millis() > checkstatus_timeout) || (checkstatus_timeout == 0))
+	{
+		heartBeatPrint();
+		checkstatus_timeout = millis() + HEARTBEAT_INTERVAL;
+	}
+}
+
+WiFiManager_NINA_Lite* WiFiManager_NINA;
+
+#if USING_CUSTOMS_STYLE
+const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
+button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
+#endif
+/*** END: WIFI Manager ***/
+
+
+
+
 void setup() {
 	ledConfig.numberOfLEDs = NUMLEDS;
 
 	initOnboardRgbLed();
+	// amber = not yet connected to wifi or initialised
+	setOnboardRgbLed(255, 191, 0);
 
 
 	LS::IAppLogger* appLog = (LS::IAppLogger*)&appLogger;
 	appLogger.StartLogging();
 
+	
+	
+	/*** START: WIFI Manager ***/
+	//Serial.print(F("\nStarting SAMD_WiFiNINA on ")); Serial.println(BOARD_TYPE);
+	// Serial.println(WIFIMANAGER_NINA_LITE_VERSION);
+
+	WiFiManager_NINA = new WiFiManager_NINA_Lite();
+
+	// Optional to change default AP IP(192.168.4.1) and channel(10)
+	//WiFiManager_NINA->setConfigPortalIP(IPAddress(192, 168, 120, 1));
+	WiFiManager_NINA->setConfigPortalChannel(0);
+
+#if USING_CUSTOMS_STYLE
+	WiFiManager_NINA->setCustomsStyle(NewCustomsStyle);
+#endif
+
+#if USING_CUSTOMS_HEAD_ELEMENT
+	WiFiManager_NINA->setCustomsHeadElement("<style>html{filter: invert(10%);}</style>");
+#endif
+
+#if USING_CORS_FEATURE  
+	WiFiManager_NINA->setCORSHeader("Your Access-Control-Allow-Origin");
+#endif
+
+	// Set customized DHCP HostName
+	WiFiManager_NINA->begin(HOST_NAME);
+	//Or use default Hostname "SAMD-WiFiNINA-XXXXXX"
+	//WiFiManager_NINA->begin();
+
+	/*** END: WIFI Manager ***/
+
+
+
+	/*** START: WIFI Manager ***/
 	// red flashing = connecting to Wifi
-	bool isRedHigh = 1;
-	while (status != WL_CONNECTED) {
-		if (isRedHigh) {
-			setOnboardRgbLed(255, 0, 0);
-		}
-		else {
-			setOnboardRgbLed(0, 0, 0);
-		}
-		isRedHigh = !isRedHigh;
+	////bool isRedHigh = 1;
+	////while (status != WL_CONNECTED) {
+	////	if (isRedHigh) {
+	////		setOnboardRgbLed(255, 0, 0);
+	////	}
+	////	else {
+	////		setOnboardRgbLed(0, 0, 0);
+	////	}
+	////	isRedHigh = !isRedHigh;
 
 
-		// Serial.print("Attempting to connect to SSID: ");
-		// Serial.println(ssid);
-		// Serial.print("Attempting to connect to SSID: ");
-		// Serial.println(ssid);
-		//serialprint("Attempting to connect to SSID: ");
-		//serialprintln(ssid);
-		appLogger.logEvent(0, 0, "Attempting to connect to SSID: ", "STARTUP");
-		appLogger.logEvent(0, 0, ssid, "STARTUP");
-		
-		// Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-		status = WiFi.begin(ssid, pass);
-		// setOnboardRgbLed(0, 0, 255);
+	////	// Serial.print("Attempting to connect to SSID: ");
+	////	// Serial.println(ssid);
+	////	// Serial.print("Attempting to connect to SSID: ");
+	////	// Serial.println(ssid);
+	////	//serialprint("Attempting to connect to SSID: ");
+	////	//serialprintln(ssid);
+	////	appLogger.logEvent(0, 0, "Attempting to connect to SSID: ", "STARTUP");
+	////	appLogger.logEvent(0, 0, ssid, "STARTUP");
+	////	
+	////	// Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+	////	status = WiFi.begin(ssid, pass);
+	////	// setOnboardRgbLed(0, 0, 255);
 
-		// wait 1 second for connection:
-		delay(1000);
-	}
-	// amber = wifi connected
-	setOnboardRgbLed(255, 191, 0);
-
-	printWifiStatus();
+	////	// wait 1 second for connection:
+	////	delay(1000);
+	////}
+	////// amber = wifi connected
+	////setOnboardRgbLed(255, 191, 0);
+	////printWifiStatus();
+	/*** END: WIFI Manager ***/
 
 	// add the individual command references to the command factory
 	commandFactory.SetCommand(LS::CommandType::NOAUTH, &noAuthCommand);
@@ -362,8 +465,10 @@ void setup() {
 	}
 	*/
 
+
+
 	// green = fully initialised and ready to go
-	setOnboardRgbLed(0, 255, 0);
+	// setOnboardRgbLed(0, 255, 0);
 }
 
 
@@ -371,10 +476,14 @@ void loop() {
 	// TODO: every x seconds we need to check if Wifi still connected
 	// if not connected we need to re-connect it
 
-
+	/*** START: WIFI Manager ***/
+	WiFiManager_NINA->run();
+	check_status();
+	/*** END: WIFI Manager ***/
 
 	// *** DISCOVERY SERVICE ***
 	// check if a UDP packet has been received
+
 	discoveryService.CheckForHandshake();
 	
 	
@@ -386,39 +495,41 @@ void loop() {
 
 	// execute the orchastrator on each loop.  If it's not time
 	// then Execute will simply return with no action performed.
+	
 	orchastrator.Execute();
 }
 
-void printWifiStatus() {
-	// print the SSID of the network you're attached to:
-	appLogger.logEvent(0, 0, "SSID: ", "STARTUP");
-	appLogger.logEvent(0, 0, WiFi.SSID(), "STARTUP");
-
-	IPAddress ip = WiFi.localIP();
-	appLogger.logEvent(0, 0, "IP Adddress: ", "STARTUP");
-	// appLogger.logEvent(0, 0, , "STARTUP");
-
-
-
-	/*
-	serialprint("SSID: ");
-	serialprintln(WiFi.SSID());
-
-	// print your board's IP address:
-	IPAddress ip = WiFi.localIP();
-	serialprint("IP Address: ");
-	serialprintln(ip);
-
-	// print the received signal strength:
-	long rssi = WiFi.RSSI();
-	serialprint("signal strength (RSSI):");
-	serialprint(rssi);
-	serialprintln(" dBm");
-
-	serialprintln("V1.1");
-	*/
-}
-
+/*** START: WIFI Manager ***/
+////void printWifiStatus() {
+////	// print the SSID of the network you're attached to:
+////	appLogger.logEvent(0, 0, "SSID: ", "STARTUP");
+////	appLogger.logEvent(0, 0, WiFi.SSID(), "STARTUP");
+////
+////	IPAddress ip = WiFi.localIP();
+////	appLogger.logEvent(0, 0, "IP Adddress: ", "STARTUP");
+////	// appLogger.logEvent(0, 0, , "STARTUP");
+////
+////
+////
+////	/*
+////	serialprint("SSID: ");
+////	serialprintln(WiFi.SSID());
+////
+////	// print your board's IP address:
+////	IPAddress ip = WiFi.localIP();
+////	serialprint("IP Address: ");
+////	serialprintln(ip);
+////
+////	// print the received signal strength:
+////	long rssi = WiFi.RSSI();
+////	serialprint("signal strength (RSSI):");
+////	serialprint(rssi);
+////	serialprintln(" dBm");
+////
+////	serialprintln("V1.1");
+////	*/
+////}
+/*** END: WIFI Manager ***/
 
 #define ONBOARD_LED_GREEN_PIN		25
 #define	ONBOARD_LED_RED_PIN			26

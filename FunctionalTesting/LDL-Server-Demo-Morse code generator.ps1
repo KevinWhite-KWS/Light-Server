@@ -17,10 +17,10 @@ Clear-Host
 
 # $morseMessage = "sos"
 # $morseMessage = "hello world"
-$morseMessage = "merry christmas"
+$morseMessage = "sos"
 $ldlServerIp = ""
 $dotRenderingFrameDuration = 3
-$dotDashColour = [Colour]::new(255,0,0)
+$dotDashColour = [Colour]::new(0,255,0)
 
 # generate the morse code
 # see: https://en.wikipedia.org/wiki/Morse_code

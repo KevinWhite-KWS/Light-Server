@@ -11,8 +11,8 @@ namespace LS {
 	/* Buffer allocation sizes */
 	#define BUFFER_LPI_LOADING			500			// buffer size for loading an individual LPI
 	#define	BUFFER_LPI_VALIDATION		500			// buffer size for validating an individual LPI
-	#define BUFFER_LP_VALIDATION		2000		// buffer size for validating an entire LP
-	#define	BUFFER_LP					2000		// buffer size for an executing LP
+	#define BUFFER_LP_VALIDATION		4000 // 2000		// buffer size for validating an entire LP
+	#define	BUFFER_LP					4000 // 2000		// buffer size for an executing LP
 
 
 	#define	BUFFER_JSON_RESPONSE_SIZE	200
