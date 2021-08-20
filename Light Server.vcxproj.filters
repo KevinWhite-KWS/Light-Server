@@ -378,5 +378,17 @@
     <ClInclude Include="src\ConfigPersistance\FlashConfigPersistance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Networking\WifiConnectManager\Credentials.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Networking\WifiConnectManager\defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Networking\WifiConnectManager\dynamicParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UtilityFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

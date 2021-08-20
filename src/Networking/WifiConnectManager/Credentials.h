@@ -39,7 +39,9 @@
  } WiFiNINA_Configuration;
  */
 
-#define TO_LOAD_DEFAULT_CONFIG_DATA      false
+#ifdef DEBUG_MODE
+#define TO_LOAD_DEFAULT_CONFIG_DATA      true
+#endif
 
 #if TO_LOAD_DEFAULT_CONFIG_DATA
 
@@ -52,8 +54,9 @@
 
  // Used mostly once debugged. Assumes good data already saved in device.
  // Config Portal data input will be override DEFAULT_CONFIG_DATA
-bool LOAD_DEFAULT_CONFIG_DATA = false;
-
+#ifdef DEBUG_MODE
+bool LOAD_DEFAULT_CONFIG_DATA = true;
+#endif
 
 WiFiNINA_Configuration defaultConfig =
 {
@@ -61,8 +64,8 @@ WiFiNINA_Configuration defaultConfig =
     "WIFININA",
     // WiFi_Credentials  WiFi_Creds  [NUM_WIFI_CREDENTIALS];
     // WiFi_Credentials.wifi_ssid and WiFi_Credentials.wifi_pw
-    "SSID1",  "password1",
-    "SSID2",  "password2",
+    "DevTesting",  "rodent467*",
+    "",  "",
     //char board_name     [24];
     "SAMD-Control",
     // terminate the list
