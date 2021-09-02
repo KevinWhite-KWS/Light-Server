@@ -96,6 +96,7 @@ UPDATE 17/08/2021: Simply define DEBUG_MODE to enable serial output or commect o
 #include "src/LPE/StateBuilder/LpJsonState.h"
 // 4. PixelRenderer
 #include "src/Adafruit_NeoPixel.h"
+#include "src/Adafruit_NeoPixel.h"
 #include "src/Renderer/PixelRenderer.h"
 // 5. LightWebServer
 #include "src/FixedSizeCharBuffer.h"
@@ -177,10 +178,12 @@ LS::FixedSizeCharBuffer webReponse = LS::FixedSizeCharBuffer(BUFFER_WEB_RESPONSE
 LS::CheckPowerCommand checkPowerCommand = LS::CheckPowerCommand(&lightWebServ, &pixels, &webDoc, &webReponse);
 LS::GetAboutCommand getAboutCommand = LS::GetAboutCommand(&lightWebServ, &webDoc, &webReponse, &ledConfig);
 LS::SetLedsCommand setLedsCommand = LS::SetLedsCommand(&lightWebServ, &stringProcessor, &ledConfig, &configPersistance, &pixels, &primaryState);
+
 LS::AppLogger appLogger;
 // 8: Networking: e.g. UDP discovery service
 LS::EthernetUdpService ethernetUdpService;
 LS::EthernetUdpDiscoveryService discoveryService = LS::EthernetUdpDiscoveryService(DISCOVERY_PORT, DISCOVERY_FOUND_MSG, DISCOVERY_HANDSHAKE_MSG, &ethernetUdpService);
+
 WiFiManager_NINA_Lite* WiFiManager_NINA;
 
 
@@ -190,7 +193,7 @@ button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;wid
 #endif
 
 void setup() {
-	ledConfig.numberOfLEDs = NUMLEDS;
+	// ledConfig.numberOfLEDs = NUMLEDS;
 
 	initOnboardRgbLed();
 	// yellow = booting up
@@ -198,7 +201,6 @@ void setup() {
 
 	LS::IAppLogger* appLog = (LS::IAppLogger*)&appLogger;
 	appLogger.StartLogging();
-	
 	WiFiManager_NINA = new WiFiManager_NINA_Lite();
 
 	// Optional to change default AP IP(192.168.4.1) and channel(10)
@@ -236,7 +238,7 @@ void setup() {
 
 	// start the web server listening for requests
 	lightWebServ.Start();
-
+	
 	// ensure the orchastrator, ready to execute on the next rendering frame cycle
 	orchastrator.Start();
 
@@ -254,6 +256,14 @@ void setup() {
 		pixels.show();
 		pixels.updateLength(ledConfig.numberOfLEDs);
 	}
+
+
+	// Uncomment the following two lines to see a standard test program running.  This can be
+	// helpful to check that rendering is functioning as expected.
+#ifdef DEBUG_MODE
+	webLoadingBuffer.LoadFromBuffer("{\"name\":\"Knightrider\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[{\"repeat\":{\"times\":2,\"instructions\":[\"030200000101414FF0000000000\",\"030200000111414FF0000000000\"]}},\"030100000100A0AFF0000000000\",\"030100000110A0AFF0000000000\"]}}]}");
+	stateBuilder.BuildState(&webLoadingBuffer, &primaryState);
+#endif
 }
 
 
@@ -264,6 +274,7 @@ void loop() {
 	
 	// output an indication of the wifi status on the RGB LED
 	checkWifistatus(WiFiManager_NINA);
+	bool wifiIsConnected = WiFi.status() == WL_CONNECTED;
 
 	// check if a UDP packet has been received
 	discoveryService.CheckForHandshake();
@@ -273,5 +284,5 @@ void loop() {
 	// disable the VirtualBox adapter.
 
 	// execute the orchastrator on each loop - this will just return if not yet time to execute
-	orchastrator.Execute();
+	orchastrator.Execute(!wifiIsConnected);
 }

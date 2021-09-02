@@ -26,11 +26,12 @@ void initOnboardRgbLed() {
 
 
 
-void checkWifistatus(WiFiManager_NINA_Lite* wifiManager)
+bool checkWifistatus(WiFiManager_NINA_Lite* wifiManager)
 {
 	static unsigned long checkstatus_timeout = 0;
+	bool wifiConnected = true;
 
-#define HEARTBEAT_INTERVAL    20000L
+#define HEARTBEAT_INTERVAL    10000L
 	if ((millis() > checkstatus_timeout) || (checkstatus_timeout == 0))
 	{
 		//Serial.print("Checking WIFI status...");
@@ -40,6 +41,7 @@ void checkWifistatus(WiFiManager_NINA_Lite* wifiManager)
 
 			// orange = wifi set up mode
 			setOnboardRgbLed(255, 165, 0);
+			wifiConnected = false;
 		} else if (WiFi.status() == WL_CONNECTED) {
 			//Serial.println("connected");
 
@@ -51,9 +53,12 @@ void checkWifistatus(WiFiManager_NINA_Lite* wifiManager)
 
 			// red = not connected to Wifi
 			setOnboardRgbLed(255, 0, 0);
+			wifiConnected = false;
 		}
 		checkstatus_timeout = millis() + HEARTBEAT_INTERVAL;
 	}
+
+	return wifiConnected;
 }
 
 

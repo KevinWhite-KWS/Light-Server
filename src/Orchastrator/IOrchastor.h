@@ -15,7 +15,7 @@ namespace LS {
 
 		virtual void Start() = 0;
 		virtual void Stop() = 0;
-		virtual bool Execute() = 0;
+		virtual bool Execute(bool isInSetupMode) = 0;
 	};
 }
 

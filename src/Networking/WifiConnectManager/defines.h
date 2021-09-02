@@ -18,6 +18,7 @@
 // #define _WIFININA_LOGLEVEL_             1
 #define _WIFININA_LOGLEVEL_             0       // disable
 
+// set the following to false to disable double-reset detecting debug messages on serial
 #define DRD_GENERIC_DEBUG               false
 
 #if    ( defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_MKRWIFI1010) \

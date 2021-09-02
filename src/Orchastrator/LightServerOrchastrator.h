@@ -54,7 +54,7 @@ namespace LS {
 			void StopPrograms();
 			void Stop();
 			void Start();
-			bool Execute();
+			bool Execute(bool isInSetupMode);
 	};
 }
 
