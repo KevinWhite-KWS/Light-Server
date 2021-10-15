@@ -1,0 +1,12 @@
+{
+	"name" : "Flame boy",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    "030100000501E1EFF0000FF6600",
+    "030100000511E1EFF0000FF6600"
+  		]
+  	}}
+	]
+}

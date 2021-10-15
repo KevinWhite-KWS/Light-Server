@@ -75,12 +75,20 @@ UPDATE 17/08/2021: Simply define DEBUG_MODE to enable serial output or commect o
 
 #define		DISCOVERY_HANDSHAKE_MSG			"LDL-HOLA?"
 #define		DISCOVERY_PORT					8888
-#define		DISCOVERY_FOUND_MSG				"{ \"server\" : \"1.0.0\" }"
+// #define		DISCOVERY_FOUND_MSG				"{ \"server\" : \"1.0.0\" }"
+// #define		DISCOVERY_FOUND_MSG				"{ \"server\" : \"1.0.0\" }"
+// The following is the response that is sent to a UDP discovery request.  The "name"
+// value is the device name.  It is intented that this be a user-friendly set of 2-3 words proceeded by LDL-
+// e.g. LDL-BlueMelon, LDL-RedApple, LDL-GreenPear.  An enhancement here would be to allow
+// the user to overwrite the default friendly name although I'm sure many users would not bother.
+const char DISCOVERY_FOUND_MSG[] PROGMEM = "{ \"server\" : \"1.0.0\", \"name\" : \"LDL-RedApple\" }";
 // #define		WEBDUINO_SERIAL_DEBUGGING	2		// define this to see web server debugging output
 
 // MKR-Wifi
 #define		MKR1010
 
+
+#include<avr/pgmspace.h>
 
 // Networking
 #include "src/Networking/WifiConnectManager/defines.h"
@@ -188,7 +196,7 @@ WiFiManager_NINA_Lite* WiFiManager_NINA;
 
 
 #if USING_CUSTOMS_STYLE
-const char NewCustomsStyle[] /*PROGMEM*/ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
+const char NewCustomsStyle[] /* PROGMEM */ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
 button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 #endif
 
@@ -260,10 +268,16 @@ void setup() {
 
 	// Uncomment the following two lines to see a standard test program running.  This can be
 	// helpful to check that rendering is functioning as expected.
-#ifdef DEBUG_MODE
-	webLoadingBuffer.LoadFromBuffer("{\"name\":\"Knightrider\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[{\"repeat\":{\"times\":2,\"instructions\":[\"030200000101414FF0000000000\",\"030200000111414FF0000000000\"]}},\"030100000100A0AFF0000000000\",\"030100000110A0AFF0000000000\"]}}]}");
+//#ifdef DEBUG_MODE
+//	webLoadingBuffer.LoadFromBuffer("{\"name\":\"Knightrider\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[{\"repeat\":{\"times\":2,\"instructions\":[\"030200000101414FF0000000000\",\"030200000111414FF0000000000\"]}},\"030100000100A0AFF0000000000\",\"030100000110A0AFF0000000000\"]}}]}");
+//	stateBuilder.BuildState(&webLoadingBuffer, &primaryState);
+//#endif
+	// [KW - 14 Oct 21] Ideally, the LDL server will start the last uploaded program
+	// again.  In the meantime, we use the following hard-coded program so the lights
+	// render a program when reset / started.
+	const char defaultProgram[] PROGMEM = "{\"name\":\"Flameboy\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[\"030100000501E1EFF0000FF6600\",\"030100000511E1EFF0000FF6600\"]}}]}";
+	webLoadingBuffer.LoadFromBuffer(defaultProgram);
 	stateBuilder.BuildState(&webLoadingBuffer, &primaryState);
-#endif
 }
 
 

@@ -160,12 +160,15 @@ class LdlServerDiscover {
         .Outputs    [array]Collecton of discovered servers as LdlServerInfo instances.
     #>
     [Collections.Generic.List[LdlServerInfo]]DiscoverServers() {
-        $receiveEndpoint = New-Object system.net.ipendpoint([system.net.ipaddress]::Any,$this.port)
+        $receiveIp = [system.net.ipaddress]::Any
+        $udpPort = $this.port
+        $receiveEndpoint = New-Object system.net.ipendpoint($receiveIp,$udpPort)
+        Write-Host "Receive UDP IP and port: $receiveIp : $udpPort"
         # $broadcastEndPoint = New-Object system.net.ipendpoint([system.net.ipaddress]::Broadcast,$this.port)
         # $broadcastIp = [ipaddress]"192.168.6.77"
         $broadcastIp = [system.net.ipaddress]::Broadcast
-        $broadcastEndPoint = New-Object system.net.ipendpoint($broadcastIp,$this.port)
-        
+        $broadcastEndPoint = New-Object system.net.ipendpoint($broadcastIp,$udpPort)
+        Write-Host "Broadcast UDP IP: $broadcastIP : $udpPort"
         # $asciiEncoding = new-object system.text.asciiencoding
         $discoveredLdlServers = [Collections.Generic.List[LdlServerInfo]]::new()
 
