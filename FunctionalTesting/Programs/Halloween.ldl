@@ -1,0 +1,27 @@
+{
+	"name" : "Halloween",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    {	"repeat": {
+    		"times" : 3,
+    		"instructions": [
+      "040100000A0000000FF9900",
+      "040100000A1FF9900000000"
+    		]
+    	}},
+    "030100000101414FF0000FF9900",
+    "030100000111414FF0000FF9900",
+    {	"repeat": {
+    		"times" : 3,
+    		"instructions": [
+      "01280000FF0000",
+      "01280000FF9900"
+    		]
+    	}},
+    "070100001E3C102FF0000FF9900"
+  		]
+  	}}
+	]
+}

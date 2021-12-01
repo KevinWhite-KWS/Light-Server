@@ -34,6 +34,10 @@ namespace LS {
 
 		virtual void StartDiscoveryService() = 0;
 		virtual void CheckForHandshake() = 0;
+
+		void SetReplyMessage(const char* response) {
+			this->replyMsg = response;
+		}
 	};
 }
 

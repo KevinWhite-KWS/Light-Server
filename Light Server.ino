@@ -81,7 +81,8 @@ UPDATE 17/08/2021: Simply define DEBUG_MODE to enable serial output or commect o
 // value is the device name.  It is intented that this be a user-friendly set of 2-3 words proceeded by LDL-
 // e.g. LDL-BlueMelon, LDL-RedApple, LDL-GreenPear.  An enhancement here would be to allow
 // the user to overwrite the default friendly name although I'm sure many users would not bother.
-const char DISCOVERY_FOUND_MSG[] PROGMEM = "{ \"server\" : \"1.0.0\", \"name\" : \"LDL-RedApple\" }";
+const char DISCOVERY_FOUND_MSG[] PROGMEM = "{ \"server\" : \"1.0.0\", \"name\" : \"LDL-Window\" }";
+char discoveryResponse[BUFFER_JSON_RESPONSE_SIZE];
 // #define		WEBDUINO_SERIAL_DEBUGGING	2		// define this to see web server debugging output
 
 // MKR-Wifi
@@ -137,6 +138,8 @@ const char DISCOVERY_FOUND_MSG[] PROGMEM = "{ \"server\" : \"1.0.0\", \"name\" :
 // Utiltiy functions
 #include "UtilityFunctions.h"
 
+WiFiManager_NINA_Lite* WiFiManager_NINA;
+WiFiNINA_Configuration myConfig;
 
 // Instantiate dependencies required by LightServerOrchastrator
 // 1. Timer: for determining when the next instruction should be rendered
@@ -192,13 +195,15 @@ LS::AppLogger appLogger;
 LS::EthernetUdpService ethernetUdpService;
 LS::EthernetUdpDiscoveryService discoveryService = LS::EthernetUdpDiscoveryService(DISCOVERY_PORT, DISCOVERY_FOUND_MSG, DISCOVERY_HANDSHAKE_MSG, &ethernetUdpService);
 
-WiFiManager_NINA_Lite* WiFiManager_NINA;
+// WiFiManager_NINA_Lite* WiFiManager_NINA;
 
 
 #if USING_CUSTOMS_STYLE
 const char NewCustomsStyle[] /* PROGMEM */ = "<style>div,input{padding:5px;font-size:1em;}input{width:95%;}body{text-align: center;}\
 button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;width:100%;}fieldset{border-radius:0.3rem;margin:0px;}</style>";
 #endif
+
+// char udpReply[200];
 
 void setup() {
 	// ledConfig.numberOfLEDs = NUMLEDS;
@@ -275,16 +280,35 @@ void setup() {
 	// [KW - 14 Oct 21] Ideally, the LDL server will start the last uploaded program
 	// again.  In the meantime, we use the following hard-coded program so the lights
 	// render a program when reset / started.
-	const char defaultProgram[] PROGMEM = "{\"name\":\"Flameboy\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[\"030100000501E1EFF0000FF6600\",\"030100000511E1EFF0000FF6600\"]}}]}";
+	// const char defaultProgram[] PROGMEM = "{\"name\":\"Flameboy\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[\"030100000501E1EFF0000FF6600\",\"030100000511E1EFF0000FF6600\"]}}]}";
+
+	// Simple XMAS Lights
+	// const char defaultProgram[] PROGMEM = "{\"name\":\"ChristmasLights\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[\"030100000501E1EFF0000009900\",\"030100000511E1EFF0000009900\"]}}]}";
+
+	// Complex XMAS program
+	const char defaultProgram[] PROGMEM = "{\"name\":\"Complexxmastree\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[{\"repeat\":{\"times\":2,\"instructions\":[\"07010000193C002FF000033CC00\"]}},{\"repeat\":{\"times\":4,\"instructions\":[\"040100000A0000000FF0000\",\"040100000A1FF0000000000\",\"040100000A000000033CC00\",\"040100000A133CC00000000\"]}},{\"repeat\":{\"times\":6,\"instructions\":[\"030100000100F0F33CC00FF0000\",\"030100000110F0F33CC00FF0000\"]}},{\"repeat\":{\"times\":30,\"instructions\":[\"0528000002FF000033CC00\"]}},{\"repeat\":{\"times\":8,\"instructions\":[\"07010000193C003FF000033CC003366FF\"]}},{\"repeat\":{\"times\":10,\"instructions\":[\"030100000100F0FFF000033CC00\",\"030100000110F0FFF000033CC00\"]}},{\"repeat\":{\"times\":10,\"instructions\":[\"030100000100F0FFFFFFF000000\",\"030100000110F0FFFFFFF000000\"]}}]}}]}";
+
 	webLoadingBuffer.LoadFromBuffer(defaultProgram);
 	stateBuilder.BuildState(&webLoadingBuffer, &primaryState);
-}
 
+	// Set the name of the server to be the name supplied during configuration
+	// This is in response to a GET \about request
+	WiFiManager_NINA->getFullConfigData(&myConfig);
+	getAboutCommand.setServerName(myConfig.board_name);
+
+	// Also, set the name of the server when responding to a UDP discovery request
+	webDoc.clear();
+	(webDoc)["server"] = LS_VERSION;
+	(webDoc)["name"] = myConfig.board_name;
+	serializeJsonPretty(webDoc, discoveryResponse, BUFFER_JSON_RESPONSE_SIZE);
+	discoveryService.SetReplyMessage(discoveryResponse);
+}
 
 void loop() {
 	// display wifi connect web page if no wifi credentials yet supplied, otherwise
 	// checks wifi is connected and re-connects if necessary
 	WiFiManager_NINA->run();
+
 	
 	// output an indication of the wifi status on the RGB LED
 	checkWifistatus(WiFiManager_NINA);

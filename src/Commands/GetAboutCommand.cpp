@@ -12,6 +12,8 @@ namespace LS {
 		(*webDoc)["LEDs"] = ledConfig->numberOfLEDs;
 		(*webDoc)["LS Version"] = LS_VERSION;
 		(*webDoc)["LDL Version"] = LDL_VERSION;
+		(*webDoc)["Server Name"] = this->serverName;
+
 		serializeJsonPretty(*webDoc, webResponse->GetBuffer(), BUFFER_JSON_RESPONSE_SIZE);
 		// only requires about 48 bytes in the JSON document
 

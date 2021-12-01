@@ -1,0 +1,12 @@
+{
+	"name" : "Christmas Lights",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    "030100000501E1EFF0000009900",
+    "030100000511E1EFF0000009900"
+  		]
+  	}}
+	]
+}

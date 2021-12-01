@@ -1,0 +1,59 @@
+{
+	"name" : "Xmas Dec 1",
+	"instructions": [
+		  {	"repeat": {
+  		"times" : 0,
+  		"instructions": [
+    {	"repeat": {
+    		"times" : 30,
+    		"instructions": [
+      "0205000003010201FF000033CC00FF0000",
+      "02050000020202FF000033CC00",
+      "020500000301020133CC00FF000033CC00",
+      "0205000002020233CC00FF0000"
+    		]
+    	}},
+    {	"repeat": {
+    		"times" : 20,
+    		"instructions": [
+      "070100000A3C102FF000033CC00"
+    		]
+    	}},
+    {	"repeat": {
+    		"times" : 20,
+    		"instructions": [
+      "070100000A3C002FF000033CC00"
+    		]
+    	}},
+    {	"repeat": {
+    		"times" : 30,
+    		"instructions": [
+      "0205000002020233CC00FF0000",
+      "020500000301020133CC00FF000033CC00",
+      "02050000020202FF000033CC00",
+      "0205000003010201FF000033CC00FF0000"
+    		]
+    	}},
+    {	"repeat": {
+    		"times" : 10,
+    		"instructions": [
+      "030100000100A00FF000033CC00"
+    		]
+    	}},
+    {	"repeat": {
+    		"times" : 10,
+    		"instructions": [
+      "03010000011000AFF000033CC00"
+    		]
+    	}},
+    {	"repeat": {
+    		"times" : 10,
+    		"instructions": [
+      "03010000011000AFF000033CC00",
+      "030100000100A00FF000033CC00"
+    		]
+    	}}
+  		]
+  	}}
+	]
+}

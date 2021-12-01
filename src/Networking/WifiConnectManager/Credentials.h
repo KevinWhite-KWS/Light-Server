@@ -39,9 +39,11 @@
  } WiFiNINA_Configuration;
  */
 
+ /** START: PROTOTYPING ONLY **/
 #ifdef DEBUG_MODE
 #define TO_LOAD_DEFAULT_CONFIG_DATA      true
 #endif
+/** END: PROTOTYPING ONLY **/
 
 #if TO_LOAD_DEFAULT_CONFIG_DATA
 
