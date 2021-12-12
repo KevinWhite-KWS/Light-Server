@@ -25,7 +25,7 @@ namespace LS {
 		@author		Kevin White
 		@date		2 Jan 2021
 	*/
-	void LpiExecutorOutput::SetNextRenderingInstruction(Colour* colour, uint8_t numPixels) {
+	void LpiExecutorOutput::SetNextRenderingInstruction(Colour* colour, uint16_t numPixels) {
 		renderingInstructions[renderingInstructionIndex].colour.SetFromColour(colour);
 		renderingInstructions[renderingInstructionIndex++].number = numPixels;
 		renderingInstructionsSet = true;
@@ -57,7 +57,7 @@ namespace LS {
 		@author		Kevin White
 		@date		3 Jan 2021
 	*/
-	uint8_t LpiExecutorOutput::GetNumberOfRenderingInstructions() {
+	uint16_t LpiExecutorOutput::GetNumberOfRenderingInstructions() {
 		return renderingInstructionIndex;
 	}
 

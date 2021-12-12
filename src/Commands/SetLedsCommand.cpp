@@ -10,7 +10,8 @@ namespace LS {
 		char* buf = lightWebServer->GetLoadingBuffer(false);
 
 		bool validNumber = false;
-		int newNoLeds = stringProcessor->ExtractNumberFromHexEncoded(buf, 10, 200, validNumber);
+		uint32_t newNoLeds = stringProcessor->ExtractNumberFromHex(buf, 10, 350, validNumber);
+
 		// newNoLeds is a hex encoded value!  Dec encoded better?
 		// is it consistent with the rest of the API?
 		if (!validNumber) {
@@ -22,8 +23,8 @@ namespace LS {
 		// clear all LEDs that are on at the moment and set the new length of pixels
 		pixelController->fill(0, 0, 0);
 		pixelController->show();
-		pixelController->updateLength(newNoLeds);
-		
+		pixelController->updateLength((uint16_t)newNoLeds);
+
 		// save the new number of LEDs to config persistent storage
 		ledConfig->numberOfLEDs = newNoLeds;
 		configPersistance->SaveConfig(ledConfig);

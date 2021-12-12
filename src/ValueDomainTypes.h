@@ -9,13 +9,14 @@
 
 namespace LS {
 	/* Buffer allocation sizes */
-	#define BUFFER_LPI_LOADING			500			// buffer size for loading an individual LPI
-	#define	BUFFER_LPI_VALIDATION		500			// buffer size for validating an individual LPI
-	#define BUFFER_LP_VALIDATION		4000 // 2000		// buffer size for validating an entire LP
-	#define	BUFFER_LP					4000 // 2000		// buffer size for an executing LP
+	#define BUFFER_LPI_LOADING			400	 // 500		// buffer size for loading an individual LPI
+	#define	BUFFER_LPI_VALIDATION		400	 // 500		// buffer size for validating an individual LPI
+	// 3500 = CRASH @ 233 LEDS
+	#define BUFFER_LP_VALIDATION		3500 // 4000		// buffer size for validating an entire LP
+	#define	BUFFER_LP					3500 // 4000		// buffer size for an executing LP
 
 
-	#define	BUFFER_JSON_RESPONSE_SIZE	200
+	#define	BUFFER_JSON_RESPONSE_SIZE	150	 // 200
 
 	//#define BUFFER_LPI_LOADING			1000		// buffer size for loading an individual LPI
 	//#define	BUFFER_LPI_VALIDATION		1000		// buffer size for validating an individual LPI
@@ -114,7 +115,7 @@ namespace LS {
 	*/
 	struct LEDConfig {
 		uint8_t controlValue = 99;			// value ONLY used to verify that values retrived from storage are valid
-		uint8_t numberOfLEDs;
+		uint16_t numberOfLEDs;
 
 		//LEDConfig(uint8_t numberOfLEDs) {
 		//	this->numberOfLEDs = numberOfLEDs;

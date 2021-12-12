@@ -23,7 +23,9 @@ namespace LS {
 
 			virtual const Colour ExtractColourFromHexEncoded(const char* colourString, bool& isValid);
 
-			virtual const uint8_t ExtractNumberFromHexEncoded(const char* numberString, uint8_t minExpectedValue, uint8_t maxExpectedValue, bool& isValid);
+			virtual const uint8_t ExtractNumberFromHexEncoded(const char* numberString, uint8_t minExpectedValue, uint16_t maxExpectedValue, bool& isValid);
+
+			virtual const uint32_t ExtractNumberFromHex(const char* numberString, uint8_t minExpectedValue, uint16_t maxExpectedValue, bool& isValid);
 
 			virtual const RI ExtractRIFromHexEncoded(const char* riString, bool& isValid);
 

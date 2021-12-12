@@ -93,7 +93,7 @@ namespace LS {
 
 			// Now, either round up or down depending on roundUp.  This alternatves per value which
 			// kinda 'smooths' the effect.
-			uint8_t pixels = 0;
+			uint16_t pixels = 0;
 			if (roundUp) {
 				pixels = ceil(pixelsToCover);
 			}

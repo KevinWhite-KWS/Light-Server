@@ -13,9 +13,41 @@ namespace LS {
 	  @param   msg     Any additional message relevant to the event (can be null)
 	*/
 	void AppLogger::logEvent(uint32_t start, uint8_t level, const char* event, const char* trigger, bool isStartEvent, uint32_t end, const char* msg) {
-#ifndef DISABLE_LOGGING
 		uint32_t duration = (end > 0 && start > 0 ? end - start : 0);
-		
+
+		// IF SERIAL PRODUCES NOTHING IN THE #ifndef DISABLE_LOGGING BLOCK BELOW THEN SIMPLY ENABLE THIS
+		// WHICH DUPLICATES IT
+		/*char indent[20];
+		for (int i = 0; i < level; i++) { indent[i] = '.'; }
+		indent[level] = 0;
+
+		Serial.print(indent);
+		Serial.print("[");
+		Serial.print(event);
+		Serial.print("]\t\t");
+		Serial.print("[");
+		Serial.print((isStartEvent) ? "START" : "END");
+		Serial.print("]\t\t");
+		Serial.print("[");
+		Serial.print(trigger);
+		Serial.print("]\t\t");
+		Serial.print("[");
+		Serial.print(duration);
+		Serial.print("ms]\t");
+		Serial.print("[");
+		Serial.print(start);
+		Serial.print("]\t");
+		Serial.print("[");
+		Serial.print(end);
+		Serial.print("]\t");
+		Serial.print("[");
+		Serial.print(freeMemory());
+		Serial.print(" bytes]\t");
+		Serial.print("[");
+		Serial.print((msg == nullptr ? "" : msg));
+		Serial.println("]");*/
+
+#ifndef DISABLE_LOGGING
 		char indent[20];
 		for (int i = 0; i < level; i++) { indent[i] = '.'; }
 		indent[level] = 0;

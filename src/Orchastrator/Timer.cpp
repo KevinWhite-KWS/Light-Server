@@ -28,12 +28,6 @@ namespace LS {
 			|| GetCurrent() < 1000;				// In case current has overflowed but nextTime is stuck at a value
 												// just before overflow and thus will never be reached.
 
-		//Serial.print("Current: ");
-		//Serial.println(GetCurrent());
-		//Serial.print("NextTime: ");
-		//Serial.println(nextTime);
-
-
 		if (isTime) {
 			// set the next interval as the current one has been reached
 			SetNext();

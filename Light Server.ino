@@ -59,9 +59,10 @@ UPDATE 17/08/2021: Simply define DEBUG_MODE to enable serial output or commect o
 // Define DEBUG_MODE for serial output, comment out for production mode
 // #define		DEBUG_MODE						true
 
-#define		BUFFER_SIZE						4000
-#define		BUFFER_JSON_RESPONSE_SIZE		200
-#define		BUFFER_WEB_RESPONSE_SIZE		200
+// 3500 = CRASH @ 233 LEDS
+#define		BUFFER_SIZE						3500		// 4000
+#define		BUFFER_JSON_RESPONSE_SIZE		150			// 200
+#define		BUFFER_WEB_RESPONSE_SIZE		150			// 200
 
 #define		PIN								6			// port # of LED controller
 #define		NUMLEDS							50			// default number of connected LEDs if no configurtion values
@@ -302,12 +303,19 @@ void setup() {
 	(webDoc)["name"] = myConfig.board_name;
 	serializeJsonPretty(webDoc, discoveryResponse, BUFFER_JSON_RESPONSE_SIZE);
 	discoveryService.SetReplyMessage(discoveryResponse);
+
+	
 }
 
 void loop() {
 	// display wifi connect web page if no wifi credentials yet supplied, otherwise
 	// checks wifi is connected and re-connects if necessary
 	WiFiManager_NINA->run();
+
+	/** TEMP: FIX LARGE LEDS PROBLEM **/
+	// Serial.print("Free memory = ");
+	// Serial.print(freeMemory());
+	/** TEMP: FIX LARGE LEDS PROBLEM **/
 
 	
 	// output an indication of the wifi status on the RGB LED

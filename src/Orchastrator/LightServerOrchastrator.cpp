@@ -120,7 +120,7 @@ namespace LS {
 		@author	Kevin White
 		@date	5 Feb 21
 	*/
-	bool LightServerOrchastrator::Execute() {
+	bool LightServerOrchastrator::Execute(bool isInSetupMode) {
 		bool timeToExecute = timer->IsTime();
 
 		if (!timeToExecute || !isRunning) {
@@ -151,6 +151,13 @@ namespace LS {
 			appLogger->logEvent(startExecuteCycle, 2, "Render", "Execute", false, millis(), "NOTHING TO RENDER");
 		}
 		/** END: DEBUG **/
+
+		if (isInSetupMode) {
+			// do not execute the web server if in set up mode because
+			// the LDL web server can conflict with the set up web portal
+			// and cause it to be become non-responsive, requiring multiple restarts
+			return false;
+		}
 
 
 		// see if a new command has been received

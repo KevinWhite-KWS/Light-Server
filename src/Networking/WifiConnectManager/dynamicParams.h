@@ -34,6 +34,7 @@
 
 #if USE_DYNAMIC_PARAMETERS
 
+
 #define MAX_BLYNK_SERVER_LEN      34
 #define MAX_BLYNK_TOKEN_LEN       34
 
@@ -58,6 +59,22 @@ MenuItem myMenuItems[] =
   { "prt", "Port",          Blynk_Port,     MAX_BLYNK_PORT_LEN },
   { "mqt", "MQTT Server",   MQTT_Server,    MAX_MQTT_SERVER_LEN },
 };
+
+//#define MAX_NOLEDS_LEN		3
+//char NoLeds[MAX_NOLEDS_LEN + 1] = "";
+//
+//MenuItem myMenuItems[] =
+//{
+//	{ "nol", "No of LEDS", NoLeds,	MAX_NOLEDS_LEN }
+//	/*
+//  { "sv1", "Blynk Server1", Blynk_Server1,  MAX_BLYNK_SERVER_LEN },
+//  { "tk1", "Token1",        Blynk_Token1,   MAX_BLYNK_TOKEN_LEN },
+//  { "sv2", "Blynk Server2", Blynk_Server2,  MAX_BLYNK_SERVER_LEN },
+//  { "tk2", "Token2",        Blynk_Token2,   MAX_BLYNK_TOKEN_LEN },
+//  { "prt", "Port",          Blynk_Port,     MAX_BLYNK_PORT_LEN },
+//  { "mqt", "MQTT Server",   MQTT_Server,    MAX_MQTT_SERVER_LEN },
+//  */
+//};
 
 uint16_t NUM_MENU_ITEMS = sizeof(myMenuItems) / sizeof(MenuItem);  //MenuItemSize;
 

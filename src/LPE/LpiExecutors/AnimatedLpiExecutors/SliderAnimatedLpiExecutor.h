@@ -28,7 +28,7 @@ namespace LS {
 
 	protected:
 		void RenderTail(
-			uint8_t& numLedsBeforeSlider,
+			uint16_t& numLedsBeforeSlider,
 			LpiExecutorParams* lpiExecParams,
 			LpiExecutorOutput* output,
 			uint8_t& sliderWidth,
@@ -38,7 +38,7 @@ namespace LS {
 		);
 
 		void RenderHead(
-			uint8_t& numLedsAfterSlider,
+			uint16_t& numLedsAfterSlider,
 			LpiExecutorParams* lpiExecParams,
 			LpiExecutorOutput* output,
 			uint8_t& sliderWidth,

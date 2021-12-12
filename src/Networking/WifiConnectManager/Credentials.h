@@ -66,7 +66,7 @@ WiFiNINA_Configuration defaultConfig =
     "WIFININA",
     // WiFi_Credentials  WiFi_Creds  [NUM_WIFI_CREDENTIALS];
     // WiFi_Credentials.wifi_ssid and WiFi_Credentials.wifi_pw
-    "DevTesting",  "rodent467*",
+    "LittleDaddy",  "rodent467*",
     "",  "",
     //char board_name     [24];
     "SAMD-Control",

@@ -31,17 +31,17 @@ namespace LS {
 		}
 
 		RI* renderingInstructions = lpiExecutorOutput->GetRenderingInstructions();
-		uint8_t ledIndex = 0;
-		uint8_t numberOfLeds = ledConfig->numberOfLEDs;
+		uint16_t ledIndex = 0;
+		uint16_t numberOfLeds = ledConfig->numberOfLEDs;
 		lastSetRiValid = true;
 
 		while (ledIndex < numberOfLeds) {
 			// iterate over each RI and render the specified number of LEDs
 			// for that RI
-			for (uint8_t riIndex = 0; riIndex < lpiExecutorOutput->GetNumberOfRenderingInstructions(); riIndex++) {
+			for (uint16_t riIndex = 0; riIndex < lpiExecutorOutput->GetNumberOfRenderingInstructions(); riIndex++) {
 				RI renderingInstruction = renderingInstructions[riIndex];
 
-				for (uint8_t i = 0; i < renderingInstruction.number; i++) {
+				for (uint16_t i = 0; i < renderingInstruction.number; i++) {
 					pixelController->setPixelColor(
 						ledIndex++,
 						renderingInstruction.colour.red,
@@ -84,7 +84,7 @@ namespace LS {
 		@date		16 Jan 21
 	*/
 	bool PixelRenderer::AreAnyPixelsOn() {
-		for (uint8_t i = 0; i < ledConfig->numberOfLEDs; i++) {
+		for (uint16_t i = 0; i < ledConfig->numberOfLEDs; i++) {
 			if (pixelController->getPixelColor(i) != 0) {
 				return true;
 			}

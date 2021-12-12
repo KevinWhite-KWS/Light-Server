@@ -18,16 +18,17 @@ namespace LS {
 		@date		2 Jan 2021
 	*/
 	class LpiExecutorOutput {
-		RI renderingInstructions[200];
-		uint8_t renderingInstructionIndex = 0;
+		// RI renderingInstructions[200];
+		RI renderingInstructions[350];			// i.e. 350 pixels max
+		uint16_t renderingInstructionIndex = 0;
 		bool renderingInstructionsSet = false;
 		bool repeat = false;
 	public:
 		void Reset();
-		void SetNextRenderingInstruction(Colour* colour, uint8_t numPixels);
+		void SetNextRenderingInstruction(Colour* colour, uint16_t numPixels);
 		bool RenderingInstructionsSet();
 		RI* GetRenderingInstructions();
-		uint8_t GetNumberOfRenderingInstructions();
+		uint16_t GetNumberOfRenderingInstructions();
 
 		void SetRepeatRenderingInstructions();
 		bool GetRepeatRenderingInstructions();

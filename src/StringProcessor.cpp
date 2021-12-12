@@ -59,15 +59,16 @@ namespace LS {
 	  @brief   Extracts a hexidecimally encoded number from a string.  The
 			   string should be 2 bytes in the format: NN.  That is, 2-byte hexidecimal
 			   encoded vlaue is expected between minExpectedValue and maxExpectedValue.
-	  @param   numberString  The pointer to the string that contains the hexidecimally encoded number.
-	  @param   minExpected	 The minimum value that is expected.
-	  @param   maxExpected	 The maximum value that is expected.
-	  @param   isValid		 A reference to the boolean type that will be set to true if the
-							 number is valid and between minExpected and maxExpected.  Otherwise,
-							 it will be set to false.
+	  @param   numberString		The pointer to the string that contains the hexidecimally encoded number.
+	  @param   minExpected		The minimum value that is expected.
+	  @param   maxExpected		The maximum value that is expected.
+	  @param   isValid			A reference to the boolean type that will be set to true if the
+								number is valid and between minExpected and maxExpected.  Otherwise,
+								it will be set to false.
+	  @param   numberOfDigits	The number of places expected from the hex encoded form 
 	  @return  A uint8_t value that represents the value parsed from the hexidecimal string.
 	*/
-	const uint8_t StringProcessor::ExtractNumberFromHexEncoded(const char* numberString, uint8_t minExpectedValue, uint8_t maxExpectedValue, bool& isValid) {
+	const uint8_t StringProcessor::ExtractNumberFromHexEncoded(const char* numberString, uint8_t minExpectedValue, uint16_t maxExpectedValue, bool& isValid) {
 		isValid = false;
 
 		if (numberString == nullptr || minExpectedValue > maxExpectedValue) return 0;
@@ -90,6 +91,29 @@ namespace LS {
 		isValid = (pos == 2 || pos == 3) && extractedNumber >= minExpectedValue && extractedNumber <= maxExpectedValue;
 
 		return extractedNumber;
+	}
+
+
+	const uint32_t StringProcessor::ExtractNumberFromHex(const char* numberString, uint8_t minExpectedValue, uint16_t maxExpectedValue, bool& isValid) {
+		isValid = false;
+
+		if (numberString == nullptr || minExpectedValue > maxExpectedValue) return 0;
+
+		uint32_t val = 0;
+		while (*numberString) {
+			// get current character then increment
+			uint8_t byte = *numberString++;
+			// transform hex character to the 4bit equivalent number, using the ascii table indexes
+			if (byte >= '0' && byte <= '9') byte = byte - '0';
+			else if (byte >= 'a' && byte <= 'f') byte = byte - 'a' + 10;
+			else if (byte >= 'A' && byte <= 'F') byte = byte - 'A' + 10;
+			// shift 4 to make space for new digit, and add the 4 bits of the new digit 
+			val = (val << 4) | (byte & 0xF);
+		}
+
+		isValid = val >= minExpectedValue && val <= maxExpectedValue;
+
+		return val;
 	}
 
 	/*!

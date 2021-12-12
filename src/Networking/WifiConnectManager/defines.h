@@ -162,7 +162,12 @@
 // Default is false (if not defined) => must input 2 sets of SSID/PWD
 #define REQUIRE_ONE_SET_SSID_PW             true
 
-#define USE_DYNAMIC_PARAMETERS              false
+
+#define USE_DYNAMIC_PARAMETERS              false        // DEFAULT VALUE
+// #define USE_DYNAMIC_PARAMETERS              true
+
+
+
 
 /////////////////////////////////////////////
 

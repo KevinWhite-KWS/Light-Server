@@ -122,8 +122,8 @@ namespace LS {
 		Colour backgroundColour = stringProcessor->ExtractColourFromHexEncoded(lpiBuffer + 13, isValid);
 
 		// calculate the values that determine the number of LEDs to be rendered
-		uint8_t numLedsBeforeSlider = step;
-		uint8_t numLedsAfterSlider = lpiExecParams->GetLedConfig()->numberOfLEDs - sliderWidth - numLedsBeforeSlider;
+		uint16_t numLedsBeforeSlider = step;
+		uint16_t numLedsAfterSlider = lpiExecParams->GetLedConfig()->numberOfLEDs - sliderWidth - numLedsBeforeSlider;
 
 		// we need to reserve those two values if the slider starts far
 		if (startFar) {
@@ -172,7 +172,7 @@ namespace LS {
 		@date		10 March 2021
 	*/
 	void SliderAnimatedLpiExecutor::RenderTail(
-		uint8_t &numLedsBeforeSlider, 
+		uint16_t &numLedsBeforeSlider, 
 		LpiExecutorParams* lpiExecParams, 
 		LpiExecutorOutput* output,
 		uint8_t &sliderWidth,
@@ -180,9 +180,9 @@ namespace LS {
 		Colour &backgroundColour,
 		Colour &sliderColour
 	) {
-		uint8_t numTailPixels = (lpiExecParams->GetLedConfig()->numberOfLEDs - sliderWidth) * ((float)tailLength / 100);
-		uint8_t tailStep = min(numLedsBeforeSlider, numTailPixels);
-		uint8_t tailPixelsToRender = numLedsBeforeSlider - numTailPixels < 0 ? numLedsBeforeSlider : numTailPixels;
+		uint16_t numTailPixels = (lpiExecParams->GetLedConfig()->numberOfLEDs - sliderWidth) * ((float)tailLength / 100);
+		uint16_t tailStep = min(numLedsBeforeSlider, numTailPixels);
+		uint16_t tailPixelsToRender = numLedsBeforeSlider - numTailPixels < 0 ? numLedsBeforeSlider : numTailPixels;
 
 		numLedsBeforeSlider = numLedsBeforeSlider - tailPixelsToRender;
 		if (numLedsBeforeSlider > 0) {
@@ -211,7 +211,7 @@ namespace LS {
 		@date		10 March 2021
 	*/
 	void SliderAnimatedLpiExecutor::RenderHead(
-		uint8_t& numLedsAfterSlider,
+		uint16_t& numLedsAfterSlider,
 		LpiExecutorParams* lpiExecParams,
 		LpiExecutorOutput* output,
 		uint8_t& sliderWidth,
@@ -219,7 +219,7 @@ namespace LS {
 		Colour& backgroundColour,
 		Colour& sliderColour
 	) {
-		uint8_t numHeadPixels = (lpiExecParams->GetLedConfig()->numberOfLEDs - sliderWidth) * ((float)headLength / 100);
+		uint16_t numHeadPixels = (lpiExecParams->GetLedConfig()->numberOfLEDs - sliderWidth) * ((float)headLength / 100);
 
 		gradientEffect.Reset(sliderColour, backgroundColour, numHeadPixels);
 		Colour newHeadColour;
