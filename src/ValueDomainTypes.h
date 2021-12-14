@@ -74,13 +74,13 @@ namespace LS {
 	*/
 	struct RI {
 		Colour colour;
-		uint8_t number;
+		uint16_t number;
 
 		RI() {
 			this->number = 1;
 		}
 
-		RI(Colour colourToUse, uint8_t numberToAffect) {
+		RI(Colour colourToUse, uint16_t numberToAffect) {
 			colour = colourToUse;
 			number = numberToAffect;
 		}

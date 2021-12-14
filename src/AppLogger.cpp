@@ -17,7 +17,8 @@ namespace LS {
 
 		// IF SERIAL PRODUCES NOTHING IN THE #ifndef DISABLE_LOGGING BLOCK BELOW THEN SIMPLY ENABLE THIS
 		// WHICH DUPLICATES IT
-		/*char indent[20];
+		/*
+		char indent[20];
 		for (int i = 0; i < level; i++) { indent[i] = '.'; }
 		indent[level] = 0;
 
@@ -45,7 +46,8 @@ namespace LS {
 		Serial.print(" bytes]\t");
 		Serial.print("[");
 		Serial.print((msg == nullptr ? "" : msg));
-		Serial.println("]");*/
+		Serial.println("]");
+		*/
 
 #ifndef DISABLE_LOGGING
 		char indent[20];
