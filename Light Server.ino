@@ -59,6 +59,9 @@ UPDATE 17/08/2021: Simply define DEBUG_MODE to enable serial output or commect o
 // Define DEBUG_MODE for serial output, comment out for production mode
 // #define		DEBUG_MODE						true
 
+#define		MIN_LEDS						10
+#define		MAX_LEDS						350
+
 // 3500 = CRASH @ 233 LEDS
 #define		BUFFER_SIZE						3500		// 4000
 #define		BUFFER_JSON_RESPONSE_SIZE		150			// 200
@@ -261,11 +264,30 @@ void setup() {
 
 	// attempt to read the LED configuration from flash - use defaults if no config values or invalid
 	ledConfig = configPersistance.ReadConfig();
+	bool updateLedLength = false;
 	if (ledConfig.numberOfLEDs == 0) {
-		// not initialised so set defaults
-		ledConfig.numberOfLEDs = NUMLEDS;
+		// no # of LEDs saved to config, so this is probably the first time
+		// this has been run.  Therefore, check if a valid value for number
+		// of LEDs was supplied along with the connection params.
+		int initialNumberOfLeds = atoi(myMenuItems[0].pdata);
+		if (initialNumberOfLeds >= MIN_LEDS && initialNumberOfLeds <= MAX_LEDS) {
+			// yes, a valid value was supplied so we can now persist that value
+			// to config for future resets
+			ledConfig.numberOfLEDs = initialNumberOfLeds;
+			configPersistance.SaveConfig(&ledConfig);
+			updateLedLength = true;
+		}
+		else {
+			// not initialised so set defaults
+			// ledConfig.numberOfLEDs = NUM_LEDS;
+			ledConfig.numberOfLEDs = MIN_LEDS;
+		}
 	}
 	else {
+		updateLedLength = true;
+	}
+
+	if (updateLedLength) {
 		pixels.fill(0, 0, 0);
 		pixels.show();
 		pixels.updateLength(ledConfig.numberOfLEDs);
@@ -311,12 +333,6 @@ void loop() {
 	// display wifi connect web page if no wifi credentials yet supplied, otherwise
 	// checks wifi is connected and re-connects if necessary
 	WiFiManager_NINA->run();
-
-	/** TEMP: FIX LARGE LEDS PROBLEM **/
-	// Serial.print("Free memory = ");
-	// Serial.print(freeMemory());
-	/** TEMP: FIX LARGE LEDS PROBLEM **/
-
 	
 	// output an indication of the wifi status on the RGB LED
 	checkWifistatus(WiFiManager_NINA);

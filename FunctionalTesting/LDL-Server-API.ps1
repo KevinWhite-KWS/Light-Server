@@ -132,11 +132,11 @@ class LdlServerDiscover {
     hidden [Collections.Generic.List[LdlServerInfo]]ProcessUdpReplies($ldlServersPotentiallyFound) {
         $discoveredLdlServers = [Collections.Generic.List[LdlServerInfo]]::new()
 
-        for($keyCounter = 0; $keyCounter -lt $ldlServersPotentiallyFound.Count; $keyCounter++) {
-            $ip = $ldlServersPotentiallyFound.Keys[$keycounter]
-            $reply = $ldlServersPotentiallyFound.Values[$keyCounter]
+        $ldlServersPotentiallyFound.Keys | ForEach-Object {
+            $ip = $_
+            $reply = $ldlServersPotentiallyFound[$_]
             $replyObj = $reply | ConvertFrom-Json
-            
+
             if($null -ne $replyObj) {
                 # a valid response is one that is in the expected JSON format
                 # this reply includes the version of the LDL server
@@ -144,7 +144,7 @@ class LdlServerDiscover {
                 if($null -ne $serverInfo) {
                     $discoveredLdlServers.Add($serverInfo)
                 }
-            }                
+            }             
         }
 
         return $discoveredLdlServers
