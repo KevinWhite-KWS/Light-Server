@@ -105,7 +105,7 @@
 #warning Using WIFININA_Generic Library
 #define SHIELD_TYPE     "WiFiNINA using WiFiNINA_Generic Library"
 
-#include "WiFiNINA_Pinout_Generic.h"
+#include <WiFiNINA_Pinout_Generic.h>
 
 #elif USE_WIFI101
 

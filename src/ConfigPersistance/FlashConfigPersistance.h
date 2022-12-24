@@ -39,7 +39,8 @@ namespace LS {
 		// bool ReadConfig(LEDConfig* ledConfig);
 		LEDConfig ReadConfig() {
 			LEDConfig config;
-			config = led_config_storage.read();
+			// config = led_config_storage.read();
+			led_config_storage.read(config);
 
 			//byte* configBytes = dueFlashStorage.readAddress(0);
 			//memcpy(config, configBytes, sizeof(LEDConfig));
