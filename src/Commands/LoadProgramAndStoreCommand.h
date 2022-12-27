@@ -1,19 +1,23 @@
 /*!
- * @file LoadProgramCommand.h
+ * @file LoadProgramAndStoreCommand.h
  *
  * Handles an command that has been received
- * to load a Light Program.
+ * to load a Light Program and store it permanently
+ * to flash memory so that it is loaded on next
+ * restart of the device.
  *
  *
  * Written by Kevin White.
+ * 27 Dec 2022
  *
  * This file is part of the LS library.
  *
  */
 
-#ifndef _LOADPROGRAMCOMMAND_H
-#define _LOADPROGRAMCOMMAND_H
+#ifndef _LOADPROGRAMANDSTORECOMMAND_H
+#define _LOADPROGRAMANDSTORECOMMAND_H
 
+#include "LoadProgramCommand.h"
 #include "ICommand.h"
 #include "../DomainInterfaces.h"
 #include "../LPE/Validation/LpJsonValidator.h"
@@ -28,18 +32,11 @@ namespace LS {
 	@brief  LoadProgramCommand handles a command that has been received
 			to load a Light Program.
 	*/
-	class LoadProgramCommand : public ICommand
+	class LoadProgramAndStoreCommand : public LoadProgramCommand
 	{
 	private:
-		ILightWebServer* lightWebServer;
-		LpJsonValidator* lpValidator;
-		LpJsonStateBuilder* lpStateBuilder;
-		LpJsonState* lpState;
-		//LEDConfig* ledConfig;
-		//IConfigPersistance* configPersistance;
-	protected:
-		LPValidateResult validateResult;
-		FixedSizeCharBuffer* lpBuffer;
+		LEDConfig* ledConfig;
+		IConfigPersistance* configPersistance;
 	public:
 		/*!
 		  @brief   Executes the command that cause a Light Program to be loaded.
@@ -54,21 +51,17 @@ namespace LS {
 		  @param   configPersistance	The instance which permanently stores changes to the LED configuration, including the
 										program loaded that is to be stored permanently.
 		*/
-		LoadProgramCommand(
-			ILightWebServer* lightWebServer, 
-			LpJsonValidator* lpValidator, 
-			LpJsonStateBuilder* lpStateBuilder, 
-			LpJsonState* lpState
-			//LEDConfig* ledConfig,
-			//IConfigPersistance* configPersistance
-		) {
+		LoadProgramAndStoreCommand(
+			ILightWebServer* lightWebServer,
+			LpJsonValidator* lpValidator,
+			LpJsonStateBuilder* lpStateBuilder,
+			LpJsonState* lpState,
+			LEDConfig* ledConfig,
+			IConfigPersistance* configPersistance
+		) : LoadProgramCommand(lightWebServer, lpValidator, lpStateBuilder, lpState) {
 
-			this->lightWebServer = lightWebServer;
-			this->lpValidator = lpValidator;
-			this->lpStateBuilder = lpStateBuilder;
-			this->lpState = lpState;
-			//this->ledConfig = ledConfig;
-			//this->configPersistance = configPersistance;
+			this->ledConfig = ledConfig;
+			this->configPersistance = configPersistance;
 		}
 
 		/*!
@@ -77,7 +70,7 @@ namespace LS {
 		  @returns True if the command was executed successfully or
 				   false if it did not execute successfully.
 		*/
-		virtual bool ExecuteCommand();
+		bool ExecuteCommand();
 	};
 }
 #endif

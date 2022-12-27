@@ -71,6 +71,18 @@ namespace LS {
 			@param	tailComplete		True if the tail is complete
 			*/
 			static void HandleCommandLoadProgram(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
+
+			/*!
+			@brief  Handles a request to load a new LP and store it permanently so it can be loaded next time.  Sets the web server status to "LOADPROGRAMANDSTORE" and loads
+					the new program into the loading buffer.
+			@param	lightWebServer		A pointer to this LightWebServer instance.  Required as the handler has to be a static method.
+			@param	server				A pointer to the web server.
+			@param	type				The verb of the connection or INVALID for an invalid request.
+			@param	header				A pointer to the header.
+			@param	tailComplete		True if the tail is complete
+			*/
+			static void HandleCommandLoadProgramAndStore(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char* head, bool tailComplete);
+
 			/*!
 			@brief  Handles a request to turn-off the LEDS.  Sets the web server status to "POWEROFF".
 			@param	lightWebServer		A pointer to this LightWebServer instance.  Required as the handler has to be a static method.

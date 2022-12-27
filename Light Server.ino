@@ -3,6 +3,13 @@
  Created:	7/17/2019 8:46:06 PM
  Author:	kevin
 
+ Version History:
+ V1.0.1			27 Dec 2022 -			:
+ V1.0.0			<	27 Dec 2022			:		all basic and major functionality, including web services and UDP discovery service as
+												well as a pixel rendering engine
+
+
+
  Buffer Allocations (*** BUFFER ALLOCATION ***)
 	--- WEB BUFFERS ---
 	4000: *** BUFFER ALLOCATION *** - Web receiving buffer
@@ -57,7 +64,7 @@ UPDATE 17/08/2021: Simply define DEBUG_MODE to enable serial output or commect o
 
 
 // Define DEBUG_MODE for serial output, comment out for production mode
-// #define		DEBUG_MODE						true
+#define		DEBUG_MODE						true
 
 #define		MIN_LEDS						10
 #define		MAX_LEDS						350
@@ -68,10 +75,11 @@ UPDATE 17/08/2021: Simply define DEBUG_MODE to enable serial output or commect o
 #define		BUFFER_WEB_RESPONSE_SIZE		150			// 200
 
 #define		PIN								6			// port # of LED controller
-#define		NUMLEDS							50			// default number of connected LEDs if no configurtion values
+// #define		NUMLEDS							50			// default number of connected LEDs if no configurtion values
+#define		NUMLEDS							350			// default number of connected LEDs if no configurtion values
 #define		RENDERING_FRAME					25			// rendering frame duration in milliseconds
 
-#define		LS_VERSION						"1.0.0"		// Light-server version
+#define		LS_VERSION						"1.0.1"		// Light-server version
 #define		LDL_VERSION						"1.0.0"		// Light-definition language version
 
 /* Networkng constants */
@@ -79,13 +87,11 @@ UPDATE 17/08/2021: Simply define DEBUG_MODE to enable serial output or commect o
 
 #define		DISCOVERY_HANDSHAKE_MSG			"LDL-HOLA?"
 #define		DISCOVERY_PORT					8888
-// #define		DISCOVERY_FOUND_MSG				"{ \"server\" : \"1.0.0\" }"
-// #define		DISCOVERY_FOUND_MSG				"{ \"server\" : \"1.0.0\" }"
 // The following is the response that is sent to a UDP discovery request.  The "name"
 // value is the device name.  It is intented that this be a user-friendly set of 2-3 words proceeded by LDL-
 // e.g. LDL-BlueMelon, LDL-RedApple, LDL-GreenPear.  An enhancement here would be to allow
 // the user to overwrite the default friendly name although I'm sure many users would not bother.
-const char DISCOVERY_FOUND_MSG[] PROGMEM = "{ \"server\" : \"1.0.0\", \"name\" : \"LDL-Window\" }";
+const char DISCOVERY_FOUND_MSG[] PROGMEM = "{ \"server\" : \"1.0.1\", \"name\" : \"LDL-Window\" }";
 char discoveryResponse[BUFFER_JSON_RESPONSE_SIZE];
 // #define		WEBDUINO_SERIAL_DEBUGGING	2		// define this to see web server debugging output
 
@@ -127,6 +133,7 @@ char discoveryResponse[BUFFER_JSON_RESPONSE_SIZE];
 #include "src/Commands/NoAuthCommand.h"
 #include "src/Commands/InvalidCommand.h"
 #include "src/Commands/LoadProgramCommand.h"
+#include "src/Commands/LoadProgramAndStoreCommand.h"
 #include "src/Commands/PowerOffCommand.h"
 #include "src/Commands/PowerOnCommand.h"
 #include "src/Commands/CheckPowerCommand.h"
@@ -184,6 +191,7 @@ LS::LpJsonValidator validator = LS::LpJsonValidator(&instructionValidatorFactory
 LS::JsonInstructionBuilderFactory instructionBuilderFactory = LS::JsonInstructionBuilderFactory(&lpiExecutorFactory, &stringProcessor, &ledConfig);
 LS::LpJsonStateBuilder stateBuilder = LS::LpJsonStateBuilder(&instructionBuilderFactory);
 LS::LoadProgramCommand loadProgramCommand = LS::LoadProgramCommand(&lightWebServ, &validator, &stateBuilder, &primaryState);
+LS::LoadProgramAndStoreCommand loadProgramAndStoreCommand = LS::LoadProgramAndStoreCommand(&lightWebServ, &validator, &stateBuilder, &primaryState, &ledConfig, &configPersistance);
 LS::PowerOffCommand powerOffCommand = LS::PowerOffCommand(&lightWebServ, &pixels, &orchastrator);
 LS::PowerOnCommand powerOnCommand = LS::PowerOnCommand(&lightWebServ, &pixels, &orchastrator, &stringProcessor);
 // *** BUFFER ALLOCATION *** - Web response JSON document buffer
@@ -208,6 +216,11 @@ button{background-color:blue;color:white;line-height:2.4rem;font-size:1.2rem;wid
 #endif
 
 // char udpReply[200];
+
+// Complex XMAS program - this is the default program is no other program has been permanently stored to flash memory
+const char defaultLdlProgram[] PROGMEM = "{\"name\":\"Complexxmastree\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[{\"repeat\":{\"times\":2,\"instructions\":[\"07010000193C002FF000033CC00\"]}},{\"repeat\":{\"times\":4,\"instructions\":[\"040100000A0000000FF0000\",\"040100000A1FF0000000000\",\"040100000A000000033CC00\",\"040100000A133CC00000000\"]}},{\"repeat\":{\"times\":6,\"instructions\":[\"030100000100F0F33CC00FF0000\",\"030100000110F0F33CC00FF0000\"]}},{\"repeat\":{\"times\":30,\"instructions\":[\"0528000002FF000033CC00\"]}},{\"repeat\":{\"times\":8,\"instructions\":[\"07010000193C003FF000033CC003366FF\"]}},{\"repeat\":{\"times\":10,\"instructions\":[\"030100000100F0FFF000033CC00\",\"030100000110F0FFF000033CC00\"]}},{\"repeat\":{\"times\":10,\"instructions\":[\"030100000100F0FFFFFFF000000\",\"030100000110F0FFFFFFF000000\"]}}]}}]}";
+
+
 
 void setup() {
 	// ledConfig.numberOfLEDs = NUMLEDS;
@@ -241,11 +254,13 @@ void setup() {
 	commandFactory.SetCommand(LS::CommandType::NOAUTH, &noAuthCommand);
 	commandFactory.SetCommand(LS::CommandType::INVALID, &invalidCommand);
 	commandFactory.SetCommand(LS::CommandType::LOADPROGRAM, &loadProgramCommand);
+	commandFactory.SetCommand(LS::CommandType::LOADPROGRAMANDSTORE, &loadProgramAndStoreCommand);
 	commandFactory.SetCommand(LS::CommandType::POWEROFF, &powerOffCommand);
 	commandFactory.SetCommand(LS::CommandType::POWERON, &powerOnCommand);
 	commandFactory.SetCommand(LS::CommandType::CHECKPOWER, &checkPowerCommand);
 	commandFactory.SetCommand(LS::CommandType::GETABOUT, &getAboutCommand);
 	commandFactory.SetCommand(LS::CommandType::SETLEDS, &setLedsCommand);
+
 
 	// add the app logger class so the orchastrator can log events for debugging purposes
 	orchastrator.SetAppLogger(appLog);
@@ -293,24 +308,11 @@ void setup() {
 		pixels.updateLength(ledConfig.numberOfLEDs);
 	}
 
-
-	// Uncomment the following two lines to see a standard test program running.  This can be
-	// helpful to check that rendering is functioning as expected.
-//#ifdef DEBUG_MODE
-//	webLoadingBuffer.LoadFromBuffer("{\"name\":\"Knightrider\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[{\"repeat\":{\"times\":2,\"instructions\":[\"030200000101414FF0000000000\",\"030200000111414FF0000000000\"]}},\"030100000100A0AFF0000000000\",\"030100000110A0AFF0000000000\"]}}]}");
-//	stateBuilder.BuildState(&webLoadingBuffer, &primaryState);
-//#endif
-	// [KW - 14 Oct 21] Ideally, the LDL server will start the last uploaded program
-	// again.  In the meantime, we use the following hard-coded program so the lights
-	// render a program when reset / started.
-	// const char defaultProgram[] PROGMEM = "{\"name\":\"Flameboy\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[\"030100000501E1EFF0000FF6600\",\"030100000511E1EFF0000FF6600\"]}}]}";
-
-	// Simple XMAS Lights
-	// const char defaultProgram[] PROGMEM = "{\"name\":\"ChristmasLights\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[\"030100000501E1EFF0000009900\",\"030100000511E1EFF0000009900\"]}}]}";
-
-	// Complex XMAS program
-	const char defaultProgram[] PROGMEM = "{\"name\":\"Complexxmastree\",\"instructions\":[{\"repeat\":{\"times\":0,\"instructions\":[{\"repeat\":{\"times\":2,\"instructions\":[\"07010000193C002FF000033CC00\"]}},{\"repeat\":{\"times\":4,\"instructions\":[\"040100000A0000000FF0000\",\"040100000A1FF0000000000\",\"040100000A000000033CC00\",\"040100000A133CC00000000\"]}},{\"repeat\":{\"times\":6,\"instructions\":[\"030100000100F0F33CC00FF0000\",\"030100000110F0F33CC00FF0000\"]}},{\"repeat\":{\"times\":30,\"instructions\":[\"0528000002FF000033CC00\"]}},{\"repeat\":{\"times\":8,\"instructions\":[\"07010000193C003FF000033CC003366FF\"]}},{\"repeat\":{\"times\":10,\"instructions\":[\"030100000100F0FFF000033CC00\",\"030100000110F0FFF000033CC00\"]}},{\"repeat\":{\"times\":10,\"instructions\":[\"030100000100F0FFFFFFF000000\",\"030100000110F0FFFFFFF000000\"]}}]}}]}";
-
+	// Re-load the last loaded program or otherwise use a default program if nothing has yet been persisted to flash
+	const char* defaultProgram = defaultLdlProgram;
+	if (ledConfig.storedProgram != nullptr && strlen(ledConfig.storedProgram) > 0) {
+		defaultProgram = ledConfig.storedProgram;
+	}
 	webLoadingBuffer.LoadFromBuffer(defaultProgram);
 	stateBuilder.BuildState(&webLoadingBuffer, &primaryState);
 
@@ -325,8 +327,6 @@ void setup() {
 	(webDoc)["name"] = myConfig.board_name;
 	serializeJsonPretty(webDoc, discoveryResponse, BUFFER_JSON_RESPONSE_SIZE);
 	discoveryService.SetReplyMessage(discoveryResponse);
-
-	
 }
 
 void loop() {

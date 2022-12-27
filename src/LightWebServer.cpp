@@ -8,6 +8,7 @@ namespace LS{
 
 		// Initialises the event hooks
 		webServer->addCommand("program", &LightWebServer::HandleCommandLoadProgram);
+		webServer->addCommand("program/stored", &LightWebServer::HandleCommandLoadProgramAndStore);
 		webServer->addCommand("power/off", &LightWebServer::HandleCommandPowerOff);
 		webServer->addCommand("power/on", &LightWebServer::HandleCommandPowerOn);
 		webServer->addCommand("power", &LightWebServer::HandleCommandCheckPower);
@@ -77,6 +78,14 @@ namespace LS{
 		if (LightWebServer::CheckAuth(lightWebServer, server) == false) return;	// Check authentication
 
 		lightWebServer->SetCommandType(CommandType::LOADPROGRAM);
+
+		LightWebServer::LoadBody(lightWebServer, server);
+	}
+
+	void LightWebServer::HandleCommandLoadProgramAndStore(ILightWebServer* lightWebServer, IWebServer& server, IWebServer::ConnectionType type, char*, bool) {
+		if (LightWebServer::CheckAuth(lightWebServer, server) == false) return;	// Check authentication
+
+		lightWebServer->SetCommandType(CommandType::LOADPROGRAMANDSTORE);
 
 		LightWebServer::LoadBody(lightWebServer, server);
 	}

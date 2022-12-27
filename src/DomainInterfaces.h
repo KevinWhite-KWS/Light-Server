@@ -49,6 +49,7 @@ namespace LS {
 		NOAUTH,			// Not authorised (missing valid basic auth header)
 		INVALID,		// Not a recognised / valid request
 		LOADPROGRAM,	// Attmpt to load an LP
+		LOADPROGRAMANDSTORE,	// Attempt to load an LP and store it permanently so it can be loaded next time
 		POWEROFF,		// Turn off all LEDs
 		POWERON,		// Turn on all LEDs to white unless an explicit colour has been specified
 		CHECKPOWER,		// Returns the state of the LEDS (whether any are curently on or not)

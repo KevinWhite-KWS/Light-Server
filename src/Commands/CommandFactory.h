@@ -25,7 +25,7 @@ namespace LS {
 	*/
 	class CommandFactory {
 	private:
-		ICommand* commands[8];
+		ICommand* commands[9];
 
 	public:
 		virtual void SetCommand(CommandType commandType, ICommand* command);

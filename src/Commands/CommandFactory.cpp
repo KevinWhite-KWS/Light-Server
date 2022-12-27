@@ -25,20 +25,23 @@ namespace LS {
 			case CommandType::LOADPROGRAM:
 				commands[2] = command;
 				break;
-			case CommandType::POWEROFF:
+			case CommandType::LOADPROGRAMANDSTORE:
 				commands[3] = command;
 				break;
-			case CommandType::POWERON:
+			case CommandType::POWEROFF:
 				commands[4] = command;
 				break;
-			case CommandType::CHECKPOWER:
+			case CommandType::POWERON:
 				commands[5] = command;
 				break;
-			case CommandType::GETABOUT:
+			case CommandType::CHECKPOWER:
 				commands[6] = command;
 				break;
-			case CommandType::SETLEDS:
+			case CommandType::GETABOUT:
 				commands[7] = command;
+				break;
+			case CommandType::SETLEDS:
+				commands[8] = command;
 				break;
 		}
 	}
@@ -62,20 +65,23 @@ namespace LS {
 			case CommandType::LOADPROGRAM:
 				return commands[2];
 				break;
-			case CommandType::POWEROFF:
+			case CommandType::LOADPROGRAMANDSTORE:
 				return commands[3];
 				break;
-			case CommandType::POWERON:
+			case CommandType::POWEROFF:
 				return commands[4];
 				break;
-			case CommandType::CHECKPOWER:
+			case CommandType::POWERON:
 				return commands[5];
 				break;
-			case CommandType::GETABOUT:
+			case CommandType::CHECKPOWER:
 				return commands[6];
 				break;
-			case CommandType::SETLEDS:
+			case CommandType::GETABOUT:
 				return commands[7];
+				break;
+			case CommandType::SETLEDS:
+				return commands[8];
 				break;
 		}
 

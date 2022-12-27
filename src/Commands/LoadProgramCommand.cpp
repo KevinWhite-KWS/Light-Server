@@ -11,7 +11,8 @@ namespace LS {
 		// Get the buffer from the request that contains the body
 		// of the web request i.e. the Light Program that is to be loaded.
 		//// char* buf = lightWebServer->GetLoadingBuffer(false);
-		FixedSizeCharBuffer* lpBuffer = lightWebServer->GetLoadingFixedSizeBuffer();
+		// FixedSizeCharBuffer* lpBuffer = lightWebServer->GetLoadingFixedSizeBuffer();
+		lpBuffer = lightWebServer->GetLoadingFixedSizeBuffer();
 
 		// Validate the Light Program
 		lpValidator->ValidateLp(lpBuffer, &validateResult);
@@ -22,6 +23,21 @@ namespace LS {
 			lightWebServer->RespondError();
 			return false;
 		}
+
+		//// Persist the program in flash memory if required so the same program will be loaded next time
+		//if (1 == 1 
+		//	&& strlen(lpBuffer->GetBuffer()) < 2000) {
+		//	Serial.println("Persisting program to flash");
+		//	Serial.println(lpBuffer->GetBuffer());
+		//	Serial.println("Persisted program size");
+		//	Serial.println(strlen(lpBuffer->GetBuffer()));
+		//	Serial.println("Free memory");
+		//	Serial.println(freeMemory());
+
+		//	// ledConfig->storedProgram = lpBuffer->GetBuffer();
+		//	strcpy(ledConfig->storedProgram, lpBuffer->GetBuffer());
+		//	// configPersistance->SaveConfig(ledConfig);
+		//}
 
 		// The LP is valid so we need to build a tree representation of
 		// that Light Program which will be used to execute the program

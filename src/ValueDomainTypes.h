@@ -117,6 +117,10 @@ namespace LS {
 		uint8_t controlValue = 99;			// value ONLY used to verify that values retrived from storage are valid
 		uint16_t numberOfLEDs;
 
+
+		// the last program that was stored which will be re-loaded when the LEDs are next started
+		char storedProgram[2000];
+
 		//LEDConfig(uint8_t numberOfLEDs) {
 		//	this->numberOfLEDs = numberOfLEDs;
 		//}

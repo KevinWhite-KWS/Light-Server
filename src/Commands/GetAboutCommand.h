@@ -20,7 +20,7 @@
 #include "../ArduinoJson-v6.17.2.h"
 #include "../FixedSizeCharBuffer.h"
 
-#define		LS_VERSION			"1.0.0"
+#define		LS_VERSION			"1.0.1"
 #define		LDL_VERSION			"1.0.0"
 /* #define		NUMLEDS	19*/
 
