@@ -1,6 +1,30 @@
 # Arduino LED Light-Server
 
-### Goal
+### What is it?
+
+Control WS2812B LEDs with ease via a powerful RESTful server running on Arduino. Unleash creativity by executing complex programs with a simple file upload in Light Definition Language (LDL).
+
+
+
+
+##### Example: switch between red / blue every 1 second forever:
+
+![image](https://user-images.githubusercontent.com/54847787/217588972-66d0db92-c271-4d39-9d69-66580a353f98.png)
+
+
+
+
+
+##### Example: a more complex Christmas lights program
+
+![image](https://user-images.githubusercontent.com/54847787/217590452-b579e7b0-82f1-472f-9f83-78df2861a040.png)
+
+
+
+### Features
+
+* 
+
 
 
 
