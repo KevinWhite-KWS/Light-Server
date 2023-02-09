@@ -19,12 +19,36 @@ Control WS2812B LEDs with ease via a powerful RESTful server running on Arduino.
 
 ![image](https://user-images.githubusercontent.com/54847787/217590452-b579e7b0-82f1-472f-9f83-78df2861a040.png)
 
+See "Intruction anatomy" for more information regarding individual instructions.
 
 
-### Features
 
-* 
 
+#### Project goal
+
+Empower creativity and bring lighting designs to life with a user-friendly LED driver! Program stunning light displays using the intuitive Light Definition Language (LDL) - accessible to everyone, regardless of technical expertise.
+
+1. Unleash lighting potential with a standard and powerful Light Definition Language (LDL) for LED control.
+2. Empower users of all technical abilities with intuitive tools for crafting stunning LED programs in LDL.
+3. Experience seamless LED control with simple HTTP commands to interact with the server.
+4. Elevate the LED experience with consumer-friendly touches - including effortless setup via Wifi hotspot, automatic server discovery with UDP, and automatic updates for seamless operation.
+5. Bringing lifht design to all for free with this open-source project.
+
+
+
+
+
+### Where are we and what do we need?
+
+This project represents a significant opportunity and requires the participation of individuals with a strong interest and relevant technical skills (C/C++/Angular/JavaScript). Although the project is currently functional, there is much room for improvement and outstanding issues that need to be addressed. We invite those with the relevant expertise to join us in realizing the full potential of this project.
+
+Top 3 areas needing attention:
+
+1. Address the broken Wifi hotspot setup and improve its functionality.
+2. Expand the LED support by integrating more programmable models - beyond the current WS2812B support.
+3. Enhance the execution engine with additional instructions for even greater versatility.
+
+If you're eager to contribute to this project, let us know!
 
 
 
