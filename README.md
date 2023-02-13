@@ -90,7 +90,7 @@ Congratulations!  You have successfully setup a light server.
 
 
 
-### Overview
+## Overview
 
 RESTful server to drive WS2812B LEDS.  Light-server programs are writtern in Light Definition Language (LDL) using JSON.
 
@@ -110,7 +110,7 @@ Features:
 * RESTful interface supports 8 commands
 * an LDL program can be saved to device memory; it will reload even after the device has been restarted.
 
-# Related projects
+#### Related projects
 * LDL Light-Server Unit Testing (https://github.com/KevinWhite-KWS/Light-Server-Unit-Tests) : unit tests for this project
 * LDL Program Editor (https://github.com/KevinWhite-KWS/Light-Server-Front-End) : blockly editor allowing LDL programs to be visually created and upload to a light server
 * LDL Blockly: https://github.com/KevinWhite-KWS/Light-Server-Blockly : blockly customisations used in the LDL Program Editor project
@@ -142,3 +142,97 @@ Other opportunities:
    * Virtual pixel size: instead of 1 LED being a pixel, specify n LEDs being a pixel.  Could add an interesting new dynamic.
    * Virtual LED length: in 100 pixels, specify a length of 50 for example.  We could then specify that the rendering is mirrored on both virtual lengths or some or effect.
 6. User friendly tools for generating LDL programs.  The current LDL editor would be a 'power' users tool.  We need tools that can be used by everyone.  Example: how about using AI to generate programs?  A user says or specifies: "a pattern to make me feel warm" and the system generates a 'pleasing' program with reds/yellows etc.  Existing programs can be discoverable on a website and downloaded to devices from the web.
+
+
+#### What is Light Definition Language?
+Light Definition Language is a simple programming language which can be used to create light programs.  Light programs are created in JSON and can be sent to the a light server.
+
+Simple light program example:
+```json
+{
+  "name": "Red / blue",
+  "instructions": [
+    {
+      "repeat": {
+        "times": 0,
+        "instructions": [
+          "01280000FF0000",
+          "012800003333FF"
+        ]
+      }
+    }
+  ]
+}
+```
+
+The name property is simply the name of the program.  This is followed by a collecton of one or more instructions:
+
+```json
+  "instructions": [
+    {
+      "repeat": {
+        "times": 0,
+        "instructions": [
+          "01280000FF0000",
+          "012800003333FF"
+        ]
+      }
+    }
+  ]
+```
+
+In this particular case there is only one instruction: a loop instruction:
+
+```json
+    {
+      "repeat": {
+        "times": 0,
+        "instructions": [
+          "01280000FF0000",
+          "012800003333FF"
+        ]
+      }
+    }
+```
+
+The loop is instructed to repeat infinitely (```"times" : 0```).  It then has a collection or one or more instructions that will be looped over:
+
+```json
+        "instructions": [
+          "01280000FF0000",
+          "012800003333FF"
+        ]
+```
+
+Two simple instructions will be executed:
+
+1. ```"01280000FF0000"```: LEDs are activated to red for 1 second (40 frames).
+2. ```"012800003333FF"```: LEDs are activated to blue for 1 second (40 frames).
+
+These two instructions repeat infinitely.
+
+##### Rendering frames
+
+The LEDs render at 40 Hz.  That is, a rendering frame is 25ms.  In the example program above both instructions have a duration value of 40 rendering frames.  So that works out to be: 40 * 25 = 1000ms or 1 second.
+
+##### Instruction anatomy
+
+Individual instructions are encoded as follows:
+
+```iiddxxyy{data}```
+
+* ```ii```: Two byte hexadecimal number which specifies the op-code of the instruction that has a valid value between 0x00 (0) and 0xFF (255).
+* ```dd```: Two byte hexadecimal number which specifies the duration of the instruction when rendered and has a value between 0x01 (1) and 0xFF (255.  This value is specified in terms of rendering frames.  Example values:
+    *     01: the instruction will be rendered for a single frame.
+    *     02: the instruction will be rendered for two frames. 
+    *     05: the instruction will be rendered for five frames.
+    *     64: the instruction will be rendered for one hundred frames.
+* ```xx```: Two byte hexadecimal number which is reserved for future use.  It must have a value of 0x00 (0).
+* ```yy```: Two byte hexadecimal number which is reserved for future use.  It must have a value of 0x00 (0).
+* ```{data}```: A sequence of zero or more bytes that specify the values of the instruction.  For example: a 6-byte hexadecimal number representing the RGB colour to be rendered for the solid instruction code.
+
+##### Current instruction set
+
+| Instruction (**ii**) | Description | Example
+| --- | --- | ---
+| 00 | Clears the LEDs by turning them all off | ```00010000```
