@@ -143,6 +143,9 @@ Other opportunities:
    * Virtual LED length: in 100 pixels, specify a length of 50 for example.  We could then specify that the rendering is mirrored on both virtual lengths or some or effect.
 6. User friendly tools for generating LDL programs.  The current LDL editor would be a 'power' users tool.  We need tools that can be used by everyone.  Example: how about using AI to generate programs?  A user says or specifies: "a pattern to make me feel warm" and the system generates a 'pleasing' program with reds/yellows etc.  Existing programs can be discoverable on a website and downloaded to devices from the web.
 
+---
+
+
 
 #### What is Light Definition Language?
 Light Definition Language is a simple programming language which can be used to create light programs.  Light programs are created in JSON and can be sent to the a light server.
@@ -236,3 +239,37 @@ Individual instructions are encoded as follows:
 | Instruction (**ii**) | Description | Example
 | --- | --- | ---
 | 00 | Clears the LEDs by turning them all off | ```00010000```
+| 01 | Sets all LEDs to the same colour | ```0101000000FF00``` Sets all LEDs to full intensity blue for a single rendering frame.
+| 02 | Sets the first n LEDs to a pattern which is then repeated along the entire length of LEDs | ```020500000301020100FF00FF000000FF00``` Specifies a pattern consisting of 3 elements and spanning 4 LEDs in total.  The first LED is set to green.  The second and third LEDs are set to red.  The remaining fourth LED is set to green.  This pattern is then repeated along the entire length of LEDs.
+| 03 | Moves a slider (a length of pixels of a specified colour) gradually along the length of pixels | ```030500000200000FF000000FF00``` Specifies that a red slider should be displayed on a green background and that the slider should occupy two pixels of the available pixels.  The slider is rendered beginning from the near side.  Each rendered frame will last for 5 rendering frames.  There should be no head nor tail rendered.
+| 04 | Fades in or fades out the LEDs from the start colour to the end colour | ```04010000320000000FFFFFF``` Specifies that the LEDs will fade-in from black to red in a 50 step increment.
+| 05 | Randomly sets the LEDs to two or more colours. | ```0505000002FF0000000000``` Specifies that the LEDs should be set to red and black in a stochastic manner.  The effect is rendered for 5 rendering frames.
+| 06 | Sets the LEDs to two or more blocks of colours where each block occupies a particular percentage of the available LEDs | ```0601000003212221FF000000FF000000FF``` Specifies that the LEDs should be divided into three groups: 33% red, 34% green, 33% blue.  The effect last for a single rendering frame in duration.
+| 07 | Renders a moving ‘rainbow’ colour effect over a number of steps across a specified length | ```070100000A3C003FF000000FF000000FF``` Specifies that a rainbow effect involving red, green, and blue will be rendered over a ‘virtual’ length of 10 pipels for 60 steps.  The effect will start at the end closest to the controller.
+
+More information about the instruction set can be found in the document: .
+
+##### Colours
+Colours are specified as 6 hexidecimal values: two for each component of RGB.  For example: ```00FF00``` specifies blue.
+
+
+---
+
+
+### What is the servers API?
+
+The RESTful server implements the following interface:
+
+| Endpoint | Description
+| --- | ---
+| GET /power | Gets whether any LEDs are turned on.<br/><br/>Returns: 200 (OK)<br/>```{ “state” : “on” }``` at least one LED is on</br>```{ “state” : “off” }``` all LEDs are presently off
+| POST /power/on | Turns on all LEDs to white if no valid colour is specified in the body.  IF a valid colour is specified then the LEDs are set to that colour.  The colour is specified as a simple RRGGBB value in the body.  For example: sending FF0000 in the body will set all LEDs to red.<br/><br/>Returns: 204 (No Content)
+| POST /power/off | Turns off all LEDs.<br/><br/>Returns: 204 (No Content)
+| POST /program | Validates a light program and, if valid, executes it on the light server.<br/><br/>Returns: 204 (No Content) - LDL program is valid and will be executed by the Light Server</br>Returns: 400 (Bad Request) - LDL program is invalid (body contains information concerning how it is invalid)
+| POST /program/stored | Validates a light program and, if valid, executes it on the light server.  This program will be stored on the Light Server and executed again even after the it has been reset.  WARNING: this writes the program to the flash memory and there is a limit of about 10K writes.<br/><br/>Returns: 204 (No Content) - LDL program is valid and will be executed by the Light Server</br>Returns: 400 (Bad Request) - LDL program is invalid (body contains information concerning how it is invalid)
+| POST /config/leds | Sets the number of connected LEDs. The body of the message should be an integer between 10 - 350.<br/><br/>Returns: 204 (No Content) - Successfully updated the number of connnected LEDs.<br/>Returns: 400 (Bad Request) - posted configuration is invalid<br/>
+| GET /about | Gets information about the server, including: no of connected LEDS, LS version, and LDL version.<br/><br/>```Returns: 200 (OK) e.g. { "LEDs": 20, "LS Version": "1.0.0", "LDL Version" : "1.0.0" }```
+
+
+
+All requests are authenticated.  In invalid authentication header results in a 401 (Unauthorised) response.
