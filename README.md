@@ -142,6 +142,8 @@ Other opportunities:
    * Virtual pixel size: instead of 1 LED being a pixel, specify n LEDs being a pixel.  Could add an interesting new dynamic.
    * Virtual LED length: in 100 pixels, specify a length of 50 for example.  We could then specify that the rendering is mirrored on both virtual lengths or some or effect.
 6. User friendly tools for generating LDL programs.  The current LDL editor would be a 'power' users tool.  We need tools that can be used by everyone.  Example: how about using AI to generate programs?  A user says or specifies: "a pattern to make me feel warm" and the system generates a 'pleasing' program with reds/yellows etc.  Existing programs can be discoverable on a website and downloaded to devices from the web.
+7. Execute an interrupt program: allow an interrupt program to briefly interrupt the main executing program and render.  This could be useful for rendering things like email notifications but then allowing the main program to continue after.  The additional capabilities of a device like the Raspberry Pi Pico W may be better suited to this enhancemnet.
+
 
 ---
 
@@ -247,7 +249,7 @@ Individual instructions are encoded as follows:
 | 06 | Sets the LEDs to two or more blocks of colours where each block occupies a particular percentage of the available LEDs | ```0601000003212221FF000000FF000000FF``` Specifies that the LEDs should be divided into three groups: 33% red, 34% green, 33% blue.  The effect last for a single rendering frame in duration.
 | 07 | Renders a moving ‘rainbow’ colour effect over a number of steps across a specified length | ```070100000A3C003FF000000FF000000FF``` Specifies that a rainbow effect involving red, green, and blue will be rendered over a ‘virtual’ length of 10 pipels for 60 steps.  The effect will start at the end closest to the controller.
 
-More information about the instruction set can be found in the document: .
+See the section "Further documentation" for more comprehensive information about the instruction set.
 
 ##### Colours
 Colours are specified as 6 hexidecimal values: two for each component of RGB.  For example: ```00FF00``` specifies blue.
@@ -256,7 +258,7 @@ Colours are specified as 6 hexidecimal values: two for each component of RGB.  F
 ---
 
 
-### What is the servers API?
+### What is the RESTful API?
 
 The RESTful server implements the following interface:
 
@@ -272,4 +274,14 @@ The RESTful server implements the following interface:
 
 
 
-All requests are authenticated.  In invalid authentication header results in a 401 (Unauthorised) response.
+All requests are authenticated.  An invalid authentication header results in a 401 (Unauthorised) response.  The authentication header should be set to Basic with a username of "Super" and password "1xYa1man2*".  This value is encoded as "U3VwZXI6MXhZYTFtYW4yKg==".
+
+NOTE: a future enhancement is to replace the hard-coded password with something tied to the device itself.
+
+---
+
+### Further documentation
+
+The following incomplete PDF document provides more indepth information regarding the language specification and server design:
+
+[KWS - Specification_ Light Server (LS) & Light Definition Language (LDL).pdf](https://github.com/KevinWhite-KWS/Light-Server/files/10745730/KWS.-.Specification_.Light.Server.LS.Light.Definition.Language.LDL.pdf)
