@@ -66,10 +66,30 @@ WiFiNINA_Configuration defaultConfig =
     "WIFININA",
     // WiFi_Credentials  WiFi_Creds  [NUM_WIFI_CREDENTIALS];
     // WiFi_Credentials.wifi_ssid and WiFi_Credentials.wifi_pw
-    "LittleDaddy",  "rodent467*",
+
+
+
+
+
+
+    // *** Enter the WIFI network name in the following string ***
+    "MyWifiNetwork",  
+
+    // *** Enter the WIFI credentials in the following string ***
+    "MyWifiPassword",
+
+
+    // Leave empty
     "",  "",
     //char board_name     [24];
-    "SAMD-Control",
+
+
+
+    // *** Enter the name of the server here
+    "MyServerName",
+
+
+
     // terminate the list
     //int  checkSum, dummy, not used
     0
